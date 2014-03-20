@@ -55,7 +55,7 @@ class Wtf_Fu {
      *
      * @var      string
      */
-    protected $plugin_slug = 'wtf-fu';
+    protected $plugin_slug = 'work-the-flow-file-upload';
 
     /**
      * Instance of this class.

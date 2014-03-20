@@ -128,7 +128,7 @@ class Wtf_Fu_Workflow_Shortcode {
             $page_template = wtf_fu_get_value($wf_options, 'page_html_template');
             
             if ($page_template === false) {
-                $page_template = get_option(wtf_fu_DEFAULT_WORKFLOW_TEMPLATE);
+                $page_template = wtf_fu_DEFAULT_WORKFLOW_TEMPLATE;
             }
             
             $replace = array(

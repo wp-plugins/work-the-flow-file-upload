@@ -1,10 +1,10 @@
-=== Wtf-Fu: Plugin ===
+=== Work The Flow File Upload ===
 Contributors: lynton_reed
 Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, ajax, jquery, html5, image, gallery 
 Requires at least: 3.5.1
 Tested up to: 3.8.1
-Stable tag: 0.1.6
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,30 +50,30 @@ Care should be taken to restrict access to pages containing the [wtf_fu_upload] 
 
 == Installation ==
 
-Use the normal wordpress installer or extract the archive into the plugins directory into a folder named wtf-fu.
+Use the normal wordpress installer or extract the archive into the plugins directory into a folder named work-the-flow-file-upload.
 
 
 = Using The WordPress Dashboard =
 
 1. Navigate to the 'Add New' in the plugins dashboard
-2. Search for 'wtf-fu'
+2. Search for 'work-the-flow-file-upload'
 3. Click 'Install Now'
-4. Activate the wtf-fu plugin on the Plugin dashboard
+4. Activate the work-the-flow-file-upload plugin on the Plugin dashboard
 
 = Uploading in WordPress Dashboard =
 
 1. Navigate to the 'Add New' in the plugins dashboard
 2. Navigate to the 'Upload' area
-3. Select `wtf-fu.zip` from your computer
+3. Select `work-the-flow-file-upload.zip` from your computer
 4. Click 'Install Now'
-5. Activate the wtf-fu plugin in the Plugin dashboard
+5. Activate the work-the-flow-file-upload plugin in the Plugin dashboard
 
 = Using FTP =
 
-1. Download `wtf-fu.zip`
-2. Extract the `wtf-fu` directory to your computer
-3. Upload the `wtf-fu` directory to the `/wp-content/plugins/` directory
-4. Activate the wtf-fu plugin in the Plugin dashboard
+1. Download `work-the-flow-file-upload.zip`
+2. Extract the `work-the-flow-file-upload` directory to your computer
+3. Upload the `work-the-flow-file-upload` directory to the `/wp-content/plugins/` directory
+4. Activate the work-the-flow-file-upload plugin in the Plugin dashboard
 
 
 == Frequently Asked Questions ==
@@ -157,7 +157,7 @@ e.g.
 = Do I need to create a workflow just to enable file upload features ? =
 
 No, the workflow and file upload capabilities are completely separate entities. 
-You can add file uploads to a page by embedding the [wtf-fu_wtf_fu_upload] 
+You can add file uploads to a page by embedding the [wtf_fu_wtf_fu_upload] 
 shortcode directly to a page. 
 There is no need to use a workflow at all if this is all you need.
 
@@ -190,26 +190,28 @@ Uploads are configurable via short code attributes
 Use the 'max_number_of_files' attribute to limit the number of files users may upload.
 [wtf_fu_upload max_number_of_files="10"]
 
-See the wtf-fu 'File Upload' settings page for the full list of configurable 
-upload options. On this page you may also set default values that will be used 
-by default if they are not specified in the embedded short code attributes.
+See the work-the-flow-file-upload 'File Upload' settings page for the full list 
+of configurable upload options. On this page you may also set default values 
+that will be used by default if they are not specified in the embedded 
+short code attributes.
 
 Here is an example specifying the full list of attributes set with their factory set 
-default values ( as set for version 0.1.0 )
+default values. 
 
 [wtf_fu_upload 
+deny_public_uploads="1"     // Do NOT allow public uploads i.e. user must be logged in.
 wtf_upload_dir="wtf-fu_files" 
 wtf_upload_subdir="default" 
 accept_file_types="jpg|jpeg|mpg|mp3|png|gif|wav|ogg" 
 inline_file_types="jpg|jpeg|mpg|mp3|png|gif|wav|ogg" 
 image_file_types="gif|jpg|jpeg|png" 
-max_file_size="30"        // max size for individual files in Mb
-max_number_of_files="30" 
-auto_orient="1"           // auto orient images that include orientation info.
-create_medium_images="0"  // set to 1 to create additional medium sized images.
+max_file_size="5" 
+max_number_of_files="30"    // max size for individual files in Mb
+auto_orient="1"             // auto orient images that include orientation info.
+create_medium_images="0"    // set to 1 to create additional medium sized images.
 medium_width="800" 
 medium_height="600" 
-thumbnail_crop="1"        // crop to exact thumbnail dimensions.
+thumbnail_crop="1"          // crop to exact thumbnail dimensions.
 thumbnail_width="80" 
 thumbnail_height="80"]
 
@@ -259,7 +261,7 @@ file in your mu-plugins directory) and then put the function name
 An example hook function that archives a users files and sends emails to the site 
 admin and to the user when the hook is fired is included in the examples directory.
 see :
-.../wp-content/plugins/wtf-fu/examples/wtf-fu_hooks_example.php
+.../wp-content/plugins/work-the-flow-file-upload/examples/wtf-fu_hooks_example.php
 
 Copy and use this as a starting point for your own pre- and post-hook 
 functions.
@@ -307,6 +309,11 @@ lynton@wtf-fu.com detailing your requirements.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 1.1.0 =
+* Initial work-the-flow-file-upload release to WordPress.org repository.
+* Modified directory names to suit generated repository directory.
+* Minor updates to README to reflect new directory location.
+* Minor updates to the workflow demo.
 
 = 0.1.6 =
 * Removed automatic updater, this is now handled by the wordpress.org updater.
@@ -336,6 +343,9 @@ lynton@wtf-fu.com detailing your requirements.
 * Initial wtf-fu release.
  
 == Upgrade Notice ==
+= 1.1.0 =
+* Upgrade to initial WordPress.org release.
+
 = 0.1.6 =
 * Upgrade to include an 'allow_public_uploads' option on the File Upload settings page.
 

@@ -44,7 +44,7 @@ class Wtf_Fu {
      * references.
      * @var     string
      */
-    const VERSION = '0.1.6';
+    const VERSION = '1.1.0';
 
     /**
      * Unique plugin identifier.
@@ -74,13 +74,6 @@ class Wtf_Fu {
 
         // Load plugin text domain.
         add_action('init', array($this, 'load_plugin_textdomain'));
-
-        // The workflow net/prev submit form hander is tied to init hook.
-        // This is called when a user submits workflow form. It is hooked
-        // here to the main plugin class method 'workflow_controller' 
-        // which then delegates to a static method of the same name in 
-        // class-wtf-fu-workflow-shortcode.
-        //add_action('init', array( $this, 'workflow_controller'));
 
         // Activate plugin when new blog is added
         add_action('wpmu_new_blog', array($this, 'activate_new_site'));

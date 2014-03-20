@@ -4,7 +4,7 @@
  * Plugin Name:       Work the Flow - File Upload
  * Plugin URI:        http://wtf-fu.com
  * Description:       Manage workflow and front-end html5 file uploads. Front end user file uploads may be embedded in workflows or used independantly via shortcodes. Back end provides management of user upload files including archiving. Utilizes javascript libraries by blueimp/jQuery-File-Upload.
- * Version:           0.1.6
+ * Version:           1.1.0
  * Author:            Lynton Reed
  * Author URI:        http://wtf-fu.com
  * Text Domain:       wtf-fu

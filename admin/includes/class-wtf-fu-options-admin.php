@@ -446,13 +446,14 @@ class Wtf_Fu_Options_Admin {
         $stages[0]['content_area'] = 
 "<p>The Wtf-Fu plugin provides step wise workflow, so it makes sense for us to use it here to showcase the plugins features, and to provide stepwise instruction on how to use it.</p>
 <p>The plugin works by including shortcodes inside your wordpress pages or posts.</p>
-<p>The workflow shortcode 'wtf-fu' is all you need to get started and this entire workflow is generated from a single wordpress page with [<code>wtf_fu</code>] inside it.</p>
+<p>The workflow shortcode '[<code>wtf_fu id='number'</code>]' is all you need to get started and this entire workflow is generated from a single wordpress page with [<code>wtf_fu id='1'</code>] inside it.</p>
 <p>The workflow stages may embed other shortcodes like [<code>wtf_fu_upload</code>] to generate a file upload page.</p>
 <p>These may also be embedded directly in your other pages or posts as well as inside a workflow stage content.</p>
 <p>The first step in the demo is to upload some files. To achieve this we will make use of the upload shortcode [<code>wtf_fu_upload</code>] to embed an Html5 upload form.</p>
 <p>Go to the next page now to see it in action.</p>";
          
         $stages[0]['back_active'] = false;
+        $stages[0]['next_js'] = '';
         $stages[0]['next_label'] = 'Start the Tour';
         $stages[0]['footer'] = "Click 'start the tour' above to see the file upload form in action.";
         
@@ -476,6 +477,7 @@ class Wtf_Fu_Options_Admin {
 <p><code>[<strong>wtf_fu_upload</strong> wtf_upload_dir=\"demofiles\" accept_file_types=\"jpg|jpeg|png|gif\" max_file_size=\"5\" max_number_of_files=\"30\" auto_orient=\"1\" thumbnail_crop=\"1\"]</code></p>
 <p>[wtf_fu_upload wtf_upload_dir=\"demofiles\" accept_file_types=\"jpg|jpeg|png|gif\" max_file_size=\"5\" max_number_of_files=\"30\" auto_orient=\"1\" thumbnail_crop=\"1\"]</p>";
         
+        $stages[1]['next_js'] = '';
         $stages[1]['next_label'] = 'Next';
         $stages[1]['footer'] = "Click 'Next' once you are finished uploading your files. You will be able to return to here to upload more files at a later stage if you wish.";
         
@@ -488,7 +490,7 @@ class Wtf_Fu_Options_Admin {
             
         $stages[2]['content_area'] = '<p>The short code <code>[<strong>wtf_fu_showfiles</strong>]</code> can be used to show the files that the user has uploaded.</p>
 <p>The following attributes are available :</p>
-<table style="width: 699px; height: 165px;" border="0" cellspacing="10" cellpadding="5" align="left"><caption><code>[<strong>wtf_fu_showfiles</strong>]</code> attributes</caption>
+<table border="0" cellspacing="10" cellpadding="5" align="left"><caption><code>[<strong>wtf_fu_showfiles</strong>]</code> attributes</caption>
 <thead>
 <tr style="background-color: #7f7fdb;">
 <td>attribute name</td>
@@ -532,16 +534,7 @@ class Wtf_Fu_Options_Admin {
 </tr>
 </tbody>
 </table>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
+
 <p>&nbsp;</p>
 <p>If <code>reorder</code> is set to "true" then the user will be able to drag and drop thumbnails into their desired order. Once they submit their reordering the users file timestamps will then be modified at one second intervals to reflect the users desired order when sorted in last_modified time ascending order.</p>
 <p>This means that if a user then navigates back to the upload page that the files will appear in the newly sorted order.</p>
@@ -554,8 +547,6 @@ class Wtf_Fu_Options_Admin {
         $stages[2]['next_label'] = 'Next';
         $stages[2]['footer'] = "Click 'Next' to view the basic default wtf_fu_showfiles shortcode without minimal attributes set.";
                
-        
-        
          /* 
          * Stage 3 
          */

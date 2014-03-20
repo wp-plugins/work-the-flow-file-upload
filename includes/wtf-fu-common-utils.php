@@ -280,10 +280,6 @@ function wtf_fu_powered_by_link() {
     return '<small>[<a href="http://wtf-fu.com/download/">powered by wtf-fu</a>, a wordpress workflow and html5 file upload plugin.]</small>';
 }
 
-function isPro() {
-    return Wtf_Fu::VERSION >= 1.0;
-}
-
 function wtf_fu_text_only($id, $name, $value, $size = 80, $label = null) {
     $html = '';
     if ($label) {

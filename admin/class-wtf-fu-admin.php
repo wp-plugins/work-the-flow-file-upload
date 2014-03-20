@@ -130,9 +130,8 @@ class Wtf_Fu_Admin {
         /*
          * Add a settings page to the Settings menu.
          */       
-        $wtf_title = isPro() ? 'Wtf-fu PRO' : 'Wtf-fu';
+        $wtf_title = 'Wtf-fu';
         $wtf_fulltitle = 'Work The Flow - File Upload';
-        $wtf_fulltitle .= isPro() ? ' [PRO]' : '';
         $this->plugin_screen_hook_suffix = self::wtf_fu_do_add_options_page(
             __($wtf_fulltitle, $this->plugin_slug), 
             __($wtf_title, $this->plugin_slug), //slug used as the text domain.

@@ -4,7 +4,7 @@ Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, ajax, jquery, html5, image, gallery 
 Requires at least: 3.5.1
 Tested up to: 3.8.1
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -309,6 +309,8 @@ lynton@wtf-fu.com detailing your requirements.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 1.1.2 =
+* Added default style overrides for workflows.
 
 = 1.1.1 =
 * Minor update related to release tagging.
@@ -347,6 +349,9 @@ lynton@wtf-fu.com detailing your requirements.
 * Initial wtf-fu release.
  
 == Upgrade Notice ==
+= 1.1.2 =
+* Upgrade to add new default css styling of workflow pages.
+
 = 1.1.1 =
 * Upgrade to fix release tagging issue with 1.1.0.
 

@@ -462,15 +462,14 @@ class Wtf_Fu_Options_Admin {
          * stage 1 
          */
         $stages[1]['stage_title'] = 'The [<code>wtf_fu_upload</code>] shortcode';
-        $stages[1]['header'] = "<p>Here you can upload some files so you can see the [<code>wtf_fu_upload</code>] shortcode at work.</p>
-<p>Add files by dragging and dropping files from the desktop to this page.</p>
-<p>Please don't upload images that may be considered offensive by others.</p>";
+        $stages[1]['header'] = "<p>Here you can upload some files so you can see the [<code>wtf_fu_upload</code>] shortcode at work.</p>";
         
-        $stages[1]['content_area'] = "
+        $stages[1]['content_area'] = "<p>Add files by dragging and dropping files to this page, or using the 'add files' button.</p>
+<p>Please don't upload images that may be considered offensive by others.</p>
 <p><span style=\"text-decoration: underline;\"><strong>As this is a public demo some restriction have been put in place.</strong></span></p>
 <ol>
-<li>Uploaded files are automatically deleted by the server every hour.</li>
-<li>You may only upload image file types (jpg, gif or png) .</li>
+<li>Uploaded files will periodically be deleted from the server.</li>
+<li>You may only upload image files of the type (jpg, gif or png).</li>
 <li>For this demo, the maximum size for uploaded files is restricted to 5Mb.</li>
 </ol>
 <p>The full shortcode with attributes used to achieve this are :</p>
@@ -551,7 +550,7 @@ class Wtf_Fu_Options_Admin {
          * Stage 3 
          */
         $stages[3]['stage_title'] = 'Basic Display of Image thumbnails.';
-        $stages[3]['header'] = "<p>The <code>[<strong>wtf_fu_showfiles</strong>]</code> without any qualifying attributes will just display the images thumnails without the ability to reorder the files and without the Gallery.</p>";
+        $stages[3]['header'] = "<p>The <code>[<strong>wtf_fu_showfiles</strong>]</code> shortcode without any qualifying attributes will just display the images thumnails without the ability to reorder the files and without the Gallery.</p>";
             
         $stages[3]['content_area'] = ' <p>Below are the file thumnails without the gallery and without reodering enabled. The only attribute required is the <code>wtf_upload_dir</code> to specify the location of the files.'
                 . "this should match the value used in the original [<code>wtf_fu_upload</code>] shortcode where the files were uploaded.</p>"
@@ -583,20 +582,20 @@ class Wtf_Fu_Options_Admin {
          * Stage 5
          */
         $stages[5]['stage_title'] = 'Reordering of files.';
-        $stages[5]['header'] = "<p>The <code>[<strong>wtf_fu_showfiles</strong>]</code> shortcode can also have the <code>reorder</code> attribute enabled. "
-                . "This will then allow users to drag and drop the thumbnail images into their preferred order.</p>"
-                .'<p>Because uploading multiple files is asynchronous they may have landed in an unpredictable order.</p>
-<p>If the attribute <code>reorder=true</code> is set then users will be able to reorder their files.</p>
-<p>Once the reordering is submitted, the user file timestamps will then be modified at one second intervals to reflect the users desired order when sorted in last_modified time ascending order.</p>
-<p>A text file with list of files in the desired order will also be written to the users upload directory, 
-so that there is a record of the user desired order even if the timestamps are lost during archiving or by other means.</p>';
+        $stages[5]['header'] = "<p>The <code>[<strong>wtf_fu_showfiles</strong>]</code> shortcode can also have the <code>reorder</code> attribute enabled. ";
 
         $stages[5]['content_area'] = 
-            '<p>Below are the file thumbnails with the gallery enabled and with re-odering enabled.</p>'
-            . '<p>Once you finished you can submit the reordering and then go back and view the previous step to verify that the file order has indeed changed.'
-            . '<p>The full short code to achieve the action below is :</p>'
-            . '<p><code>[<strong>wtf_fu_show_files</strong> wtf_upload_dir="demofiles" file_type="image" gallery="true" reorder="true"]</code></p>'
-            . '<p>[wtf_fu_show_files wtf_upload_dir="demofiles" file_type="image" gallery="true" reorder="true"]</p>';     
+           "This will then allow users to drag and drop the thumbnail images into their preferred order.</p>"
+            .'<p>Because uploading multiple files is asynchronous they may have landed in an unpredictable order.</p>
+            <p>If the attribute <code>reorder=true</code> is set then users will be able to reorder their files.</p>
+            <p>Once the reordering is submitted, the user file timestamps will then be modified at one second intervals to reflect the users desired order when sorted in last_modified time ascending order.</p>
+            <p>A text file with list of files in the desired order will also be written to the users upload directory, 
+            so that there is a record of the user desired order even if the timestamps are lost during archiving or by other means.</p>'
+                        . '<p>Below are the file thumbnails with the gallery enabled and with re-odering enabled.</p>'
+                        . '<p>Once you finished you can submit the reordering and then go back and view the previous step to verify that the file order has indeed changed.</p>'
+                        . '<p>The full short code to achieve the action below is :</p>'
+                        . '<p><code>[<strong>wtf_fu_show_files</strong> wtf_upload_dir="demofiles" file_type="image" gallery="true" reorder="true"]</code></p>'
+                        . '<p>[wtf_fu_show_files wtf_upload_dir="demofiles" file_type="image" gallery="true" reorder="true"]</p>';     
 
         $stages[5]['next_js'] = '';
         $stages[5]['next_label'] = 'Next';
@@ -608,13 +607,13 @@ so that there is a record of the user desired order even if the timestamps are l
         
         $stages[6]['stage_title'] = 'Pre and Post Processing Hooks';
         $stages[6]['header'] = "<p>You may add your own user defined functions to any workflow stage <code>pre_hook</code> or <code>post_hook</code></p>"
-                . "This can be used for example to generate emails or to archive user files or some other activity.</p>"
-                . "You simply create a function in your themes function.php file or inside a file in the mu_plugins directory and then specify the function name (without parenthesis) in either the pre_hook or post_hook field."
-                . "As you would expect pre-hook functions are run BEFORE nromal stage processing occurs and post-hook functions are run after."
-                . "Note that these hook functions will block while running, so be careful when archiving a large number of files or other activities that may keep the user waiting for extended periods.";
-
+                . "This can be used for example to generate emails or to archive user files or some other activity.</p>";
+                
         $stages[6]['content_area'] = 
-            '<p>An example hook function file that emails the user and admimistrator is included in the examples directory.<p>'
+            "You simply create a function in your themes function.php file or inside a file in the mu_plugins directory and then specify the function name (without parenthesis) in either the pre_hook or post_hook field."
+            . "pre-hook functions are run BEFORE normal stage processing occurs, and post-hook functions are run after."
+            . "Note that these hook functions will block while running, so be careful when archiving a large number of files or other activities that may keep the user waiting for extended periods."          
+            . '<p>An example hook function file that emails the user and admimistrator is included in the examples directory.<p>'
             .'<p>This contains a function called <code>wtf_fu_sendActivationMail</code> will be called as a post-hook when you proceed from here to the next page.</p>'
             .'<p>You will have to paste this function into your themes functions.php file (or an mu-plugins file) as descrived above for this to work.<p>'
             .'<p>If this demo is running inside your own installation and you haven\'t already done this then do this now before proceeding to the next stage.</p>'
@@ -631,13 +630,13 @@ so that there is a record of the user desired order even if the timestamps are l
          */
         
         $stages[7]['stage_title'] = 'Check your email';
-        $stages[7]['header'] = "<p>If all went well then you should shortly recieve and email sent by the post-hook function <code>wtf_fu_sendActivationMail</code></p>"
-                . "<p>If not please go back and review the steps to make sure that the function is available in either the mu-plugins directory or as part of your themes functions.php file.</p>";
+        $stages[7]['header'] = "<p>If all went well then you should shortly recieve and email sent by the post-hook function <code>wtf_fu_sendActivationMail</code></p>";
                 
                 
         $stages[7]['next_js'] = '';
         $stages[7]['content_area'] = 
-            "<p>If you are also the administrator of your site, you should also recieve email with a link to the auto archive of the uploaded images.</p>"
+            "<p>If not please go back and review the steps to make sure that the function is available in either the mu-plugins directory or as part of your themes functions.php file.</p>"                
+            . "<p>If you are also the administrator of your site, you should also recieve email with a link to the auto archive of the uploaded images.</p>"
             . '<p>The administrator should also recieve a cc email of the mail sent to the user.</p>';
 
         $stages[7]['footer'] = "Click 'Next' to go to the Summary page.";
@@ -646,15 +645,15 @@ so that there is a record of the user desired order even if the timestamps are l
          * Stage 8
          */
         $stages[8]['stage_title'] = 'Summary';
-        $stages[8]['header'] = "<p>We have covered most of the functionality you need to get started with the Wtf-Fu plugin. </p>"
-                . "<p>Normally at this point in a workflow, after you have processed a users uploads etc, you may decide not to allow the user to go back to previous stages any more.</p>"
+        $stages[8]['header'] = "<p>We have covered most of the functionality you need to get started with the Wtf-Fu plugin.</p>";
+
+        $stages[8]['content_area'] = 
+                "<p>Normally at this point in a workflow, after you have processed a users uploads etc, you may decide not to allow the user to go back to previous stages any more.</p>"
                 . "<p>You may also choose to not allow a user to go forward either untill you have completed some manual admin task (i.e. done something with the users submitted files).</p>"
                 . "<p>User stages are incremented and decremented as they move backward and forward through the workflow stage pages.</p>"
                 . "<p>They can also be manually set to a specific stage number from the back end <code>Manage Users</code> page</p>"
                 . "<p>To restrict user movement throughout the workflow use the stage fields <code>back_active</code> and <code>next_active</code></p>"
-                . "<p>We won't fully demo that here because we want you to move freely back and forward through the demo. :).</p>";
-
-        $stages[8]['content_area'] = 
+                . "<p>We won't fully demo that here because we want you to move freely back and forward through the demo. :).</p>";                
             '<p> As this is the end of the demo now we have restricted your foward movement by unchecking the <code>next_active</code> checkbox for stage 8 (this one).</p>'
             . '<p>We hope that the demo has helped you to grasp the key concepts behind the plugin. </p>'
             . '<p>If you have any suggestions for improvements to this demo, we welcome your feedback on the <a href="http://wtf-fu.com/demo/">demo website page</a></p>';

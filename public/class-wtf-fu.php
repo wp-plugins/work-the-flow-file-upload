@@ -44,7 +44,7 @@ class Wtf_Fu {
      * references.
      * @var     string
      */
-    const VERSION = '1.1.1';
+    const VERSION = '1.1.2';
 
     /**
      * Unique plugin identifier.
@@ -281,24 +281,6 @@ class Wtf_Fu {
                     /* 
                      * Workflow options need to be massaged to match the current
                      * default options.
-                     * 
-                     * Specifically :
-                     * 
-                     * ADDED :
-                     * page_html_template 
-                     * 
-                     * REMOVED :
-                     * 'panel_open_html'
-                     * 'panel_close_html'
-                     * 'heading_open_html' 
-                     * 'heading_close_html'
-                     * 'body_open_html' 
-                     * 'body_close_html' 
-                     * 'footer_open_html' 
-                     * 'footer_close_html'
-                     * 'buttons_open_html'
-                     * 'buttons_close_html'
-                     * 'prepend_name_to_stage_title'
                      */
                     
                     $default_workflow_options = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_WORKFLOW_KEY);
@@ -308,14 +290,7 @@ class Wtf_Fu {
                     }
                     
                     /*
-                     * Workflow stage options also needed to be resynced with the default values.
-                     * 
-                     * Added :
-                     * 'header'
-                     * 
-                     * Removed :
-                     * 'show_button_bar'
-                     * 
+                     * Workflow stage options also needed to be resynced with the default values. 
                      */
                     
                     $default_stage_options = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_STAGE_KEY);
@@ -360,15 +335,23 @@ class Wtf_Fu {
      */
     public function enqueue_styles() {
     if(self::wtf_fu_has_shortcode('wtf_fu')) {         
-            wp_enqueue_style($this->plugin_slug . '-plugin-styles', plugins_url('assets/css/public.css', __FILE__), array(), self::VERSION);
             wp_enqueue_style($this->plugin_slug . '-tbs-styles', plugins_url('assets/css/bootstrap.css', __FILE__), array(), self::VERSION);
             
             //wp_enqueue_style($this->plugin_slug . '-bootstrapcdn-style', wtf_fu_BOOTSTRAP_URL . 'css/bootstrap.min.css', array(), self::VERSION);
             wp_enqueue_style($this->plugin_slug . '-bluimp-gallery-style', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'css/blueimp-gallery.min.css', array(), self::VERSION);
             wp_enqueue_style($this->plugin_slug . '-jquery-fileupload-style', wtf_fu_JQUERY_FILE_UPLOAD_URL . 'css/jquery.fileupload.css', array(), self::VERSION);
             wp_enqueue_style($this->plugin_slug . '-jquery-fileupload-ui-style', wtf_fu_JQUERY_FILE_UPLOAD_URL . 'css/jquery.fileupload-ui.css', array(), self::VERSION);
+            
+            /*
+             * If a plugin has its own style then hook loading the style sheet.
+             */
+            if (has_action('wtf_fu_enqueue_styles_action')) {
+                do_action('wtf_fu_enqueue_styles_action');               
+            }
+            else { // use default sheet.
+               wp_enqueue_style($this->plugin_slug . '-tbs-workflow-defaults', plugins_url('assets/css/workflow_default.css', __FILE__), array(), self::VERSION);
+            } 
         }
-
     }
     
 
@@ -394,12 +377,8 @@ class Wtf_Fu {
             wp_enqueue_script($this->plugin_slug . '-blueimp-tmpl-js', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/tmpl.min.js', array('jquery'), self::VERSION, true);
             wp_enqueue_script($this->plugin_slug . '-blueimp-load-image-js', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/load-image.min.js', array('jquery'), self::VERSION, true);
             wp_enqueue_script($this->plugin_slug . '-blueimp-canvas-to-blob-js', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/canvas-to-blob.min.js', array('jquery'), self::VERSION, true);
-
             
             wp_enqueue_script($this->plugin_slug . '-tbs-js', plugins_url('assets/js/bootstrap.js', __FILE__), array('jquery'), self::VERSION);
-
-//wtf_fu::register_enqueue_script('wtf_fu-bootstrapcdn-js', '//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js',array('jquery'),'',true);
-//wp_enqueue_script($this->plugin_slug . '-bootstrapcdn-js', wtf_fu_BOOTSTRAP_URL . 'js/bootstrap.min.js', array('jquery'), self::VERSION, true);
 
             wp_enqueue_script($this->plugin_slug . '-blueimp-gallery-js', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/jquery.blueimp-gallery.min.js', array('jquery'), self::VERSION, true);
             wp_enqueue_script($this->plugin_slug . '-jquery-iframe-transport-js', wtf_fu_JQUERY_FILE_UPLOAD_URL . 'js/jquery.iframe-transport.js', array('jquery'), self::VERSION, true);

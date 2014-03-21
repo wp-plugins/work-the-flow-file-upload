@@ -63,8 +63,7 @@ define('wtf_fu_DEFAULTS_WORKFLOW_KEY', 'wtf-fu-workflow-defaults');
 
 define('wtf_fu_DEFAULT_WORKFLOW_TEMPLATE', '<div class="panel panel-default tbs">
         <div class="panel-heading">
-            <h1 class="panel-title">
-            <strong>[&nbsp;%%WTF_FU_WORKFLOW_NAME%%&nbsp;]</strong></h1>
+            <h1 class="panel-title"><strong>%%WTF_FU_WORKFLOW_NAME%%</strong></h1>
             %%WTF_FU_WORKFLOW_BUTTON_BAR%%
             <h2>%%WTF_FU_WORKFLOW_STAGE_TITLE%%</h2>
             %%WTF_FU_WORKFLOW_STAGE_HEADER%%

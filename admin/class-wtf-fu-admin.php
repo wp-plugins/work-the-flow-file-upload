@@ -228,8 +228,6 @@ class Wtf_Fu_Admin {
                         include_once( 'views/admin-workflows.php' );
                         break;               
                 }
-
-                // wtf_fu_render_workflow_page();
                 break;
             case wtf_fu_PAGE_USERS_KEY :
                 $action = wtf_fu_get_value($_GET, 'wtf-fu-action');

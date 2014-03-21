@@ -1,0 +1,57 @@
+/* 
+ * Default stylesheet for Workflow pages,
+ */
+
+.tbs code {
+    background-color: #F9F2F4;
+    border-radius: 4px;
+    color: #C7254E;
+    font-size: 90%;
+    padding: 2px 4px;
+    white-space: pre-wrap;
+}
+
+.tbs .panel-title {
+    color: #F1EA45;    
+}
+
+.tbs .panel-heading {
+    color: #fcfcfc;
+    background-color: #23212A;
+    border-bottom: 1px solid rgba(0, 0, 0, 0);
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px; 
+    padding: 30px 15px 15px 30px;   
+    line-height: 1.0;
+}
+
+.tbs .panel-body {
+    color: #DFDCDC;
+    background-color: #323D4D;
+    border-top: 1px solid #DDDDDD;    
+    border-bottom: 1px solid rgba(0, 0, 0, 0);
+    padding: 30px 15px 15px 30px; 
+    line-height: 1.3;
+}
+
+.tbs .panel-footer {
+    color: #F1EA45;
+    background-color: #23212A;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;  
+    line-height: 1.0;
+}
+
+/*.tbs .table-striped > tbody > tr:nth-child(2n+1) > td, .tbs .table-striped > tbody > tr:nth-child(2n+1) > th {
+    background-color: #26252f;
+}*/
+
+
+.tbs .table-striped tbody tr:nth-child(2n) td, .table-striped tbody tr:nth-child(2n) th {
+    background-color: #23212A;
+}
+
+.tbs .table-striped tbody tr:nth-child(2n+1) td, .table-striped tbody tr:nth-child(2n) th {
+    background-color: #26252f;
+}
+

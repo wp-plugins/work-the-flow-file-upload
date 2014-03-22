@@ -25,7 +25,7 @@ require_once( plugin_dir_path(__FILE__) . '../../includes/class-wtf-fu-options.p
  */
 class Wtf_Fu_Workflow_Shortcode {
 
-    protected $plugin_slug = 'wtf-fu';
+    protected $plugin_slug = 'work-the-flow-file-upload'; //TODO make this a static const in main plugin class.
     protected static $instance = null;
     protected $options;
 
@@ -55,12 +55,25 @@ class Wtf_Fu_Workflow_Shortcode {
         // id fron the passed shortcode options 
         $wfid = $options['id'];
 
+        // This workflows options.
+        $wf_options = Wtf_Fu_Options::get_workflow_options($wfid); 
         $plugin_options = Wtf_Fu_Options::get_plugin_options();
+        
+        if (wtf_fu_get_value($wf_options, 'include_plugin_style_default_overrides') == true) {
+            /*
+             * If a plugin has its own style then hook loading the style sheet.
+             */
+            if (has_action('wtf_fu_enqueue_styles_action')) {
+                do_action('wtf_fu_enqueue_styles_action');               
+            }
+            else { // use default sheet.
+               wp_enqueue_style($this->plugin_slug . '-tbs-workflow-defaults', plugins_url($this->plugin_slug) . '/public/assets/css/workflow_default.css', array(), Wtf_Fu::VERSION);
+            }      
+        }
+                    
+        
         $show_powered_by_link = wtf_fu_get_value($plugin_options, 'show_powered_by_link');
 
-
-        // The workflow wide defaults settings and the html section wrappers.
-        $wf_options = Wtf_Fu_Options::get_workflow_options($wfid);
 
         // This user's workflow options including the current stage they are at in this workflow.
         $user_wf_options = Wtf_Fu_Options::get_user_workflow_options($wfid, 0, true);

@@ -108,6 +108,7 @@ class Wtf_Fu_Option_Definitions {
         $this->all_pages_default_options = array(
             wtf_fu_DEFAULTS_PLUGIN_KEY => array(
                 'remove_all_data_on_uninstall' => '0',
+                'include_plugin_style' => '1',
                 'show_powered_by_link' => '0'
             ),
             wtf_fu_DEFAULTS_UPLOAD_KEY => array(
@@ -129,8 +130,9 @@ class Wtf_Fu_Option_Definitions {
             ),
             wtf_fu_DEFAULTS_WORKFLOW_KEY => array(
                 'id' => '',
-                'testing_mode' => '0',
+                'testing_mode' => '0',               
                 'name' => 'New workflow ....',
+                'include_plugin_style_default_overrides' => '1',                
                 'default_back_label' => "Go Back",
                 'default_next_label' => "Next",
             ),
@@ -162,6 +164,7 @@ class Wtf_Fu_Option_Definitions {
                 'remove_all_data_on_uninstall' =>
                 'Check this to allow the removal of all the plugin and user 
                      workflow options data during uninstall.',
+                'include_plugin_style' => 'Check to include the bootstrap css used by workflow',                
                 'show_powered_by_link' => 'Support this plugin by including a powered by link to wtf-fu.com on your site.'
             ),
             wtf_fu_DEFAULTS_UPLOAD_KEY => array(
@@ -230,8 +233,9 @@ class Wtf_Fu_Option_Definitions {
                     You can retrieve this name by including the shortcode 
                     <code>[wtf_fu type=\"get\" value=\"workflow\" id=\"workflow_id_here\" key=\"name\"]</code>
                     in your stage content fields',
-                'default_back_label' => 'Default Back Button text label. (can be overridden in stages)',
-                'default_next_label' => 'Default Next Button text label. (can be overridden in stages)',
+                'include_plugin_style_default_overrides' => 'Check to include the default workflow style overloads.',                
+                'default_back_label' => 'Default Back Button text label. (used if not overridden in stages)',
+                'default_next_label' => 'Default Next Button text label. (used if not overridden in stages)',
             ),
             wtf_fu_DEFAULTS_STAGE_KEY => array(
                 'stage_title' =>

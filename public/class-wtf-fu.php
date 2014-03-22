@@ -2,19 +2,19 @@
 
 /*  Copyright 2013  Lynton Reed  (email : lynton@wtf-fu.com)
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as 
-    published by the Free Software Foundation.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License, version 2, as
+  published by the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 define('wtf_fu_PUBLIC_ASSETS_URL', plugin_dir_url(__FILE__) . 'assets/');
 define('wtf_fu_JQUERY_FILE_UPLOAD_URL', wtf_fu_PUBLIC_ASSETS_URL . 'jQuery-File-Upload-9.5.0/');
 define('wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL', wtf_fu_PUBLIC_ASSETS_URL . 'blueimp-depends/');
@@ -23,10 +23,9 @@ define('wtf_fu_BOOTSTRAP_URL', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'bootstra
 define('wtf_fu_JQUERY_FILE_UPLOAD_HANDLER_FILE', plugin_dir_path(__FILE__) . 'includes/UploadHandler.php');
 
 
-require_once( plugin_dir_path( __FILE__ ) . 'includes/class-wtf-fu-fileupload-shortcode.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'includes/class-wtf-fu-workflow-shortcode.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'includes/class-wtf-fu-show-files-shortcode.php' );
-
+require_once( plugin_dir_path(__FILE__) . 'includes/class-wtf-fu-fileupload-shortcode.php' );
+require_once( plugin_dir_path(__FILE__) . 'includes/class-wtf-fu-workflow-shortcode.php' );
+require_once( plugin_dir_path(__FILE__) . 'includes/class-wtf-fu-show-files-shortcode.php' );
 
 /**
  * Wtf_Fu class. This class should ideally be used to work with the
@@ -44,7 +43,7 @@ class Wtf_Fu {
      * references.
      * @var     string
      */
-    const VERSION = '1.1.2';
+    const VERSION = '1.1.3';
 
     /**
      * Unique plugin identifier.
@@ -61,15 +60,13 @@ class Wtf_Fu {
      * Instance of this class.
      */
     protected static $instance = null;
-    
-    
 
     /**
      * Initialize the plugin by setting localization and loading public scripts
      * and styles.
      */
     private function __construct() {
-        
+
         log_me('__construct  Wtf_Fu ');
 
         // Load plugin text domain.
@@ -83,18 +80,17 @@ class Wtf_Fu {
 
         add_action('wp_ajax_wtf_fu_show_files', array($this, 'wtf_fu_ajax_show_files_function'));
         add_action('wp_ajax_nopriv_wtf_fu_show_files', array($this, 'wtf_fu_ajax_show_files_function'));
-               
+
 
         // Load public-facing style sheet and JavaScript.
         add_action('wp_enqueue_scripts', array($this, 'enqueue_styles'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
-        
+
         // Short code hooks to methods which instantiate the required shortcode
         // handler classes and return the handler output.
         add_shortcode('wtf_fu', array($this, 'wtf_fu_shortcode'));
-        add_shortcode('wtf_fu_upload', array($this, 'file_upload_shortcode')); 
-        add_shortcode('wtf_fu_show_files', array($this, 'show_files_shortcode'));        
-
+        add_shortcode('wtf_fu_upload', array($this, 'file_upload_shortcode'));
+        add_shortcode('wtf_fu_show_files', array($this, 'show_files_shortcode'));
     }
 
     /**
@@ -237,76 +233,75 @@ class Wtf_Fu {
      * Fired for each blog when the plugin is activated.
      */
     private static function single_activate() {
-        
-        
-       require_once( plugin_dir_path( __FILE__ ) . '../admin/includes/class-wtf-fu-options-admin.php' );
-       $installed_ver = get_option( "wtf-fu_version" );
-       
-       /*
-        * We do this whenever the plugin is activated to make sure that database options are always in sync and set to defaults
-        * if they have not been futher customized by the user. 
-        * 
-        * This may not always be necessary, but it is fast and means we wont have problem's if the user values get out of sync with newly defined
-        * options or need replacing if they have been deleted somehow.
-        * 
-        * For new installations this is also necessary so that the default options will exist before the options page is edited.
-        * For example this is needed so that default exist for the demo to run "out of the box".
-        */
-       
-       /*
-        * plugin options.
-        */
-       $default_plugin_options = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_PLUGIN_KEY);      
-       $plugin_options = get_option(wtf_fu_OPTIONS_DATA_PLUGIN_KEY);
-       Wtf_Fu_Options_Admin::update_options_from_default_options(wtf_fu_OPTIONS_DATA_PLUGIN_KEY, $plugin_options, $default_plugin_options);
 
-       /*
-        * upload default options.
-        */
-       $default_upload_options = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_UPLOAD_KEY);      
-       $upload_options = get_option(wtf_fu_OPTIONS_DATA_UPLOAD_KEY);
-       Wtf_Fu_Options_Admin::update_options_from_default_options(wtf_fu_OPTIONS_DATA_UPLOAD_KEY, $upload_options, $default_upload_options);
-       
-       if( $installed_ver != self::VERSION ) {
-                      
-           /*
-            * Do any required upgrades in here.
-            */
-            switch($installed_ver) {
+
+        require_once( plugin_dir_path(__FILE__) . '../admin/includes/class-wtf-fu-options-admin.php' );
+        $installed_ver = get_option("wtf-fu_version");
+
+        /*
+         * We do this whenever the plugin is activated to make sure that database options are always in sync and set to defaults
+         * if they have not been futher customized by the user. 
+         * 
+         * This may not always be necessary, but it is fast and means we wont have problem's if the user values get out of sync with newly defined
+         * options or need replacing if they have been deleted somehow.
+         * 
+         * For new installations this is also necessary so that the default options will exist before the options page is edited.
+         * For example this is needed so that default exist for the demo to run "out of the box".
+         */
+
+        /*
+         * plugin options.
+         */
+        $default_plugin_options = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_PLUGIN_KEY);
+        $plugin_options = get_option(wtf_fu_OPTIONS_DATA_PLUGIN_KEY);
+        Wtf_Fu_Options_Admin::update_options_from_default_options(wtf_fu_OPTIONS_DATA_PLUGIN_KEY, $plugin_options, $default_plugin_options);
+
+        /*
+         * upload default options.
+         */
+        $default_upload_options = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_UPLOAD_KEY);
+        $upload_options = get_option(wtf_fu_OPTIONS_DATA_UPLOAD_KEY);
+        Wtf_Fu_Options_Admin::update_options_from_default_options(wtf_fu_OPTIONS_DATA_UPLOAD_KEY, $upload_options, $default_upload_options);
+
+        if ($installed_ver != self::VERSION) {
+
+            /*
+             * Do any required upgrades in here.
+             */
+            switch ($installed_ver) {
                 case '0.1.0' :
-                default :  
-                // doesn't hurt to do this whenever a version change is made to make sure
-                // the db options are in sync with the defined default fields.
-                
-                    /* 
+                default :
+                    // doesn't hurt to do this whenever a version change is made to make sure
+                    // the db options are in sync with the defined default fields.
+
+                    /*
                      * Workflow options need to be massaged to match the current
                      * default options.
                      */
-                    
+
                     $default_workflow_options = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_WORKFLOW_KEY);
                     foreach (Wtf_Fu_Options_Admin::get_all_workflows(false) as $k => $v) {
                         // updates workflow options to be in sync with the current installations default option keys.
                         Wtf_Fu_Options_Admin::update_options_from_default_options($k, $v['options'], $default_workflow_options);
                     }
-                    
+
                     /*
                      * Workflow stage options also needed to be resynced with the default values. 
                      */
-                    
+
                     $default_stage_options = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_STAGE_KEY);
                     foreach (Wtf_Fu_Options_Admin::get_all_workflow_stages(false) as $k => $v) {
                         // updates workflow stage options to be in sync with the current installations default option keys.
                         Wtf_Fu_Options_Admin::update_options_from_default_options($k, $v['options'], $default_stage_options);
-                    }  
-                                          
-                break;               
+                    }
+
+                    break;
             }
-            
+
             log_me("upgrading from $installed_ver to {self::VERSION}");
 
-            update_option( "wtf-fu_version", self::VERSION );
-        }    
-        
+            update_option("wtf-fu_version", self::VERSION);
+        }
     }
 
     /**
@@ -315,7 +310,6 @@ class Wtf_Fu {
     private static function single_deactivate() {
         
     }
-    
 
     /**
      * Load the plugin text domain for translation.
@@ -334,36 +328,31 @@ class Wtf_Fu {
      * Register and enqueue public-facing style sheet.
      */
     public function enqueue_styles() {
-    if(self::wtf_fu_has_shortcode('wtf_fu')) {         
-            wp_enqueue_style($this->plugin_slug . '-tbs-styles', plugins_url('assets/css/bootstrap.css', __FILE__), array(), self::VERSION);
-            
+        if (self::wtf_fu_has_shortcode('wtf_fu')) {
+
+            $plugin_options = Wtf_Fu_Options::get_plugin_options();
+
+            if (wtf_fu_get_value($plugin_options, 'include_plugin_style') == true) {
+                wp_enqueue_style($this->plugin_slug . '-tbs-styles', plugins_url($this->plugin_slug) . '/public/assets/css/bootstrap.css', array(), Wtf_Fu::VERSION);
+            }
+
             //wp_enqueue_style($this->plugin_slug . '-bootstrapcdn-style', wtf_fu_BOOTSTRAP_URL . 'css/bootstrap.min.css', array(), self::VERSION);
             wp_enqueue_style($this->plugin_slug . '-bluimp-gallery-style', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'css/blueimp-gallery.min.css', array(), self::VERSION);
             wp_enqueue_style($this->plugin_slug . '-jquery-fileupload-style', wtf_fu_JQUERY_FILE_UPLOAD_URL . 'css/jquery.fileupload.css', array(), self::VERSION);
             wp_enqueue_style($this->plugin_slug . '-jquery-fileupload-ui-style', wtf_fu_JQUERY_FILE_UPLOAD_URL . 'css/jquery.fileupload-ui.css', array(), self::VERSION);
-            
-            /*
-             * If a plugin has its own style then hook loading the style sheet.
-             */
-            if (has_action('wtf_fu_enqueue_styles_action')) {
-                do_action('wtf_fu_enqueue_styles_action');               
-            }
-            else { // use default sheet.
-               wp_enqueue_style($this->plugin_slug . '-tbs-workflow-defaults', plugins_url('assets/css/workflow_default.css', __FILE__), array(), self::VERSION);
-            } 
+
         }
     }
-    
 
     /**
      * Register and enqueues public-facing JavaScript files.
      */
     public function enqueue_scripts() {
-        
-        if(self::wtf_fu_has_shortcode('wtf_fu')) { 
 
-            wp_enqueue_script($this->plugin_slug . 'jquery-1.9.1.js', "//code.jquery.com/jquery-1.9.1.js"); 
-            wp_enqueue_script($this->plugin_slug . 'jquery-ui.js', "//code.jquery.com/ui/1.10.4/jquery-ui.js"); 
+        if (self::wtf_fu_has_shortcode('wtf_fu')) {
+
+            wp_enqueue_script($this->plugin_slug . 'jquery-1.9.1.js', "//code.jquery.com/jquery-1.9.1.js");
+            wp_enqueue_script($this->plugin_slug . 'jquery-ui.js', "//code.jquery.com/ui/1.10.4/jquery-ui.js");
 
 
             wp_enqueue_script($this->plugin_slug . '-plugin-script', plugins_url('assets/js/public.js', __FILE__), array(), self::VERSION);
@@ -377,7 +366,7 @@ class Wtf_Fu {
             wp_enqueue_script($this->plugin_slug . '-blueimp-tmpl-js', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/tmpl.min.js', array('jquery'), self::VERSION, true);
             wp_enqueue_script($this->plugin_slug . '-blueimp-load-image-js', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/load-image.min.js', array('jquery'), self::VERSION, true);
             wp_enqueue_script($this->plugin_slug . '-blueimp-canvas-to-blob-js', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/canvas-to-blob.min.js', array('jquery'), self::VERSION, true);
-            
+
             wp_enqueue_script($this->plugin_slug . '-tbs-js', plugins_url('assets/js/bootstrap.js', __FILE__), array('jquery'), self::VERSION);
 
             wp_enqueue_script($this->plugin_slug . '-blueimp-gallery-js', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/jquery.blueimp-gallery.min.js', array('jquery'), self::VERSION, true);
@@ -400,7 +389,6 @@ class Wtf_Fu {
             //<![endif]-->
             wp_enqueue_script($this->plugin_slug . '-jquery-xdr-transport-js', wtf_fu_JQUERY_FILE_UPLOAD_URL . 'js/cors/jquery.xdr-transport.js', array('jquery'), self::VERSION, true);
         }
-
     }
 
     function file_upload_shortcode($attr) {
@@ -409,13 +397,12 @@ class Wtf_Fu {
         return $content;
     }
 
-    
     function show_files_shortcode($attr) {
         $shortcode_instance = new Wtf_Fu_Show_Files_Shortcode($attr);
         $content = $shortcode_instance->generate_content();
         return $content;
-    }    
-    
+    }
+
     /**
      * Wrapper that delegates the file upload ajax action hook to static method
      * in the class that manages file uploads.
@@ -426,12 +413,11 @@ class Wtf_Fu {
     function wtf_fu_load_ajax_function() {
         Wtf_Fu_Fileupload_Shortcode::wtf_fu_load_ajax_function();
     }
-    
+
     function wtf_fu_ajax_show_files_function() {
         Wtf_Fu_Show_files_Shortcode::wtf_fu_ajax_show_files_function();
     }
-    
-    
+
     function workflow_controller() {
         Wtf_Fu_Workflow_Shortcode::workflow_controller();
     }
@@ -439,36 +425,37 @@ class Wtf_Fu {
     function wtf_fu_shortcode($attr) {
 
         // default to workflow shortcode
-        if (!array_key_exists('type', $attr)) {$attr['type'] = 'workflow';}
-                
+        if (!array_key_exists('type', $attr)) {
+            $attr['type'] = 'workflow';
+        }
+
         switch ($attr['type']) {
-            
+
             case 'workflow' :
                 $options = shortcode_atts(array('type' => 'workflow', 'id' => ''), $attr);
-                
-                $shortcode_instance = new Wtf_Fu_Workflow_Shortcode($options);               
+
+                $shortcode_instance = new Wtf_Fu_Workflow_Shortcode($options);
                 $content = $shortcode_instance->generate_content();
 
                 if (!empty($content)) {
                     global $shortcode_tags;
                     log_me(array('shortcode_tags' => $shortcode_tags));
-                   
-                    
+
+
                     $content = do_shortcode($content); // Process any embedded short codes.
-                    
                     //$content = apply_filters( 'the_content', $content );
                 }
-                
-                return $content;                
+
+                return $content;
 
             case 'fileupload' :
                 return $this->file_upload_shortcode($attr);
-                
-            
+
+
             case 'show_files' :
-              return $this->show_files_shortcode($attr);  
-              break;
-             
+                return $this->show_files_shortcode($attr);
+                break;
+
             case 'get' :
                 // 'ID', 'user_login' or 'user_email', 'user_firstname', 'user_lastname', 'display_name'
                 switch ($attr['value']) {
@@ -503,34 +490,34 @@ class Wtf_Fu {
             default :
                 return "undefined shortcode type= {$attr['type']}";
         }
-        
+
         return null;
     }
 
-    
     /**
      * check the current post for the existence of a short code  
      * @param type $shortcode
      * @return boolean
      */
-    private static function wtf_fu_has_shortcode($shortcode = '') {  
+    private static function wtf_fu_has_shortcode($shortcode = '') {
 
-        $post_to_check = get_post(get_the_ID());  
+        $post_to_check = get_post(get_the_ID());
 
         // false because we have to search through the post content first  
-        $found = false;  
+        $found = false;
 
         // if no short code was provided, return false  
-        if (!$shortcode) {  
-            return $found;  
-        }  
+        if (!$shortcode) {
+            return $found;
+        }
         // check the post content for the short code  
-        if ( stripos($post_to_check->post_content, '[' . $shortcode) !== false ) {  
+        if (stripos($post_to_check->post_content, '[' . $shortcode) !== false) {
             // we have found the short code  
-            $found = true;  
-        }  
+            $found = true;
+        }
 
         // return our final results  
-        return $found;  
-    }  
+        return $found;
+    }
+
 }

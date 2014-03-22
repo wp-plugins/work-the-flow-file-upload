@@ -724,6 +724,7 @@ class Wtf_Fu_Admin {
 
         switch ($option_id) {
             case 'remove_all_data_on_uninstall' :
+            case 'include_plugin_style' :                
             case 'show_powered_by_link' :
                 echo wtf_fu_checkbox($option_id, $option_name, $val, $label);
                 break;
@@ -819,6 +820,7 @@ class Wtf_Fu_Admin {
             case 'next_js' :
             case 'back_js' :
             case 'testing_mode' :
+            case 'include_plugin_style_default_overrides' :                
                 echo wtf_fu_checkbox($option_id, $option_name, $val, $label);
                 break;
             

@@ -610,10 +610,10 @@ class Wtf_Fu_Options_Admin {
                 . "This can be used for example to generate emails or to archive user files or some other activity.</p>";
                 
         $stages[6]['content_area'] = 
-            "You simply create a function in your themes function.php file or inside a file in the mu_plugins directory and then specify the function name (without parenthesis) in either the pre_hook or post_hook field."
-            . "pre-hook functions are run BEFORE normal stage processing occurs, and post-hook functions are run after."
-            . "Note that these hook functions will block while running, so be careful when archiving a large number of files or other activities that may keep the user waiting for extended periods."          
-            . '<p>An example hook function file that emails the user and admimistrator is included in the examples directory.<p>'
+            "<p>You simply create a function in your themes function.php file or inside a file in the mu_plugins directory and then specify the function name (without parenthesis) in either the pre_hook or post_hook field.</p>"
+            . "<p>pre-hook functions are run BEFORE normal stage processing occurs, and post-hook functions are run after.</p>"
+            . "<p>Note that these hook functions will block while running, so be careful when archiving a large number of files or other activities that may keep the user waiting for extended periods.</p>"          
+            . '<p>An example hook function file that emails the user and admimistrator is included in the examples directory.</p>'
             .'<p>This contains a function called <code>wtf_fu_sendActivationMail</code> will be called as a post-hook when you proceed from here to the next page.</p>'
             .'<p>You will have to paste this function into your themes functions.php file (or an mu-plugins file) as descrived above for this to work.<p>'
             .'<p>If this demo is running inside your own installation and you haven\'t already done this then do this now before proceeding to the next stage.</p>'

@@ -4,13 +4,13 @@ Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, ajax, jquery, html5, image, gallery 
 Requires at least: 3.5.1
 Tested up to: 3.8.1
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 == Description ==
 
-Work the Flow - File Upload. 
+Work the Flow File Upload. 
 
 This plugin may be used to facilitate simple workflow and html5 front end upload on a wordpress site.
 
@@ -45,7 +45,11 @@ This plugin utilizes the blueimp / jQuery-File-Upload javascript libraries from 
 https://github.com/blueimp/jQuery-File-Upload of which a demo can be seen at 
 http://blueimp.github.io/jQuery-File-Upload/
 
-Please be aware that using the file upload features of this plugin will enable front end users to upload files to your website.
+Please be aware that using the file upload features of this plugin can enable front end users to upload files to your website.
+By default only your registered site users are allowed to access the file upload capabilities.
+You can allow public access by unchecking the 'deny_public_uploads' on the File Upload
+options page.
+
 Care should be taken to restrict access to pages containing the [wtf_fu_upload] shortcode to authorized users only.
 
 == Installation ==
@@ -309,6 +313,10 @@ lynton@wtf-fu.com detailing your requirements.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 1.1.3 =
+* Added checkboxes to include or exclude default styling.
+* Fix for incorrect directory locations in the hooks example code.
+
 = 1.1.2 =
 * Added default style overrides for workflows.
 
@@ -349,6 +357,9 @@ lynton@wtf-fu.com detailing your requirements.
 * Initial wtf-fu release.
  
 == Upgrade Notice ==
+= 1.1.3 =
+* Upgrade to add ability to include / exclude the default workflow styling css.
+
 = 1.1.2 =
 * Upgrade to add new default css styling of workflow pages.
 

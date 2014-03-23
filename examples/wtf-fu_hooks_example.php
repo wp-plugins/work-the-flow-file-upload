@@ -53,8 +53,8 @@
          * That said this works fine for now, and this example will be updated soon
          * in a future release to use only native WordPress methods.
          */
-        require_once (plugin_dir_path( __FILE__ ) . '../plugins/wtf-fu/includes/wtf-fu-common-utils.php');
-        require_once (plugin_dir_path( __FILE__ ) . '../plugins/wtf-fu/includes/class-wtf-fu-archiver.php');        
+        require_once (plugin_dir_path( __FILE__ ) . '../plugins/work-the-flow-file-upload/includes/wtf-fu-common-utils.php');
+        require_once (plugin_dir_path( __FILE__ ) . '../plugins/work-the-flow-file-upload/includes/class-wtf-fu-archiver.php');        
 
         // admin name
         $admin_name = getUserInfo('user_firstname', 1);

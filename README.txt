@@ -4,7 +4,7 @@ Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, ajax, jquery, html5, image, gallery 
 Requires at least: 3.5.1
 Tested up to: 3.8.1
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -174,6 +174,12 @@ By default the plugin workflow template includes a namespaced copy of the twitte
 bootstrap css version 3.0.3. So it should be safe from clashes with other plugin or theme css files,
 even if they also use the bootstrap css.
 
+If you want to remove this css completely then uncheck the `include_plugin_style` option on 
+the `system options` page. 
+
+You can also remove default overrides for the css by unchecking the `include_plugin_style_default_overrides`
+checkbox in individual workflow settings.
+
 To modify the plugins namespaced bootstrap styles without affecting other bootstrap css, 
 just be sure to include the class selector 'tbs' when overriding the bootstrap 
 styles in your themes css.
@@ -313,6 +319,11 @@ lynton@wtf-fu.com detailing your requirements.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 1.1.4 =
+* Simplified and replaced plugin functions in the examples\wtf-fu_hooks_example.php file. 
+with core WordPress code. 
+* FAQ, README, and description updates.
+
 = 1.1.3 =
 * Added checkboxes to include or exclude default styling.
 * Fix for incorrect directory locations in the hooks example code.
@@ -356,7 +367,14 @@ lynton@wtf-fu.com detailing your requirements.
 = 0.1.1 =
 * Initial wtf-fu release.
  
+
 == Upgrade Notice ==
+
+= 1.1.4 =
+* Upgrade for updates to the examples\wtf-fu_hooks_example.php file, 
+FAQ, README and description updates.
+
+
 = 1.1.3 =
 * Upgrade to add ability to include / exclude the default workflow styling css.
 

@@ -231,7 +231,7 @@ class Wtf_Fu_Option_Definitions {
                 'name' =>
                 'The name for this workflow.
                     You can retrieve this name by including the shortcode 
-                    <code>[wtf_fu type=\"get\" value=\"workflow\" id=\"workflow_id_here\" key=\"name\"]</code>
+                    <code>[wtf_fu type="get" value="workflow" id="workflow_id_here" key="name"]</code>
                     in your stage content fields',
                 'include_plugin_style_default_overrides' => 'Check to include the default workflow style overloads.',                
                 'default_back_label' => 'Default Back Button text label. (used if not overridden in stages)',

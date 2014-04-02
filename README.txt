@@ -1,34 +1,35 @@
 === Work The Flow File Upload ===
 Contributors: lynton_reed
 Donate link: http://wtf-fu.com/
-Tags: file upload, upload, workflow, ajax, jquery, html5, image, gallery 
+Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
 Tested up to: 3.8.1
 Stable tag: 1.1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
+Embed Html5 User File Uploads and Workflows into pages and posts. Multiple file Drag and Drop upload, Image Gallery display, Reordering and Archiving
+
 == Description ==
 
-Work the Flow File Upload. 
+*Work the Flow File Upload.* 
+Embed Html5 User File Uploads and Workflows into pages and posts. Multiple file Drag and Drop upload, Image Gallery display, Reordering and Archiving.
 
-This plugin may be used to facilitate simple workflow and html5 front end upload on a wordpress site.
+This two in one plugin provides shortcodes to embed front end user file upload capability and / or step by step workflow.
 
-By embedding shortcodes into your pages you can provide users with file upload capability and / or workflow steps, configurable 
-from an admin interface by an administrator.
+Workflow configurations, File Upload capabilities and user files can be managed from the admin interface by an administrator.
+
+Default configurations can be overridden in embedded short code attributes so, for example, you can define varying locations, file types, file sizes, max number of files, thumbnail size, and other parameters for uploads.
 
 Files are uploaded to a configurable subdirectory location under the wordpress user upload directory.
-You may also specify allowed file types, number of upload files allowed and other parameters.
 
-Uploaded files can be managed via the backend allowing for archiving as zip files and deletion.
+Uploaded files from each user can be managed via the backend allowing for archiving as zip files and deletion.
 
 Workflows allow simple stepwise processing of each stage. Users can be allowed to move forward or backward through 
 the workflow as desired. File upload short codes can also be embedded inside workflow stages to provide 
-upload capabiliy to a given workflow stage.
+upload capabiliy inside a given workflow stage.
  
-
-Workflow hooks to user defined functions may also be added to allow post and pre processing as desired as a user
-moves from one stage to the next. For example to archive files or send and email once a user
+Workflow pre and post functions may also be added to allow post and pre processing as desired as a user moves from one stage to the next. For example to archive files or send and email once a user
 reaches a certain point in the workflow.
 
 File uploads are html5 based allowing multiple concurrent file uploads to be processed. 
@@ -41,21 +42,16 @@ You will need to register (free) to view the demo.
 
 A pro version is also available from the download page. http://wtf-fu.com/download
 
-This plugin utilizes the blueimp / jQuery-File-Upload javascript libraries from github 
-https://github.com/blueimp/jQuery-File-Upload of which a demo can be seen at 
-http://blueimp.github.io/jQuery-File-Upload/
+By default only registered site users are allowed to access the file upload capabilities.
+You can allow public access by un-checking the 'deny_public_uploads' on the File Upload options page. 
+(please see the FAQ entry on restricting upload access).
 
-Please be aware that using the file upload features of this plugin can enable front end users to upload files to your website.
-By default only your registered site users are allowed to access the file upload capabilities.
-You can allow public access by unchecking the 'deny_public_uploads' on the File Upload
-options page.
+This plugin includes the jQuery-File-Upload libraries from github 
+https://github.com/blueimp/jQuery-File-Upload 
 
-Care should be taken to restrict access to pages containing the [wtf_fu_upload] shortcode to authorized users only.
 
 == Installation ==
-
 Use the normal wordpress installer or extract the archive into the plugins directory into a folder named work-the-flow-file-upload.
-
 
 = Using The WordPress Dashboard =
 
@@ -105,68 +101,50 @@ that allows you to embed php code in your pages.
 
 A simple php example that restricts access based on user capability :
 
-[php] if(current_user_can('upload_files')){ [/php]
+`[php] if(current_user_can('upload_files')){ [/php]
 [wtf_fu_upload wtf_upload_dir='files']
 [php] } else { [/php]
 <p>You do not have sufficient privileges to upload files.</p>
-[php] } [/php]
+[php] } [/php]`
 
 
-= How do I include my workflow or file upload in a page ? =
+= How do I include my workflow or file upload in a page or post ? =
 
-The plugin works using wordpress shortcodes.
-There are 3 main ones
-[wtf_fu] ,  [wtf_fu_upload], and [wtf_fu_show_files]
+Embed one or more of `[wtf_fu]`, `[wtf_fu_upload]` and `[wtf_fu_show_files]` short-codes into your pages or posts.
 
-Use [wtf_fu]  for workflows
-e.g. [wtf_fu id="2"]  to embed workflow 2 in your page.
+Use `[wtf_fu]`  for workflows
+e.g. `[wtf_fu id="2"]`  to embed the workflow with id 2 into a page or post.
 
-Use [wtf_fu_upload] for file uploads
+Use `[wtf_fu_upload]` for file uploads
 e.g. 
-[wtf_fu_upload 
-accept_file_types="jpg|jpeg|gif|png" 
-max_file_size="30" 
-max_number_of_files="30" 
-wtf_upload_dir="main_dir" 
-wtf_upload_subdir="images"]
+`[wtf_fu_upload accept_file_types="jpg|jpeg|gif|png" max_file_size="30" max_number_of_files="30" wtf_upload_dir="main_dir" wtf_upload_subdir="images"]`
 
-Use [wtf_fu_show_files] to display already upload files
+Use `[wtf_fu_show_files]` to display already upload files
 e.g.
-[wtf_fu_show_files 
-file_type="image" 
-wtf_upload_dir="main_dir" 
-wtf_upload_subdir="images" 
-reorder="true" 
-gallery="true"]
+`[wtf_fu_show_files file_type="image" wtf_upload_dir="main_dir" wtf_upload_subdir="images" reorder="true" gallery="true"]`
 
+The `reorder=true` attribute here allows users to change the order of their uploaded image files by dragging and dropping thumbnail images. 
+When submitted the final order will then be written to in a text file along with the other files in the users upload directory.
 
-note that the reorder attribute can be used to allow users to change the order of their 
-uploaded files. The order will then be included in a text file in the users base upload 
-directory.
-
-the gallery attribute will display images in a lightbox slideshow when an image
-is clicked.
+The `gallery` attribute will display the full sized images in a lightbox slideshow when an image file thumbnail is clicked.
 
 = What other short codes can I use inside the workflows ? =
 
-Other adhoc workflow details may be retrieved using the type='get' attribute.
-These may be also embedded inside the workflow stage content.
-e.g.
-Welcome [wtf_fu type="get" value="display_name"], // display the current users name,
+Other workflow details can be retrieved using the `type='get' value='value_name'` attribute these are useful for 
+embedding the workflow name or stage title inside your workflow stages content.
 
 e.g.
-[wtf_fu type="get" value="workflow" id="1" key="name"] // display the title name for workflow 1.
+Welcome `[wtf_fu type="get" value="display_name"], // display the current users name`,
 
+`[wtf_fu type="get" value="workflow" id="1" key="name"] // display the title name for workflow 1.`
 
 = Do I need to create a workflow just to enable file upload features ? =
 
 No, the workflow and file upload capabilities are completely separate entities. 
-You can add file uploads to a page by embedding the [wtf_fu_wtf_fu_upload] 
-shortcode directly to a page. 
-There is no need to use a workflow at all if this is all you need.
+You can add file uploads to a page by embedding the `[wtf_fu_wtf_fu_upload]` shortcode directly to a page. 
+There is no need to use a workflow at all if standalone file uploads are all you need.
 
-However it is often useful to embed this short code inside a workflow stage so that
-uploading is then part of a defined workflow.
+However it is often useful to embed this short code inside a workflow stage so that uploading is then part of a defined workflow.
 
 = Will the css styles used by the plugin conflict with my themes css ? =
 
@@ -180,25 +158,22 @@ the `system options` page.
 You can also remove default overrides for the css by unchecking the `include_plugin_style_default_overrides`
 checkbox in individual workflow settings.
 
-To modify the plugins namespaced bootstrap styles without affecting other bootstrap css, 
-just be sure to include the class selector 'tbs' when overriding the bootstrap 
+To manually modify the plugins namespaced bootstrap styles without affecting other bootstrap css, include class selector `'tbs'` when overriding the bootstrap 
 styles in your themes css.
 
 e.g. to change the workflow header background to blue use :
 
-.tbs .panel-heading {background-color: #428bca;}
+`.tbs .panel-heading {background-color: #428bca;}` in your child theme style.css file overrides.
 
-in your child theme style.css file overrides.
-
-In the PRO version you can also edit your workflow templates to use whatever 
-html and css classes that you require.
+You may also wish to consider the paid PRO extension for this plugin which provides additional options for template editing.
+http://wtf-fu.com/download
 
 = How do I restrict the number of files that can be uploaded ? =
 
 Uploads are configurable via short code attributes 
 
-Use the 'max_number_of_files' attribute to limit the number of files users may upload.
-[wtf_fu_upload max_number_of_files="10"]
+Use the `max_number_of_files` attribute to limit the number of files users may upload.
+`[wtf_fu_upload max_number_of_files="10"]`
 
 See the work-the-flow-file-upload 'File Upload' settings page for the full list 
 of configurable upload options. On this page you may also set default values 
@@ -208,7 +183,7 @@ short code attributes.
 Here is an example specifying the full list of attributes set with their factory set 
 default values. 
 
-[wtf_fu_upload 
+`[wtf_fu_upload 
 deny_public_uploads="1"     // Do NOT allow public uploads i.e. user must be logged in.
 wtf_upload_dir="wtf-fu_files" 
 wtf_upload_subdir="default" 
@@ -223,35 +198,23 @@ medium_width="800"
 medium_height="600" 
 thumbnail_crop="1"          // crop to exact thumbnail dimensions.
 thumbnail_width="80" 
-thumbnail_height="80"]
+thumbnail_height="80"]`
 
 You may override as many or as few of these as you require.
 
 = Can a user change the order of their uploaded files ? =
 
-File uploads are asynchronously delivered so the order in which they arrive cannot
-be determined.
+File uploads are handled asynchronously via ajax, so the initial order in which they arrive cannot be determined.
 
-However this is catered for with a plugin shortcode that will allow users to reorder 
-their already uploaded files.
+However you can use the `[wtf_fu_show_files reorder="true"]` short-code to give users a list of their uploaded image thumbnails that 
+they can drag into their desired order. When the reorder is submitted file modified timestamps are adjusted to reflect the new order and a text file detailing the desired order
+is added to the users upload directory.
 
-Add a shortcode to your workflow stage or page like the following :
-
-[wtf_fu_show_files 
-file_type="image" 
-wtf_upload_dir="mypackagename" 
-wtf_upload_subdir="images" 
-reorder="true"]
-
-Users can then drag and drop thumbnail images of their files into their desired 
-ordering. When they are finished and submit the form, the files will be timestamped
-with times one second apart in the order requested and a text file will be produced
-in the users base upload directory with the file ordering specified.
-
+e.g. `[wtf_fu_show_files file_type="image" wtf_upload_dir="mypackagename" wtf_upload_subdir="images" reorder="true"]`
 
 = Can I configure the plugin to use different upload directories per shortcode instance ? =
 
-Yes. Use the 'wtf_upload_dir' and  'wtf_upload_subdir' attributes
+Yes. Use the `wtf_upload_dir` and  `wtf_upload_subdir` attributes
 (see previous faq)
 
 For security reasons file uploads are *always* directed to the users wordpress 
@@ -270,21 +233,18 @@ file in your mu-plugins directory) and then put the function name
 
 An example hook function that archives a users files and sends emails to the site 
 admin and to the user when the hook is fired is included in the examples directory.
-see :
-.../wp-content/plugins/work-the-flow-file-upload/examples/wtf-fu_hooks_example.php
+Please see the plugin file `examples/wtf-fu_hooks_example.php`.
 
-Copy and use this as a starting point for your own pre- and post-hook 
-functions.
+You may copy and use this as a starting point for your own pre- and post-hook functions.
 
 = What support is offered for this product ? =
 
-There is no support for the free LITE version. 
+Normal WordPress plugin support is available. 
 
-That said, bug reports are welcomed and will be promptly addressed where there is 
-something that is broken with the free version.
+Bug reports and feedback are very welcome and will be promptly addressed.
 
-For support please upgrade to the paid pro version at http://wtf-fu.com/ , 
-which allows template editing as well as support and automatic updates.
+For VIP support and access to the PRO support forums please upgrade to the paid pro extension 
+http://wtf-fu.com/ which extends the plugin with template editing capability as well as support and updates.
 
 
 = Where can I get more information about how to use this plugin ? =
@@ -319,6 +279,9 @@ lynton@wtf-fu.com detailing your requirements.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 1.1.5 =
+* Updated Readme file.
+
 = 1.1.4 =
 * Simplified and replaced plugin functions in the examples\wtf-fu_hooks_example.php file. 
 with core WordPress code. 
@@ -332,76 +295,25 @@ with core WordPress code.
 * Added default style overrides for workflows.
 
 = 1.1.1 =
-* Minor update related to release tagging.
-
-= 1.1.0 =
 * Initial work-the-flow-file-upload release to WordPress.org repository.
 * Modified directory names to suit generated repository directory.
 * Minor updates to README to reflect new directory location.
 * Minor updates to the workflow demo.
 
-= 0.1.6 =
-* Removed automatic updater, this is now handled by the wordpress.org updater.
-* Added File Upload option to restrict access to logged in users only.
-* Added additional warnings about public access to the File Upload settings page.
-* Updated FAQ with info about the new 'deny_public_uploads' option.
-
-= 0.1.5 =
-* Added plugin option to include powered by link to wtf-fu.com (off by default)
-* Updated FAQ to explain how to restrict public access for uploads.
-
-= 0.1.4 =
-* Changed workflow controller hook mechanism to be more efficient.
-* Removed redundant global plugin testing option (use the workflow testing option instead).
-* Updated demo workflow.
-
-= 0.1.3 =
-* Added extra help into the admin screens.
-* Added single clone and delete functionalities to workflows list screen.
-* Changes to simplify the default workflow page template.
-* Some other minor changes to some default option values.
-
-= 0.1.2 =
-* Added Automatic updates.
-
-= 0.1.1 =
-* Initial wtf-fu release.
- 
-
 == Upgrade Notice ==
+= 1.1.5 =
+* Readme Updates
+* Minor updates to wtf-fu_hooks_example.php
 
 = 1.1.4 =
-* Upgrade for updates to the examples\wtf-fu_hooks_example.php file, 
+* Updates to the examples\wtf-fu_hooks_example.php file, 
 FAQ, README and description updates.
 
-
 = 1.1.3 =
-* Upgrade to add ability to include / exclude the default workflow styling css.
+* Added options include / exclude the default workflow styling css.
 
 = 1.1.2 =
-* Upgrade to add new default css styling of workflow pages.
+* Added default css styling of workflow pages.
 
 = 1.1.1 =
-* Upgrade to fix release tagging issue with 1.1.0.
-
-= 1.1.0 =
-* Upgrade to initial WordPress.org release.
-
-= 0.1.6 =
-* Upgrade to include an 'allow_public_uploads' option on the File Upload settings page.
-
-= 0.1.5 =
-* Upgrade to include an option to add a powered by wtf-fu link to workflows.
-
-= 0.1.4 =
-* Upgrade to receive performance improvements in workflow shortcode processing.
-
-= 0.1.3 =
-* Upgrade to receive extra documentation on the admin screens
-* and ability to clone or delete single workflows (previously only bulk actions could be used for this).
-
-= 0.1.2 =
-* Upgrade to receive automatic updates in the WordPress plugins dashboard.
-
-= 0.1.1 =
-* This is the initial release, so upgrade information is not applicable for this release.
+* Initial WordPress.org release.

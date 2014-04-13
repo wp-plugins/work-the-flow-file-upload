@@ -3,7 +3,7 @@ Contributors: lynton_reed
 Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
-Tested up to: 3.8.1
+Tested up to: 3.8.2
 Stable tag: 1.1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -16,6 +16,20 @@ Embed Html5 User File Uploads and Workflows into pages and posts. Multiple file 
 Embed Html5 User File Uploads and Workflows into pages and posts. Multiple file Drag and Drop upload, Image Gallery display, Reordering and Archiving.
 
 This two in one plugin provides shortcodes to embed front end user file upload capability and / or step by step workflow.
+
+Three separate short-codes are made available to page and post content.
+
+Use :
+`[wtf_fu]` to embed a workflow, 
+`[wtf_fu_upload]` to embed a file upload.
+and 
+`[wtf_fu_show_files]` to embed a display of uploaded files will gallery and reordering options.
+
+Note that the [wtf_fu_upload] and [wtf_fu_show_files] shortcodes may also be embedded inside workflow stage contents.
+This allows for separate upload instances in different workflow stages, 
+for example to upload 10 image only files in stage 3 and 2 music only files in stage 5.
+
+Please read the FAQ for more on the available attributes for these shortcodes.
 
 Workflow configurations, File Upload capabilities and user files can be managed from the admin interface by an administrator.
 

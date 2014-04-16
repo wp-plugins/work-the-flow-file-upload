@@ -78,6 +78,9 @@ class Wtf_Fu {
         add_action('wp_ajax_load_ajax_function', array($this, 'wtf_fu_load_ajax_function'));
         add_action('wp_ajax_nopriv_load_ajax_function', array($this, 'wtf_fu_load_ajax_function'));
 
+        add_action('wp_ajax_wtf_fu_workflow', array($this, 'wtf_fu_ajax_workflow_function'));
+        add_action('wp_ajax_nopriv_wtf_fu_workflow', array($this, 'wtf_fu_ajax_workflow_function'));
+
         add_action('wp_ajax_wtf_fu_show_files', array($this, 'wtf_fu_ajax_show_files_function'));
         add_action('wp_ajax_nopriv_wtf_fu_show_files', array($this, 'wtf_fu_ajax_show_files_function'));
 
@@ -330,17 +333,16 @@ class Wtf_Fu {
     public function enqueue_styles() {
         if (self::wtf_fu_has_shortcode('wtf_fu')) {
 
-            $plugin_options = Wtf_Fu_Options::get_plugin_options();
-
-            if (wtf_fu_get_value($plugin_options, 'include_plugin_style') == true) {
-                wp_enqueue_style($this->plugin_slug . '-tbs-styles', plugins_url($this->plugin_slug) . '/public/assets/css/bootstrap.css', array(), Wtf_Fu::VERSION);
-            }
-
             //wp_enqueue_style($this->plugin_slug . '-bootstrapcdn-style', wtf_fu_BOOTSTRAP_URL . 'css/bootstrap.min.css', array(), self::VERSION);
             wp_enqueue_style($this->plugin_slug . '-bluimp-gallery-style', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'css/blueimp-gallery.min.css', array(), self::VERSION);
             wp_enqueue_style($this->plugin_slug . '-jquery-fileupload-style', wtf_fu_JQUERY_FILE_UPLOAD_URL . 'css/jquery.fileupload.css', array(), self::VERSION);
             wp_enqueue_style($this->plugin_slug . '-jquery-fileupload-ui-style', wtf_fu_JQUERY_FILE_UPLOAD_URL . 'css/jquery.fileupload-ui.css', array(), self::VERSION);
-
+            
+            $plugin_options = Wtf_Fu_Options::get_plugin_options();
+            if (wtf_fu_get_value($plugin_options, 'include_plugin_style') == true) {
+                wp_enqueue_style($this->plugin_slug . '-tbs-styles', plugins_url($this->plugin_slug) . '/public/assets/css/bootstrap.css', array(), Wtf_Fu::VERSION);
+                wp_enqueue_style($this->plugin_slug . '-show-files-css', plugins_url($this->plugin_slug) . '/public/assets/css/wtf-fu-show-files.css', array(), Wtf_Fu::VERSION);               
+            }            
         }
     }
 
@@ -349,18 +351,18 @@ class Wtf_Fu {
      */
     public function enqueue_scripts() {
 
-        if (self::wtf_fu_has_shortcode('wtf_fu')) {
+        //if (self::wtf_fu_has_shortcode('wtf_fu')) {
 
-            wp_enqueue_script($this->plugin_slug . 'jquery-1.9.1.js', "//code.jquery.com/jquery-1.9.1.js");
-            wp_enqueue_script($this->plugin_slug . 'jquery-ui.js', "//code.jquery.com/ui/1.10.4/jquery-ui.js");
-
-
-            wp_enqueue_script($this->plugin_slug . '-plugin-script', plugins_url('assets/js/public.js', __FILE__), array(), self::VERSION);
+            
+           // wp_enqueue_script($this->plugin_slug . '-plugin-script', plugins_url('assets/js/public.js', __FILE__), array(), self::VERSION);
 
 
             if (!wp_script_is('jquery')) {
                 wp_enqueue_script('jquery', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/jquery.min.js');
             }
+            
+            wp_enqueue_script($this->plugin_slug . 'jquery-1.9.1.js', "//code.jquery.com/jquery-1.9.1.js");
+            wp_enqueue_script($this->plugin_slug . 'jquery-ui.js', "//code.jquery.com/ui/1.10.4/jquery-ui.js", array('jquery'), self::VERSION, true);            
 
             wp_enqueue_script($this->plugin_slug . '-jquery-ui-widgit-js', wtf_fu_JQUERY_FILE_UPLOAD_URL . 'js/vendor/jquery.ui.widget.js', array('jquery'), self::VERSION, true);
             wp_enqueue_script($this->plugin_slug . '-blueimp-tmpl-js', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/tmpl.min.js', array('jquery'), self::VERSION, true);
@@ -388,7 +390,50 @@ class Wtf_Fu {
             // <script src="js/cors/jquery.xdr-transport.js"></script>
             //<![endif]-->
             wp_enqueue_script($this->plugin_slug . '-jquery-xdr-transport-js', wtf_fu_JQUERY_FILE_UPLOAD_URL . 'js/cors/jquery.xdr-transport.js', array('jquery'), self::VERSION, true);
-        }
+
+            
+            $url = site_url('/wp-includes/js/wp-ajax-response.js');
+            wp_enqueue_script('wp-ajax-response', $url, array('jquery'), Wtf_Fu::VERSION, true);
+            
+           
+
+            $show_files_handle = $this->plugin_slug . '-show-files-js';
+            wp_enqueue_script(
+                    $show_files_handle, plugin_dir_url(__FILE__) . 'assets/js/wtf-fu-show-files.js', array('jquery', 'wp-ajax-response'), Wtf_Fu::VERSION, true);
+            
+            $ret = wp_localize_script($show_files_handle, 'showfiles_js_vars', array(
+                'url' => admin_url('admin-ajax.php'),
+            ));            
+           
+            $fileupload_handle = $this->plugin_slug . '-file-upload';
+
+            if (!wp_script_is($fileupload_handle, 'enqueued')) {
+                log_me('class-wtf-fu registering and enqueuing ' . $fileupload_handle);
+                wp_register_script($fileupload_handle, plugin_dir_url(__FILE__) . 'assets/js/wtf-fu-file-upload.js', array('jquery', 'wp-ajax-response'), Wtf_Fu::VERSION, true);
+                wp_enqueue_script($fileupload_handle);
+
+                $ret = wp_localize_script($fileupload_handle, 'WtfFuAjaxVars', array('url' => admin_url('admin-ajax.php'),
+                    'absoluteurl' => wtf_fu_JQUERY_FILE_UPLOAD_URL . 'cors/result.html?%s'
+                ));
+
+                log_me("uploadFilesHtml  wp_localize_script for $fileupload_handle = $ret");
+            } else {
+                log_me("$fileupload_handle is already enqueued");
+            }
+            
+            
+           $workflow_handle = $this->plugin_slug . '-workflow-js';
+            wp_enqueue_script($workflow_handle, plugin_dir_url(__FILE__) . 'assets/js/wtf-fu-workflow.js', 
+                    array('jquery', 'wp-ajax-response', $fileupload_handle, $show_files_handle), 
+                    Wtf_Fu::VERSION, true);
+
+            $ret = wp_localize_script($workflow_handle, 'workflow_js_vars', array(
+                'action' => 'wtf_fu_workflow',
+                'url' => admin_url('admin-ajax.php'),
+                'fn' => 'generate_page'
+            ));            
+            
+       // }
     }
 
     function file_upload_shortcode($attr) {
@@ -398,7 +443,8 @@ class Wtf_Fu {
     }
 
     function show_files_shortcode($attr) {
-        $shortcode_instance = new Wtf_Fu_Show_Files_Shortcode($attr);
+        $shortcode_instance = Wtf_Fu_Show_Files_Shortcode::get_instance();
+        $shortcode_instance->set_options($attr);
         $content = $shortcode_instance->generate_content();
         return $content;
     }
@@ -412,6 +458,10 @@ class Wtf_Fu {
      */
     function wtf_fu_load_ajax_function() {
         Wtf_Fu_Fileupload_Shortcode::wtf_fu_load_ajax_function();
+    }
+
+    function wtf_fu_ajax_workflow_function() {
+        Wtf_Fu_Workflow_Shortcode::get_instance()->wtf_fu_ajax_workflow_function();
     }
 
     function wtf_fu_ajax_show_files_function() {
@@ -434,15 +484,14 @@ class Wtf_Fu {
             case 'workflow' :
                 $options = shortcode_atts(array('type' => 'workflow', 'id' => ''), $attr);
 
-                $shortcode_instance = new Wtf_Fu_Workflow_Shortcode($options);
-                $content = $shortcode_instance->generate_content();
+                $wf_instance = Wtf_Fu_Workflow_Shortcode::get_instance();
+                $wf_instance->init_options($options);
+                $content = $wf_instance->generate_content($options);
 
                 if (!empty($content)) {
-                    global $shortcode_tags;
-                    log_me(array('shortcode_tags' => $shortcode_tags));
-
-
-                    $content = do_shortcode($content); // Process any embedded short codes.
+                    //global $shortcode_tags;
+                    //log_me(array('shortcode_tags' => $shortcode_tags));
+//                    $content = do_shortcode($content); // Process any embedded short codes.
                     //$content = apply_filters( 'the_content', $content );
                 }
 
@@ -495,21 +544,29 @@ class Wtf_Fu {
     }
 
     /**
-     * check the current post for the existence of a short code  
+     * Check the current post for the existence of a short code.
+     * If we are not directly called as the result of an initial post then 
+     * returns false.
+     *  
      * @param type $shortcode
      * @return boolean
      */
     private static function wtf_fu_has_shortcode($shortcode = '') {
 
+        if (!get_post()) {
+            return false;
+        }
+        
         $post_to_check = get_post(get_the_ID());
 
         // false because we have to search through the post content first  
         $found = false;
 
         // if no short code was provided, return false  
-        if (!$shortcode) {
+        if (!$shortcode || !$post_to_check) {
             return $found;
         }
+        
         // check the post content for the short code  
         if (stripos($post_to_check->post_content, '[' . $shortcode) !== false) {
             // we have found the short code  

@@ -1,7 +1,4 @@
 /*
- * Public Javascript loaded with the main plugin file.
- * 
- * If possible create local files instead as Javascript in here 
- * gets loaded for every page.
- * 
+ * Intentionally empty. /used as a placeholder for dynamic
+ * ajax vars to be injected into pages at run time.
  */

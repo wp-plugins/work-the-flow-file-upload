@@ -33,52 +33,115 @@ class Wtf_Fu_Workflow_Shortcode {
      * 
      * @param type $attr
      */
-    public function __construct($attr) {
-        $this->options = $attr;
+    private function __construct() {
+        $this->enqueue_scripts();
         add_action('wtf_fu_workflow_init', array($this, 'workflow_controller'));
     }
 
+    /**
+     * Register and enqueues JavaScript files specific to this shortcode.
+     * 
+     * NOTE : this is NOT called on the wp_enqueue hook as that is called before this
+     * class is contructed.
+     */
+    public function enqueue_scripts() {
+        /*
+         * Add the ajax handler javascript.
+         */
+
+//        log_me('workflow shortcode enqueue_scripts');
+//        
+//        wp_enqueue_script(
+//                'wp-ajax-response', site_url('/wp-includes/js/wp-ajax-response.js'), array('jquery'), true);
+//
+//        $script_handle = $this->plugin_slug . '-workflow-js';
+//        wp_enqueue_script(
+//                $script_handle, plugin_dir_url(__FILE__) . '../assets/js/wtf-fu-workflow.js', array('jquery', 'wp-ajax-response'), Wtf_Fu::VERSION, true);
+    }
 
     /**
-     * Processes all the options for workflows stages and user
-     * and then generates a page for the current stage and workflow.
-     * @param type $stage
-     * @param type $options
-     * @return type
+     * Callback from ajax javascript.
+     * 
      */
-    function generate_workflow_stage_page($options) {
+    public function wtf_fu_ajax_workflow_function() {
 
-        if (!array_key_exists('id', $options)) {
-            die("No 'id' attribute was found. Check that the shortcode contains the 'id' attribute. Try [wtf-fu id=\"1\"]  or  [wtf-fu type=\"workflow\" id=\"1\"]");
+        // log_me(array("wtf_fu_ajax_workflow_function" => $_REQUEST));
+        
+        switch ($_REQUEST['fn']) {
+
+            case 'generate_page' :
+                do_action("wtf_fu_workflow_init");
+                $html = $this->generate_workflow_stage_page();
+                break;
+
+            default:
+                break;
         }
 
-        // id fron the passed shortcode options 
-        $wfid = $options['id'];
+        $response = array(
+            'what' => 'stuff',
+            'action' => 'wtf_fu_workflow',
+            'id' => '1', //new WP_Error('oops','I had an accident.'),
+            'data' => $html,
+                //    'supplemental'
+        );
+
+        $xmlResponse = new WP_Ajax_Response($response);
+        $xmlResponse->send();
+        /*
+         * Intentional, must always die or exit after an ajax call.
+         */
+        exit;
+    }
+    
+    /**
+     * Generates a page for the users current stage in a workflow.
+     * 
+     * @param type $options  shortcode attributes for initial construction.
+     * if null then POST vars used instead for subsequent calls via ajax.
+     * 
+     * @return string  - html page of the content.
+     */
+    function generate_workflow_stage_page($options = null) {
+
+        if (isset($options)) {
+            if (!array_key_exists('id', $options)) {
+                die("No 'id' attribute was found. Check that the shortcode contains the 'id' attribute. Try [wtf-fu id=\"1\"]  or  [wtf-fu type=\"workflow\" id=\"1\"]");
+            }
+            // id fron the passed shortcode options 
+            $wfid = $options['id'];            
+        } else { // get the wfid from the post vars.
+
+            if (!isset($_POST['workflow_id'])) {
+                log_me('workflow_id not found in POST vars.');
+            }
+            $wfid = $_POST['workflow_id'];          
+        }
+
 
         // This workflows options.
-        $wf_options = Wtf_Fu_Options::get_workflow_options($wfid); 
+        $wf_options = Wtf_Fu_Options::get_workflow_options($wfid);
         $plugin_options = Wtf_Fu_Options::get_plugin_options();
-        
+
         if (wtf_fu_get_value($wf_options, 'include_plugin_style_default_overrides') == true) {
             /*
              * If a plugin has its own style then hook loading the style sheet.
              */
             if (has_action('wtf_fu_enqueue_styles_action')) {
-                do_action('wtf_fu_enqueue_styles_action');               
+                do_action('wtf_fu_enqueue_styles_action');
+            } else { // use default sheet.
+                wp_enqueue_style($this->plugin_slug . '-tbs-workflow-defaults', plugins_url($this->plugin_slug) . '/public/assets/css/workflow_default.css', array(), Wtf_Fu::VERSION);
             }
-            else { // use default sheet.
-               wp_enqueue_style($this->plugin_slug . '-tbs-workflow-defaults', plugins_url($this->plugin_slug) . '/public/assets/css/workflow_default.css', array(), Wtf_Fu::VERSION);
-            }      
         }
-                    
-        
+            
+
         $show_powered_by_link = wtf_fu_get_value($plugin_options, 'show_powered_by_link');
 
 
         // This user's workflow options including the current stage they are at in this workflow.
         $user_wf_options = Wtf_Fu_Options::get_user_workflow_options($wfid, 0, true);
 
-        log_me(array('user_wf_options' => $user_wf_options));
+        //log_me(array('user_wf_options' => $user_wf_options));
 
         if ($user_wf_options === false) {
             // User not logged on so we get the stage from the form submit action.
@@ -93,6 +156,16 @@ class Wtf_Fu_Workflow_Shortcode {
             // The current stage after processing any form actions for 'prev' or 'next'
             $stage = $user_wf_options['stage'];
         }
+        
+        $ret = wp_localize_script($this->plugin_slug . '-workflow-js', 'workflow_js_vars', array(
+            'action' => 'wtf_fu_workflow',
+            'url' => admin_url('admin-ajax.php'),
+            'fn' => 'generate_page',
+            'workflow_id' => $wfid,
+            'stage' => $stage
+        ));
+
+        log_me("workflow generate_content()  wp_localize_script returned [$ret]");        
 
         // Stage specfic options and content settings
         $stage_options = Wtf_Fu_Options::get_workflow_stage_options($wfid, $stage);
@@ -122,7 +195,49 @@ class Wtf_Fu_Workflow_Shortcode {
         );
 
         $page = str_replace(array_keys($replace), array_values($replace), $page_template);
+
+        // Process any embedded short codes that require manual handling .
+        //$page = $this->do_shortcode_manually($page); 
+        
+        // Attempt any other known shortcodes
+        $page = do_shortcode($page);
+        
         return $page;
+    }
+    
+    /**
+     * Do any wtf-fu shortcodes manually here.
+     * This is because calling do_shortcode() directly on a [wtf-fu-upload] shortcode
+     * The shortcode handler cannot access wp_localise_scripts correctly and so impossible for it 
+     * to correctly set the needed js vars.
+     * 
+     * To work around this we need to process any wtf-fu codes here. 
+     * @param type $page
+     */
+    function do_shortcode_manually($page) {
+            
+        $pattern = '/\[wtf_fu_upload([^\]]*)\]/';
+        $matches = array();
+        
+        if (preg_match_all($pattern, $page, $matches,  PREG_SET_ORDER) != 0) {
+            foreach ($matches as $match) {
+                $page = str_replace($match[0], $this->process_upload_shortcode($match[1]), $page);
+            }
+        }
+        
+        return $page;
+    }
+    
+    /**
+     * manually process a wtf_fu_upload shortcode.
+     * @param type $code
+     */
+    function process_upload_shortcode( $attr_str ) {
+        log_me("process_upload_shortcode for attr_str = $attr_str");
+
+        $upload_instance = new Wtf_Fu_Fileupload_Shortcode( shortcode_parse_atts( $attr_str ) );
+        
+        return $upload_instance->generate_content();
     }
 
     /**
@@ -137,10 +252,10 @@ class Wtf_Fu_Workflow_Shortcode {
      */
     public static function workflow_controller() {
 
-        log_me('workflow_controller');
+        //log_me(array('workflow_controller request=' => $_REQUEST));
 
         if (!isset($_POST['workflow_id'])) {
-            log_me('workflow_id not found in wtf_fu_controller_form post request.');
+            log_me('workflow_id not found in workflow_controller request.');
             return;
         }
 
@@ -163,18 +278,23 @@ class Wtf_Fu_Workflow_Shortcode {
         // Inspect POST vars for a stage change.
         // only set to next or prev if it is an increment of 1
         // from the current stage.
-        if (isset($_POST['prev']) && wtf_fu_get_value($old_stage_options, 'back_active')) {
-            $trynew = (int) $_POST['prev'];
-            if ($trynew === $new - 1) {
-                $new = $trynew;
-            }
+        if (isset($_POST['button_name'])) {
+            $new = (int) $_POST['button_value'];
         }
-        if (isset($_POST['next']) && wtf_fu_get_value($old_stage_options, 'next_active')) {
-            $trynew = (int) $_POST['next'];
-            if ($trynew === $new + 1) {
-                $new = $trynew;
-            }
-        }
+        
+        
+//        if (isset($_POST['prev']) && wtf_fu_get_value($old_stage_options, 'back_active')) {
+//            $trynew = (int) $_POST['prev'];
+//            if ($trynew === $new - 1) {
+//                $new = $trynew;
+//            }
+//        }
+//        if (isset($_POST['next']) && wtf_fu_get_value($old_stage_options, 'next_active')) {
+//            $trynew = (int) $_POST['next'];
+//            if ($trynew === $new + 1) {
+//                $new = $trynew;
+//            }
+//        }
         if ($new < 0) {
             $new = 0;
         }
@@ -200,7 +320,7 @@ class Wtf_Fu_Workflow_Shortcode {
             }
 
             if ($user_settings !== false) {
-                log_me("updating user stage from $old => $new");
+               // log_me("updating user stage from $old => $new");
                 Wtf_Fu_Options::update_user_workflow_stage($workflow_id, $new);
             }
         }
@@ -225,8 +345,11 @@ class Wtf_Fu_Workflow_Shortcode {
             $next_label = wtf_fu_get_value($wf_options, 'default_next_label');
         }
 
-        $ret = '<form action="" method="post">'
-                . "<input type='hidden' name='action' value='workflow_controller' />"
+        $action_href = admin_url() . 'admin-ajax.php';
+
+        $ret = "<form id='wtf_workflow_form' action='$action_href' method='post'>"
+                . "<input type='hidden' name='action' value='wtf_fu_workflow' />"
+                . "<input type='hidden' name='fn' value='generate_page' />"
                 . "<input type='hidden' name='workflow_id' value='$workflow_id' />"
                 . "<input type='hidden' name='stage' value='$stage' />";
 
@@ -251,10 +374,10 @@ class Wtf_Fu_Workflow_Shortcode {
     }
 
     private function createButton($name, $value, $icon, $span, $icon_side = 'left', $class = "btn btn-primary", $confirm = null, $type = "submit") {
-        $button = '<button name="' . $name . '" type="' . $type . '" class="' . $class . '" value="'
-                . $value . '"';
+        $button = '<button id="workflow_submit_button" name="' . $name . '" type="' . $type . '" class="' . $class . '" value="'
+                . $value . '"';        
+
         if ($confirm !== null) {
-            //$button .= " onClick=\"return confirm('$confirm');\"";
             $button .= $confirm;
         }
         $button .= '>';
@@ -269,9 +392,40 @@ class Wtf_Fu_Workflow_Shortcode {
         return $button;
     }
 
-    public function generate_content() {
+    /**
+     * Generate initial rendering of the shortcode.
+     * 
+     * @param type $options
+     * @return type
+     */
+    public function generate_content($options) {
+        
         do_action("wtf_fu_workflow_init");
-        return $this->generate_workflow_stage_page($this->options);
+        
+        $page = $this->generate_workflow_stage_page($options);
+        
+        return "<div id=\"workflow_response\">$page</div>";   
+    }
+
+    public function init_options($options) {
+        $this->options = $options;
+    }
+
+    /**
+     * Return a singleton instance of this class.
+     * @return    object    A single instance of this class.
+     */
+    public static function get_instance() {
+
+        // If the single instance hasn't been set, set it now.
+        if (null == self::$instance) {
+            self::$instance = new self;
+            log_me("new " . __CLASS__ . " instance created.");
+            return self::$instance;
+        }
+
+        log_me("existing  " . __CLASS__ . " instance returned.");
+        return self::$instance;
     }
 
 }

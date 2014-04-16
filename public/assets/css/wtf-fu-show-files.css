@@ -3,7 +3,7 @@
 */
 
 .list {
-    background-color: pink;
+//    background-color: pink;
     font-size: 30px;
     text-align: center;
     cursor: pointer;
@@ -12,6 +12,18 @@
         Helvetica,
         sans-serif;
     border: 1px solid gray;
+}
+li.list div.reorder-number
+{
+    background: white;
+    color: blue;
+    float: left;
+    padding-left: 5px;
+    padding-right: 5px;
+    position: relative;
+    top: -78px;
+    z-index: 2;
+    opacity: 0.5;
 }
  
 .items.ui-selected {
@@ -75,11 +87,11 @@
 #files_container {
     float:left;
     width:100%;
-//    border:1px solid red;
+ //   border:1px solid red;
 //    height:100%;
     float: left;
- //   overflow: auto;
-    //border:2px solid blue;
+//    overflow: auto;
+    border:2px solid blue;
 }
 
 

@@ -2,25 +2,25 @@
 
 /*  Copyright 2013  Lynton Reed  (email : lynton@wtf-fu.com)
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as 
-    published by the Free Software Foundation.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License, version 2, as
+  published by the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 
 require_once( plugin_dir_path(__FILE__) . '../../includes/class-wtf-fu-options.php' );
 require_once( plugin_dir_path(__FILE__) . '../../includes/wtf-fu-common-utils.php' );
 require_once( plugin_dir_path(__FILE__) . 'wtf-fu-templates.php' );
 
-define ('WTF_FU_BAD_IMAGE_URL' , plugins_url('public/assets/img/error.svg'));
+define('WTF_FU_BAD_IMAGE_URL', plugins_url('public/assets/img/error.svg'));
 
 /**
  * class-wtf-fu-filereorder-shortcode.php
@@ -37,23 +37,18 @@ class Wtf_Fu_Show_Files_Shortcode {
     protected $options;
     protected $files;
     protected $paths;
-    
-    
 
     /**
-     * Constructor for the class Wtf_Fu_Filereorder_Shortcode
+     * Set up the class options from the passed array of atributes.
+     * This may be via an initial shortcode request or via request vars after an ajax form sumbit
+     * during re-ordering processing.
      * 
-     * It is constructed from shortcode attributes for the files location
-     * under the user upload directory. 
+     * @param type $attr
      */
-    public function __construct($attr) {
-
+    public function set_options($attr) {
         
-        log_me('__construct  Wtf_Fu_Filereorder_Shortcode ');
+        log_me(array("set_options passed in " => $attr));
         
-        $this->enqueue_styles();
-
-
         /*
          * retrieve the default upload options to act as defaults.
          */
@@ -70,13 +65,10 @@ class Wtf_Fu_Show_Files_Shortcode {
             'wtf_upload_subdir' => $default_upload_settings['wtf_upload_subdir'],
             'reorder' => false,
             'gallery' => false,
-            'file_type' => "image",        
+            'file_type' => "image",
+            'email_format' => false
                 ), $attr);
 
-         if( $this->options['reorder'] == true) {
-             $this->enqueue_scripts();
-         }
-                
         /*
          * Current User upload directory paths.
          */
@@ -86,15 +78,14 @@ class Wtf_Fu_Show_Files_Shortcode {
          * Glob the files.
          */
         $this->files = array();
-        
+
         /*
          * Sort the files by timestamp with the oldest files first.
          */
         $filearray = glob($this->paths['upload_dir'] . '/*');
-        
-        array_multisort(array_map('filemtime', $filearray), 
-                SORT_NUMERIC, SORT_ASC, $filearray); 
-        
+
+        array_multisort(array_map('filemtime', $filearray), SORT_NUMERIC, SORT_ASC, $filearray);
+
         foreach ($filearray as $filename) {
 
             if (!is_dir($filename)) {
@@ -120,6 +111,32 @@ class Wtf_Fu_Show_Files_Shortcode {
         }
     }
 
+    /**
+     * Constructor for the class Wtf_Fu_Filereorder_Shortcode
+     * 
+     * It is constructed from shortcode attributes for the files location
+     * under the user upload directory. 
+     */
+    public function __construct() {
+        log_me('__construct  Wtf_Fu_Filereorder_Shortcode ');
+    }
+
+    /**
+     * Return a singleton instance of this class.
+     * @return    object    A single instance of this class.
+     */
+    public static function get_instance() {
+
+        // If the single instance hasn't been set, set it now.
+        if (null == self::$instance) {
+            self::$instance = new self;
+            log_me("new " . __CLASS__ . " instance created.");
+            return self::$instance;
+        }
+
+        log_me("existing  " . __CLASS__ . " instance returned.");
+        return self::$instance;
+    }
 
     /**
      * Callback from ajax javascript.
@@ -136,25 +153,24 @@ class Wtf_Fu_Show_Files_Shortcode {
      */
     public static function wtf_fu_ajax_show_files_function() {
 
-        log_me(array("wtf_fu_ajax_reorder_function" => $_REQUEST));
+        //log_me(array("wtf_fu_ajax_reorder_function" => $_REQUEST));
 
         switch ($_REQUEST['fn']) {
 
             case 'show_files' :
-                
+
                 $paths = wtf_fu_get_user_upload_paths(
-                        $_REQUEST['wtf_upload_dir'], 
-                        $_REQUEST['wtf_upload_subdir']);
+                        $_REQUEST['wtf_upload_dir'], $_REQUEST['wtf_upload_subdir']);
 
                 /*
                  * Loop over the files and update the timestamps
                  * 
                  * This should mean that the resulting files when sorted in 
                  * date-time order will be in the order as arranged by the user.
-                 */   
+                 */
                 wtf_fu_set_files_order_times($paths['upload_dir'], $_REQUEST['files']);
-               
-                
+
+
                 /*
                  * Also write a file with the list of files order to the user 
                  * root Directory.
@@ -165,29 +181,40 @@ class Wtf_Fu_Show_Files_Shortcode {
                 $file_order_txt = 'User File ordering selections : ' . PHP_EOL;
                 $i = 1;
                 foreach ($_REQUEST['files'] as $file) {
-                    $file_order_txt .= sprintf("%3s\t%s%s" ,
-                            $i, $file, PHP_EOL);
-                    $i++;             
+                    $file_order_txt .= sprintf("%3s\t%s%s", $i, $file, PHP_EOL);
+                    $i++;
                 }
-                
-                wtf_fu_write_file( 
-                    $paths['basedir'] . '/' . $filename, $file_order_txt);
-                
+
+                wtf_fu_write_file(
+                        $paths['basedir'] . '/' . $filename, $file_order_txt);
+
                 break;
 
             default:
                 break;
         }
 
-        $response = array(
-           'what'=>'stuff',
-           'action'=> 'wtf_fu_show_files',
-           'id'=> '1', //new WP_Error('oops','I had an accident.'),
-           'data'=>'The new file order has been successfully updated.'
-       //    'supplemental'
-        );
+        /**
+         * Instantiate an instance of the class and initialize from the REQUEST 
+         * form vars.
+         */
+        $instance = self::get_instance();
+        $instance->set_options($_REQUEST);
         
+        $content = $instance->generate_files_div();
+
+        //log_me('content =' . $content);
+        
+        $response = array(
+            'what' => 'stuff',
+            'action' => 'wtf_fu_show_files',
+            'id' => '1', //new WP_Error('oops','I had an accident.'),
+            'data' => $content
+        );
+
         $xmlResponse = new WP_Ajax_Response($response);
+
+        log_me(array('xmlresponse' => $xmlResponse));
         $xmlResponse->send();
         /*
          * Intentional, must always die or exit after an ajax call.
@@ -202,102 +229,42 @@ class Wtf_Fu_Show_Files_Shortcode {
      * need to better separate image / music / reorder styles.
      */
     function generate_content() {
-        
+
         $html = '';
-        $container_id = 'files_container';
-        $ul_id = 'reorder_sortable';
-       // $file_id = 'files_list';
-        
-        if( $this->options['reorder'] == true) {
-        
-            $ret = wp_localize_script($this->plugin_slug . '-show-files-js', 
-                'show_files_js_vars', 
-                array (
-                    'action' => 'wtf_fu_show_files',
-                    'url' => admin_url('admin-ajax.php'),
-                    'fn' => 'show_files',
-                    'wtf_upload_dir' => $this->options['wtf_upload_dir'], 
-                    'wtf_upload_subdir' => $this->options['wtf_upload_subdir']
-                ));
 
-           // log_me("reorder generate_content()  wp_localize_script returned [$ret]");
-            $container_id = 'sort_container';
-            $ul_id = 'reorder_sortable';
+        /*
+         * If we are reordering then we need a submit button and to store all the options,
+         * so we can re-generate the content after submission of the new order.
+         */
+        if ($this->options['reorder'] == true) {
 
-            $html = '<div><button id="reorder_submit_button" class="btn btn-success">
+            $action_href = admin_url('admin-ajax.php');
+
+            $form_vars = '';
+            foreach ($this->options as $k => $v) {
+                $form_vars = $form_vars . '<input type="hidden" name="' . $k . '" value="' . $v . '" />';
+            };
+
+            $html = "<form id='wtf_show_files_form' action='$action_href' method='post'>"
+                    . "<input type='hidden' name='action' value='wtf_fu_show_files' />"
+                    . "<input type='hidden' name='fn' value='show_files' />";
+
+            $html .= $form_vars;
+            $html .= '<div><button id="reorder_submit_button" class="btn btn-success" type="submit">
                 <i class="glyphicon glyphicon-retweet"></i><span>&nbsp;&nbsp;&nbsp;Save new file order</span></button></div>';
 
-            $html .= '<div id="reorder_response"><p>&nbsp;<p></div>';
-        }
-        
-        
-        switch ( $this->options['file_type'] ) {
-            case 'image' :
-                $ul_id = 'reorder_sortable';
-               // $file_id = 'files_list'; 
-                break;
-            case 'music' :
-                $ul_id = 'files_list';   
-                break;
+            $html .= '<div id="reorder_response"><p>&nbsp;<p></div></form>';
         }
 
-        $html .= '<div id="links" class="links">';
-        $html .= "<div id='$container_id'>";
-        $html .= "<ul id='$ul_id'>";
 
-        $i = 0;
-        foreach ($this->files as $file) {
-            $i++;
-            switch ( $this->options['file_type'] ) {
-                
-                case 'image' :
-                    $file_link = sprintf(                    
-                        '<a href="%s" title="%s" data-gallery><img src="%s" alt="%s"></a>', 
-                        $file->fileurl, 
-                        $file->basename, 
-                        $file->thumburl, 
-                        $file->basename);
-                    
-                        $html .= sprintf(
-                            '<li title="%s"><span class="ui-icon ui-icon-arrowthick-2-n-s">%s</span>%s</li>', 
-                                $file->basename, $i, $file_link);  
-                        
-                    break;
-                
-                case 'music' :
-                    
-                    $file_link = sprintf( 
-                        '<p>%s&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p><p><audio src="%s" controls="controls"></audio></p>', 
-                        $i,
-                        $file->fileurl,
-                        $file->basename,
-                        $file->fileurl                         
-                    ); 
-                        $html .= sprintf(
-                            '<li title="%s">%s</li>', 
-                                $file->basename, $file_link);  
-                        
-//                        $html .= sprintf(
-//                            "<li title='%s'><span>%s&nbsp;%s</span></li>", 
-//                                $file->basename, $i, $file_link); 
-                        
-                    break;
-                
-                default:
-                    $file_link = sprintf (
-                        '<a href="%s">%s</a>',
-                        $file->fileurl, 
-                        $file->basename
-                    );                             
-                            
-                    break;      
-            }                                 
-
+        if ($this->options['email_format'] == true) {
+            log_me('TODO : add css styles for external output to email.');
         }
 
-        $html .= '</ul></div></div>';
-        
-        if( $this->options['gallery'] == true) {
+        $html .= '<div id="links" class="links">' . $this->generate_files_div() . '</div>';
+
+
+        if ($this->options['gallery'] == true) {
             $script = <<<GALLERYJSTEMPLATE
    <!-- The blueimp Gallery widget -->
 <div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter="">
@@ -310,46 +277,62 @@ class Wtf_Fu_Show_Files_Shortcode {
     <ol class="indicator"></ol>
 </div>
 GALLERYJSTEMPLATE;
-            
-            
+
+
             $html .= $script; // getGalleryWidgetTemplate();
         }
-        
+
         return $html;
     }
 
-    /**
-     * Register and enqueue class related style sheet.
-     * NOTE : this is NOT called on the wp_enqueue hook as that is called before this
-     * class is contructed.
-     * 
-     * @since    1.0.0
-     */
-    public function enqueue_styles() {
-        wp_enqueue_style($this->plugin_slug . '-show-files-css', plugins_url('../assets/css/wtf-fu-show-files.css', __FILE__), array(), Wtf_Fu::VERSION);
+    public function generate_files_div() {
+
+        $container_id = 'files_container';
+        $ul_id = 'files_list';
+                
+        if ($this->options['reorder'] == true) {
+            $container_id = 'sort_container';
+            $ul_id = 'reorder_sortable';
+        }
+
+        $html = "<div id='$container_id'>";
+        $html .= "<ul id='$ul_id'>";
+
+        $i = 0;
+        foreach ($this->files as $file) {
+            $i++;
+            switch ($this->options['file_type']) {
+
+                case 'image' :
+                    $file_link = sprintf(
+                            '<a href="%s" title="%s" data-gallery><img src="%s" alt="%s"></a>', $file->fileurl, $file->basename, $file->thumburl, $file->basename);
+
+                    $html .= sprintf(
+                            '<li class="list" title="%s">%s<div class="reorder-number">%s</div></li>', $file->basename, $file_link, $i);
+
+                    break;
+
+                case 'music' :
+
+                    $file_link = sprintf(
+                            '<p>%s&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p><p><audio src="%s" controls="controls"></audio></p>', $i, $file->fileurl, $file->basename, $file->fileurl
+                    );
+                    $html .= sprintf(
+                            '<li title="%s">%s</li>', $file->basename, $file_link);
+
+                    break;
+
+                default:
+                    $file_link = sprintf(
+                            '<a href="%s">%s</a>', $file->fileurl, $file->basename
+                    );
+
+                    break;
+            }
+        }
+
+        $html .= '</ul></div>';
+        return $html;
     }
 
-    /**
-     * Register and enqueues JavaScript files specific to this shortcode.
-     * 
-     * NOTE : this is NOT called on the wp_enqueue hook as that is called before this
-     * class is contructed.
-     */
-    public function enqueue_scripts() {
-        /*
-         * Add the ajax handler javascript.
-         */
-
-        wp_enqueue_script(
-                'wp-ajax-response', 
-                site_url('/wp-includes/js/wp-ajax-response.js'), 
-                array( 'jquery' ), true );
-        
-        $script_handle = $this->plugin_slug . '-show-files-js';
-        wp_enqueue_script(
-                $script_handle, 
-                plugin_dir_url(__FILE__) . '../assets/js/wtf-fu-show-files.js', 
-                array('jquery', 'wp-ajax-response'), Wtf_Fu::VERSION, true);        
-    }
-    
 }

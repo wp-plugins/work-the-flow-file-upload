@@ -75,6 +75,21 @@ function wtf_fu_write_file($filename, $text) {
 
 }
 
+function wtf_fu_get_javascript_form_vars($name, $php_array) {
+    
+    $js_array = json_encode($php_array);
+    
+    $js  = <<<EOS
+<script type='text/javascript'>
+/* <![CDATA[ */
+var $name = $js_array;
+/* ]]> */             
+</script>
+EOS;
+ 
+    return $js;
+}
+
 /**
  * Tests an array for a key and returns the keys value if the key exists 
  * and is not empty.

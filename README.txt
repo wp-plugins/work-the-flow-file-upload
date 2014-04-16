@@ -21,9 +21,9 @@ Three separate short-codes are made available to page and post content.
 
 Use :
 `[wtf_fu]` to embed a workflow, 
-`[wtf_fu_upload]` to embed a file upload.
+`[wtf_fu_upload]` to embed a file upload form.
 and 
-`[wtf_fu_show_files]` to embed a display of uploaded files will gallery and reordering options.
+`[wtf_fu_show_files]` to embed a display of uploaded files with gallery and file re-ordering options.
 
 Note that the [wtf_fu_upload] and [wtf_fu_show_files] shortcodes may also be embedded inside workflow stage contents.
 This allows for separate upload instances in different workflow stages, 

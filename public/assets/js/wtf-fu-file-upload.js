@@ -1,34 +1,53 @@
-jQuery(function () {
-    'use strict';
+function wtf_file_upload_init() {
     
+    
+    if ($("#fileupload").length === 0) {
+        return; // nothing to do.
+    } 
+
+    console.log('wtf_init activation.');
+       
+    // Capture form data fields to pass on to ajax request as POST vars.
+    var WtfFuUploadFormData = $("#fileupload").serializeArray();
+
     // Initialize the jQuery File Upload widget:
-    jQuery('#fileupload').fileupload({
+    $('#fileupload').fileupload({
         // Uncomment the following to send cross-domain cookies:
         //xhrFields: {withCredentials: true},
-        url: WtfFileUploadVars.url,
+        url: WtfFuAjaxVars.url
     });
 
     // Enable iframe cross-domain access via redirect option:
-    jQuery('#fileupload').fileupload(
+    $('#fileupload').fileupload(
         'option',
         'redirect',
-        WtfFileUploadVars.absoluteurl
+        WtfFuAjaxVars.absoluteurl
     );
 
     // Load existing files:
-    jQuery('#fileupload').addClass('fileupload-processing');
-    
-    jQuery.ajax({
-       url: jQuery('#fileupload').fileupload('option', 'url'),
-       data: WtfFileUploadVars.data,
+    $('#fileupload').addClass('fileupload-processing');
+ 
+    $.ajax({
+       url: WtfFuAjaxVars.url, // $('#fileupload').fileupload('option', 'url'),
+       data: WtfFuUploadFormData, // serialized form fields,
        dataType: 'json',
-       context: jQuery('#fileupload')[0]
+       context: $('#fileupload')[0]
     }).always(function () {
-        jQuery(this).removeClass('fileupload-processing');
+        $(this).removeClass('fileupload-processing');
     }).done(function (result) {
-        jQuery(this).fileupload('option', 'done')
-            .call(this, jQuery.Event('done'), {result: result});
-    });     
-});
+        $(this).fileupload('option', 'done')
+            .call(this, $.Event('done'), {result: result});
+    });    
+    
+} //end wtf_init
+
+
+(function ($) {
+    'use strict';
+
+// call at load time.
+wtf_file_upload_init();
+
+})(jQuery);
 
 

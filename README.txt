@@ -3,8 +3,8 @@ Contributors: lynton_reed
 Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
-Tested up to: 3.9.1
-Stable tag: 1.2.0
+Tested up to: 3.9.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 

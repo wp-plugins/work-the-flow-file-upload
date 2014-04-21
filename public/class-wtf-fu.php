@@ -351,7 +351,7 @@ class Wtf_Fu {
      */
     public function enqueue_scripts() {
 
-        //if (self::wtf_fu_has_shortcode('wtf_fu')) {
+        if (self::wtf_fu_has_shortcode('wtf_fu')) {
 
             
            // wp_enqueue_script($this->plugin_slug . '-plugin-script', plugins_url('assets/js/public.js', __FILE__), array(), self::VERSION);
@@ -433,7 +433,7 @@ class Wtf_Fu {
                 'fn' => 'generate_page'
             ));            
             
-       // }
+        }
     }
 
     function file_upload_shortcode($attr) {

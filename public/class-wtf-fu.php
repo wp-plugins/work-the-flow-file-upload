@@ -43,7 +43,7 @@ class Wtf_Fu {
      * references.
      * @var     string
      */
-    const VERSION = '1.1.5';
+    const VERSION = '1.2.0';
 
     /**
      * Unique plugin identifier.

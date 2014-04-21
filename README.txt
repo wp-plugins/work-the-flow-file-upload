@@ -293,6 +293,13 @@ lynton@wtf-fu.com detailing your requirements.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 1.2.1 = 
+* Minor update of upgrade information, missing from 1.2.0.
+
+= 1.2.0 = 
+* Moved to ajax processing of workflow forms, giving a major performance improvement when moving from stage to stage.
+* Updated image numbering css to display numbers overlaid in top left corner of thumbnails and removed box borders.
+
 = 1.1.5 =
 * Updated Readme file.
 
@@ -315,6 +322,13 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 1.2.1 = 
+* Minor update of upgrade information, missing from 1.2.0.
+
+= 1.2.0 = 
+* Moved to ajax processing of workflow forms, giving a major performance improvement when moving from stage to stage.
+* Updated default image layout css.
+
 = 1.1.5 =
 * Readme Updates Only. No functional changes.
 

@@ -32,7 +32,7 @@ define('WTF_FU_BAD_IMAGE_URL', plugins_url('public/assets/img/error.svg'));
  */
 class Wtf_Fu_Show_Files_Shortcode {
 
-    protected $plugin_slug = 'wtf-fu';
+    protected $plugin_slug = 'work-the-flow-file-upload';
     protected static $instance = null;
     protected $options;
     protected $files;
@@ -202,8 +202,6 @@ class Wtf_Fu_Show_Files_Shortcode {
         $instance->set_options($_REQUEST);
         
         $content = $instance->generate_files_div();
-
-        //log_me('content =' . $content);
         
         $response = array(
             'what' => 'stuff',
@@ -231,7 +229,7 @@ class Wtf_Fu_Show_Files_Shortcode {
     function generate_content() {
 
         $html = '';
-
+        
         /*
          * If we are reordering then we need a submit button and to store all the options,
          * so we can re-generate the content after submission of the new order.
@@ -245,7 +243,7 @@ class Wtf_Fu_Show_Files_Shortcode {
                 $form_vars = $form_vars . '<input type="hidden" name="' . $k . '" value="' . $v . '" />';
             };
 
-            $html = "<form id='wtf_show_files_form' action='$action_href' method='post'>"
+            $html .= "<form id='wtf_show_files_form' action='$action_href' method='post'>"
                     . "<input type='hidden' name='action' value='wtf_fu_show_files' />"
                     . "<input type='hidden' name='fn' value='show_files' />";
 
@@ -256,13 +254,7 @@ class Wtf_Fu_Show_Files_Shortcode {
             $html .= '<div id="reorder_response"><p>&nbsp;<p></div></form>';
         }
 
-
-        if ($this->options['email_format'] == true) {
-            log_me('TODO : add css styles for external output to email.');
-        }
-
         $html .= '<div id="links" class="links">' . $this->generate_files_div() . '</div>';
-
 
         if ($this->options['gallery'] == true) {
             $script = <<<GALLERYJSTEMPLATE
@@ -282,6 +274,20 @@ GALLERYJSTEMPLATE;
             $html .= $script; // getGalleryWidgetTemplate();
         }
 
+        /*
+         * If this is for inclusion in an email then inline the css into style tags.
+         */
+        if ($this->options['email_format'] == true) {
+            
+            require_once(plugin_dir_path(__FILE__) . '../assets/tools/CssToInlineStyles-master/CssToInlineStyles.php');
+            // inline the required css for email html display.
+            $css = inline_css_style_file( plugin_dir_path(__FILE__) . '../assets/css/bootstrap.css');
+            $css .= inline_css_style_file( plugin_dir_path(__FILE__) . '../assets/css/wtf-fu-show-files.css' );
+            
+            $obj = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($html, $css);
+            $html = $obj->convert();
+        }        
+
         return $html;
     }
 
@@ -300,7 +306,7 @@ GALLERYJSTEMPLATE;
 
         $i = 0;
         foreach ($this->files as $file) {
-            $i++;
+            $i++; 
             switch ($this->options['file_type']) {
 
                 case 'image' :

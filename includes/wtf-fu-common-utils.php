@@ -39,7 +39,11 @@ function wtf_fu_set_files_order_times($dir, $files) {
         wtf_fu_update_timestamp($dir . '/' . $file, $time++);
     }
     
-    log_me("$now should == $time");
+    //log_me("$now should == $time");
+}
+
+function inline_css_style_file($file) {
+    return '<style type="text/css">' . file_get_contents($file) . '</style>';
 }
 
 function wtf_fu_update_timestamp($filename, $time) {

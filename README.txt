@@ -131,16 +131,34 @@ e.g. `[wtf_fu id="2"]`  to embed the workflow with id 2 into a page or post.
 
 Use `[wtf_fu_upload]` for file uploads
 e.g. 
-`[wtf_fu_upload accept_file_types="jpg|jpeg|gif|png" max_file_size="30" max_number_of_files="30" wtf_upload_dir="main_dir" wtf_upload_subdir="images"]`
+`[wtf_fu_upload accept_file_types="jpg|jpeg|gif|png" max_file_size="5" max_number_of_files="30" wtf_upload_dir="main_dir" wtf_upload_subdir="images"]`
 
 Use `[wtf_fu_show_files]` to display already upload files
 e.g.
 `[wtf_fu_show_files file_type="image" wtf_upload_dir="main_dir" wtf_upload_subdir="images" reorder="true" gallery="true"]`
 
+The attribute file_type may currently be set to 'image' or 'music', if set to image then a thumbnail will be displayed if available and if
+'music' then audio controls to allow playback will be displayed.
+
 The `reorder=true` attribute here allows users to change the order of their uploaded image files by dragging and dropping thumbnail images. 
 When submitted the final order will then be written to in a text file along with the other files in the users upload directory.
 
 The `gallery` attribute will display the full sized images in a lightbox slideshow when an image file thumbnail is clicked.
+
+The wtf_fu_show_files short_code may also be called manually inside hooked functions (see the example file `examples/wtf-fu_hooks_example.php`) 
+so that files can be generated for display inside emails.
+
+In this case you can use the attribute `"email_format" = "true"` to cause the styles to be converted to inline css.
+
+e.g.
+`    $shortcode_instance = Wtf_Fu_Show_Files_Shortcode::get_instance(); 
+    $shortcode_instance->set_options(array(
+        'wtf_upload_dir' => "demofiles",
+        'file_type' => "image",
+        'email_format' => true
+    ));    
+    $files_content = $shortcode_instance->generate_content();`
+
 
 = What other short codes can I use inside the workflows ? =
 

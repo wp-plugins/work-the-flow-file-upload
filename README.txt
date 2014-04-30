@@ -4,7 +4,7 @@ Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
 Tested up to: 3.9.0
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -312,14 +312,15 @@ lynton@wtf-fu.com detailing your requirements.
 
 == Changelog ==
 = 1.2.2 =
-* Bug fix for non-registered users not progressing through workflow stages.
+* Bug fix : non-registered users were unable to progress through workflow stages since 1.2.0.
 * Disabled display of prev or next button when on the first or last stages.
 * Safeguards added to discard possibly spurious output produced by php warnings or other output 
-by hooked user functions during workflow processing.
+by hooked user functions processing.
 * Added option 'email_format' to wtf_fu_show_files for manual inclusion of file
 display inside emails generated in hook functions.
 * Updates to the examples\wtf-fu_hooks_example.php file to display image thumbnails in
 generated emails.
+* Additional actions and filters added to process email templates (PRO only feature).
 
 = 1.2.1 = 
 * Minor update of upgrade information, missing from 1.2.0.
@@ -351,13 +352,15 @@ with core WordPress code.
 
 == Upgrade Notice ==
 = 1.2.2 = 
-* Bug fix for non-registered users not progressing through workflow stages.
+* Bug fix : non-registered users were unable to progress through workflow stages since 1.2.0.
 * Disabled display of prev or next button when on the first or last stages.
-* Safeguards added to discard any possibly spurious php warnings or other output by hooked user functions.
+* Safeguards added to discard possibly spurious output produced by php warnings or other output 
+by hooked user functions processing.
 * Added option 'email_format' to wtf_fu_show_files for manual inclusion of file
 display inside emails generated in hook functions.
 * Updates to the examples\wtf-fu_hooks_example.php file to display image thumbnails in
 generated emails.
+* Additional actions and filters added to process email templates (PRO only feature).
 
 = 1.2.1 = 
 * Minor update of upgrade information, missing from 1.2.0.

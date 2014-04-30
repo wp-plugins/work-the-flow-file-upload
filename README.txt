@@ -311,6 +311,16 @@ lynton@wtf-fu.com detailing your requirements.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 1.2.2 =
+* Bug fix for non-registered users not progressing through workflow stages.
+* Disabled display of prev or next button when on the first or last stages.
+* Safeguards added to discard possibly spurious output produced by php warnings or other output 
+by hooked user functions during workflow processing.
+* Added option 'email_format' to wtf_fu_show_files for manual inclusion of file
+display inside emails generated in hook functions.
+* Updates to the examples\wtf-fu_hooks_example.php file to display image thumbnails in
+generated emails.
+
 = 1.2.1 = 
 * Minor update of upgrade information, missing from 1.2.0.
 
@@ -340,6 +350,15 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 1.2.2 = 
+* Bug fix for non-registered users not progressing through workflow stages.
+* Disabled display of prev or next button when on the first or last stages.
+* Safeguards added to discard any possibly spurious php warnings or other output by hooked user functions.
+* Added option 'email_format' to wtf_fu_show_files for manual inclusion of file
+display inside emails generated in hook functions.
+* Updates to the examples\wtf-fu_hooks_example.php file to display image thumbnails in
+generated emails.
+
 = 1.2.1 = 
 * Minor update of upgrade information, missing from 1.2.0.
 

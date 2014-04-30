@@ -295,7 +295,7 @@ class Wtf_Fu_Option_Definitions {
    }
 
     /**
-     * Return a sungleton instance of this class.
+     * Return a singleton instance of this class.
      *
      * @since     1.0.0
      *

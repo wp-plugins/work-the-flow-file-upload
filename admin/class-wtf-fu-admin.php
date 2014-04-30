@@ -256,6 +256,10 @@ class Wtf_Fu_Admin {
                 break;
 
             default :
+                // see if anything else can handle it.
+                if (has_action('wtf_fu_dispay_plugin_admin_page')) {
+                    return do_action('wtf_fu_dispay_plugin_admin_page');
+                }                
         }
     }
 
@@ -303,7 +307,7 @@ class Wtf_Fu_Admin {
 
         $init_args = array();
 
-        foreach (array('page', 'tab', 'wftab', 'option_page', 'wtf-fu-action', 'wf_id') as $var) {
+        foreach (array('page', 'tab', 'wftab', 'option_page', 'wtf-fu-action', 'wf_id', 'email_id') as $var) {
             $init_args[$var] = wtf_fu_get_value($_REQUEST, $var);
         }
         
@@ -323,6 +327,8 @@ class Wtf_Fu_Admin {
         ) {
             return; // no options init required, or not a page for us.
         }
+        
+        $returning_from_submit = false;
 
         /*
          * If returning from options.php submit our original request info is
@@ -331,9 +337,12 @@ class Wtf_Fu_Admin {
          */
         if (!$init_args['page'] && $init_args['option_page']) {
 
+            $returning_from_submit = true;
+            
             $init_args['page'] = $this->plugin_slug;
+            
             $option_parse_results = self::parse_options_page_response($init_args['option_page']);
-            // log_me($option_parse_results);
+           // log_me(array('$option_parse_results' => $option_parse_results));
             /* merge the parsed results */
             if ($option_parse_results !== false) {
                 $init_args = $option_parse_results + $init_args;
@@ -417,7 +426,7 @@ class Wtf_Fu_Admin {
      * @param type $page
      */
     public function wtf_fu_initialize_options($init_args) {
-
+//log_me(array('wtf_fu_initialize_options' => $init_args));
         $section_page_key = $init_args['tab'];
         if (!empty($init_args['wftab'])) {
             $section_page_key = $init_args['wftab'];
@@ -638,8 +647,8 @@ class Wtf_Fu_Admin {
         }
         
         // If nothing found then fire the action hook for addon plugins to handle.
-        if (has_action('wtf_fu_parse_options_page_response')) {
-            return do_action('wtf_fu_parse_options_page_response_action', $option_page);
+        if (has_filter('wtf_fu_parse_options_page_response_filter')) {
+            return apply_filters('wtf_fu_parse_options_page_response_filter', $option_page);
         }
         
         log_me(array('parse_options_page_response() unable to parse '
@@ -713,7 +722,8 @@ class Wtf_Fu_Admin {
             default :
                 do_action('wtf_fu_options_callback_action', $args);
 
-                // log_me("undetected tab type **{$args['tab']}**");
+                log_me("should have just called wtf_fu_options_callback_action for tab type **{$args['tab']}**");
+                break;
         }
     }
 

@@ -45,18 +45,7 @@ class Wtf_Fu_Workflow_Shortcode {
      * class is contructed.
      */
     public function enqueue_scripts() {
-        /*
-         * Add the ajax handler javascript.
-         */
-
-//        log_me('workflow shortcode enqueue_scripts');
-//        
-//        wp_enqueue_script(
-//                'wp-ajax-response', site_url('/wp-includes/js/wp-ajax-response.js'), array('jquery'), true);
-//
-//        $script_handle = $this->plugin_slug . '-workflow-js';
-//        wp_enqueue_script(
-//                $script_handle, plugin_dir_url(__FILE__) . '../assets/js/wtf-fu-workflow.js', array('jquery', 'wp-ajax-response'), Wtf_Fu::VERSION, true);
+        
     }
 
     /**
@@ -135,7 +124,7 @@ class Wtf_Fu_Workflow_Shortcode {
                 if (has_action('wtf_fu_enqueue_styles_action')) {
                     do_action('wtf_fu_enqueue_styles_action');
                 } else { // use default sheet.
-                //    log_me("enqueuing $style_handle");
+                    //    log_me("enqueuing $style_handle");
                     wp_enqueue_style($style_handle, plugins_url($this->plugin_slug) . '/public/assets/css/workflow_default.css', array(), Wtf_Fu::VERSION);
                 }
             }
@@ -152,11 +141,10 @@ class Wtf_Fu_Workflow_Shortcode {
         if ($user_wf_options === false) {
             // User not logged on so we get the stage from the form submit action.
             $stage = 0;
-            if (isset($_POST['next'])) {
-                $stage = (int) $_POST['next'];
-            }
-            if (isset($_POST['prev'])) {
-                $stage = (int) $_POST['prev'];
+
+            // If the button_value is set then grab the stage from its value.
+            if (isset($_REQUEST['button_value'])) {
+                $stage = (int) $_REQUEST['button_value'];
             }
         } else {
             // The current stage after processing any form actions for 'prev' or 'next'
@@ -251,7 +239,7 @@ class Wtf_Fu_Workflow_Shortcode {
         // log_me(array('workflow_controller request=' => $_REQUEST));
 
         if (!isset($_POST['workflow_id'])) {
-        //    log_me('workflow_id not found in workflow_controller request.');
+            //    log_me('workflow_id not found in workflow_controller request.');
             return;
         }
 
@@ -294,7 +282,7 @@ class Wtf_Fu_Workflow_Shortcode {
         if ($new < 0) {
             $new = 0;
         }
-       // log_me("old : $old > new : $new");
+        // log_me("old : $old > new : $new");
 
         if ($new !== $old) {
 
@@ -323,7 +311,7 @@ class Wtf_Fu_Workflow_Shortcode {
             }
         }
     }
-    
+
     /**
      * Calls user defined hook function safely.
      * 
@@ -332,17 +320,16 @@ class Wtf_Fu_Workflow_Shortcode {
      */
     static function do_hooked_function($function) {
         $ret = false;
-        
+
         // buffer output so we dont get any php warnings echo'd that will upset the ajax response.
-        
+
         ob_start();
         try {
-           $ret = call_user_func($function); 
+            $ret = call_user_func($function);
         } catch (Exception $exc) {
             log_me($exc->getTraceAsString());
         }
         //log_me (array("do_hooked_function ret" => $ret ));
-        
         //log_me('output buffered response :' . ob_get_contents());
         ob_end_clean(); // discard any output.
         return $ret;
@@ -377,19 +364,25 @@ class Wtf_Fu_Workflow_Shortcode {
 
 
         $ret .= '<div class="">';
-        if (wtf_fu_get_value($stage_options, 'back_active') == true) {
-            $ret .= $this->createButton('prev', $stage - 1, 'arrow-left', $back_label, 'left', 'btn btn-primary', array_key_exists('back_js', $stage_options) ? $stage_options['back_js'] : null);
-            $ret .= "&nbsp;";
-        } elseif ($testing) {
-            $ret .= $this->createButton('prev', $stage - 1, 'arrow-left', 'back [testing only]', 'left', 'btn btn-primary', null);
-            $ret .= "&nbsp;";
+        
+        if ($stage - 1 >= 0) {
+            if (wtf_fu_get_value($stage_options, 'back_active') == true) {
+                $ret .= $this->createButton('prev', $stage - 1, 'arrow-left', $back_label, 'left', 'btn btn-primary', array_key_exists('back_js', $stage_options) ? $stage_options['back_js'] : null);
+                $ret .= "&nbsp;";
+            } elseif ($testing) {
+                $ret .= $this->createButton('prev', $stage - 1, 'arrow-left', 'back [testing only]', 'left', 'btn btn-primary', null);
+                $ret .= "&nbsp;";
+            }
         }
-        if (wtf_fu_get_value($stage_options, 'next_active') == true) {
-            $ret .= $this->createButton('next', $stage + 1, 'arrow-right', $next_label, 'right', 'btn btn-success', array_key_exists('next_js', $stage_options) ? $stage_options['next_js'] : null);
-            $ret .= "&nbsp;";
-        } elseif ($testing) {
-            $ret .= $this->createButton('next', $stage + 1, 'arrow-right', 'next [testing only]', 'right', 'btn btn-success', null);
-            $ret .= "&nbsp;";
+
+        if (Wtf_Fu_Options::stage_exists($workflow_id, $stage + 1) !== false) {
+            if (wtf_fu_get_value($stage_options, 'next_active') == true) {
+                $ret .= $this->createButton('next', $stage + 1, 'arrow-right', $next_label, 'right', 'btn btn-success', array_key_exists('next_js', $stage_options) ? $stage_options['next_js'] : null);
+                $ret .= "&nbsp;";
+            } elseif ($testing) {
+                $ret .= $this->createButton('next', $stage + 1, 'arrow-right', 'next [testing only]', 'right', 'btn btn-success', null);
+                $ret .= "&nbsp;";
+            }
         }
         $ret .= '</div></form>';
         return $ret;

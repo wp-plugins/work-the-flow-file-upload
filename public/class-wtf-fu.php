@@ -311,7 +311,8 @@ class Wtf_Fu {
      * Fired for each blog when the plugin is deactivated.
      */
     private static function single_deactivate() {
-        
+        // call deactivate hook so dependant plugins can deactivate themselves.
+        do_action("wtf_fu_deactivate");   
     }
 
     /**

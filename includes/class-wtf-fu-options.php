@@ -133,6 +133,18 @@ class Wtf_Fu_Options {
  * Non User related methods for setting options for workflows and stages. 
  */
     
+    /**
+     * 
+     * @param type $workflow_id
+     * @param type $stage
+     * @return type bool or stage options array if stage exists.
+     */
+    static function stage_exists($workflow_id, $stage_id ) {
+        return get_option(Wtf_Fu_Option_Definitions
+                ::get_workflow_stage_key($workflow_id, $stage_id));
+    }
+
+    
     static function get_workflow_stage_options($workflow_id, $stage_id){
         return get_option(
             Wtf_Fu_Option_Definitions

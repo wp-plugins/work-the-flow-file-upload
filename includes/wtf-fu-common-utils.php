@@ -252,6 +252,48 @@ function getUserInfo($type = 'ID', $user_id = 0) {
     return $ret;
 }
 
+ /**
+ * Creates an archive of the current users upload directory.
+ * @param type $user_id
+ * @return string - a link to the created archive file.
+ * WARNING :
+ * 
+ * 1. Auto archiving may cause heavy resource usage on your site.
+ * 
+ * 2. The Front end will block waiting for this to complete.
+ * 
+ * Archives can be manually created as needed from the Wtf-Fu admin pages, 
+ * this is often a better approach as archives are then only created when 
+ * required.
+ */
+function wtf_fu_do_archive_user_files ($user_id, $zipname) {
+    /*
+     * Include some existing wtf-fu utility methods for creating archives and getting users paths.
+     */
+    include_once (plugin_dir_path( __FILE__ ) . 'class-wtf-fu-archiver.php'); 
+ //   include_once (plugin_dir_path( __FILE__ ) . '../plugins/work-the-flow-file-upload/includes/wtf-fu-common-utils.php');
+
+    // append auto to the generated file name.
+    $zip = new Wtf_Fu_Archiver();
+
+    // Gets paths to the user upload area.
+    $paths = wtf_fu_get_user_upload_paths();
+
+    // create and open the archive (false means to exclude files that are archives)
+    $zip->create_archive($paths['basedir'] . '/' . $zipname, false); 
+
+    // Add the users upload directory and files.
+    $zip->add_file_or_dir($paths['basedir']);
+
+    // close the archive.
+    $zip->close();
+
+    // link to the new archive to include in the email.
+    $zip_url = $paths['baseurl'] . '/' . $zipname;
+      
+    return $zip_url;
+}
+
 /**
  * Create a filename suitable for use as an archive file name, from a user id and
  * a path.
@@ -265,8 +307,7 @@ function getUserInfo($type = 'ID', $user_id = 0) {
  * @return type
  */
 function wtf_fu_create_archive_name($user_id, $subpath = '', $ext = '.zip', $add_date = true) {
-    
-    
+      
     $name = getUserInfo('user_login', $user_id);
     
     if (!empty($subpath)){
@@ -333,6 +374,33 @@ function wtf_fu_checkbox($id, $option_name, $val, $label) {
     $html = '<input type="checkbox" id="' . $id . '" name="' . $option_name . '" value="1"' . checked(1, $val, false) . '/>';
     $html .= '&nbsp;';
     $html .= '<label for="' . $id . '">' . $label . '</label>';
+    return $html;
+}
+
+/**
+ * return a drop ldown list box from the $values array
+ * @param type $id  select box id
+ * @param type $option_name  select box name
+ * @param type $val selected value
+ * @param type $label help text label
+ * @param type $values array of name value pairs 
+ *              eg array(array (name => 'name' value => 0))
+ * @return string  html for the select box.
+ */
+function wtf_fu_list_box($id, $option_name, $val, $label, $values) {
+    
+    $html = '<label for="' . $id . '">' . $label . '</label>';
+    $html .= "<select id=\"$id\" name=\"$option_name\">";
+    foreach ($values as $v) {
+        $html .= "<option ";
+        if ($v['value'] == $val) {
+            $html .= "selected=\"selected\" ";
+        }
+        $html .= "value=\"{$v['value']}\">{$v['name']}</option>";
+    }
+    $html .= '</select>&nbsp;';
+    
+        
     return $html;
 }
 

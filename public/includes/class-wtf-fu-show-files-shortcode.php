@@ -46,9 +46,9 @@ class Wtf_Fu_Show_Files_Shortcode {
      * @param type $attr
      */
     public function set_options($attr) {
-        
+
         log_me(array("set_options passed in " => $attr));
-        
+
         /*
          * retrieve the default upload options to act as defaults.
          */
@@ -66,7 +66,8 @@ class Wtf_Fu_Show_Files_Shortcode {
             'reorder' => false,
             'gallery' => false,
             'file_type' => "image",
-            'email_format' => false
+            'email_format' => false,
+            'show_numbers' => true,
                 ), $attr);
 
         /*
@@ -200,9 +201,9 @@ class Wtf_Fu_Show_Files_Shortcode {
          */
         $instance = self::get_instance();
         $instance->set_options($_REQUEST);
-        
+
         $content = $instance->generate_files_div();
-        
+
         $response = array(
             'what' => 'stuff',
             'action' => 'wtf_fu_show_files',
@@ -229,7 +230,7 @@ class Wtf_Fu_Show_Files_Shortcode {
     function generate_content() {
 
         $html = '';
-        
+
         /*
          * If we are reordering then we need a submit button and to store all the options,
          * so we can re-generate the content after submission of the new order.
@@ -278,15 +279,15 @@ GALLERYJSTEMPLATE;
          * If this is for inclusion in an email then inline the css into style tags.
          */
         if ($this->options['email_format'] == true) {
-            
+
             require_once(plugin_dir_path(__FILE__) . '../assets/tools/CssToInlineStyles-master/CssToInlineStyles.php');
             // inline the required css for email html display.
-            $css = inline_css_style_file( plugin_dir_path(__FILE__) . '../assets/css/bootstrap.css');
-            $css .= inline_css_style_file( plugin_dir_path(__FILE__) . '../assets/css/wtf-fu-show-files.css' );
-            
+            $css = inline_css_style_file(plugin_dir_path(__FILE__) . '../assets/css/bootstrap.css');
+            $css .= inline_css_style_file(plugin_dir_path(__FILE__) . '../assets/css/wtf-fu-show-files.css');
+
             $obj = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($html, $css);
             $html = $obj->convert();
-        }        
+        }
 
         return $html;
     }
@@ -295,7 +296,7 @@ GALLERYJSTEMPLATE;
 
         $container_id = 'files_container';
         $ul_id = 'files_list';
-                
+
         if ($this->options['reorder'] == true) {
             $container_id = 'sort_container';
             $ul_id = 'reorder_sortable';
@@ -306,16 +307,18 @@ GALLERYJSTEMPLATE;
 
         $i = 0;
         foreach ($this->files as $file) {
-            $i++; 
+            $i++;
             switch ($this->options['file_type']) {
 
                 case 'image' :
                     $file_link = sprintf(
                             '<a href="%s" title="%s" data-gallery><img src="%s" alt="%s"></a>', $file->fileurl, $file->basename, $file->thumburl, $file->basename);
-
+                    $number_div = '';
+                    if ($this->options['show_numbers'] == true) {
+                        $number_div = sprintf('<p class="reorder-number">%s</p>', $i);
+                    }
                     $html .= sprintf(
-                            '<li class="list" title="%s">%s<div class="reorder-number">%s</div></li>', $file->basename, $file_link, $i);
-
+                            '<li class="list" title="%s">%s%s</li>', $file->basename, $number_div, $file_link);
                     break;
 
                 case 'music' :
@@ -332,7 +335,6 @@ GALLERYJSTEMPLATE;
                     $file_link = sprintf(
                             '<a href="%s">%s</a>', $file->fileurl, $file->basename
                     );
-
                     break;
             }
         }

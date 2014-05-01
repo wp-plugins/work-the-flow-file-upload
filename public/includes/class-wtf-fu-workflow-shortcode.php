@@ -303,6 +303,11 @@ class Wtf_Fu_Workflow_Shortcode {
                     // log_me("calling {$new_stage_options['pre_hook']}");
                     do_hooked_function($new_stage_options['pre_hook']);
                 }
+                
+                // Do any hooked post processing for the old stage.
+                if (has_action('wtf_fu_workflow_stage_post_processing_action')) {
+                    do_action('wtf_fu_workflow_stage_post_processing_action', $workflow_id, $old);
+                }
             }
 
             if ($user_settings !== false) {

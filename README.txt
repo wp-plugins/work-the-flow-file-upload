@@ -15,6 +15,8 @@ Embed Html5 User File Uploads and Workflows into pages and posts. Multiple file 
 *Work the Flow File Upload.* 
 Embed Html5 User File Uploads and Workflows into pages and posts. Multiple file Drag and Drop upload, Image Gallery display, Reordering and Archiving.
 
+Please note that as of version 1.2.2 PHP 5.3.0 or greater is required.
+
 This two in one plugin provides shortcodes to embed front end user file upload capability and / or step by step workflow.
 
 Three separate short-codes are made available to page and post content.
@@ -311,6 +313,16 @@ lynton@wtf-fu.com detailing your requirements.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 1.2.3 =
+* Fix for the `wtf_fu_show_files` number formatting style - when not using
+the reorder attribute, numbers were not properly aligned to the top left corner 
+of the thumbnail image.
+* Added `wtf_fu_show_files` attribute `show_numbers`, (default true), to allow 
+image numbering to be turned off (false)
+* Updates to the examples\wtf-fu_hooks_example.php file to better integrate display
+of show_files output into generated emails.
+* Additional code to handle email template administration (PRO only feature).
+
 = 1.2.2 =
 * Bug fix : non-registered users were unable to progress through workflow stages since 1.2.0.
 * Disabled display of prev or next button when on the first or last stages.
@@ -351,6 +363,17 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 1.2.3 =
+* Please note that as of 1.2.2 PHP 5.3.0 or greater is required.
+* Fix for the `wtf_fu_show_files` number formatting style - when not using
+the reorder attribute, numbers were not properly aligned to the top left corner 
+of the thumbnail image. 
+* Added `wtf_fu_show_files` attribute `show_numbers`, (default true), to allow 
+image numbering to be turned off.
+* Updates to the examples\wtf-fu_hooks_example.php file to better integrate display
+of show_files output into generated emails.
+* Additional code to handle email template administration (PRO only feature).
+
 = 1.2.2 = 
 * Bug fix : non-registered users were unable to progress through workflow stages since 1.2.0.
 * Disabled display of prev or next button when on the first or last stages.

@@ -4,7 +4,7 @@ Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
 Tested up to: 3.9.0
-Stable tag: 1.2.3
+Stable tag: 1.2.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,8 +14,6 @@ Embed Html5 User File Uploads and Workflows into pages and posts. Multiple file 
 
 *Work the Flow File Upload.* 
 Embed Html5 User File Uploads and Workflows into pages and posts. Multiple file Drag and Drop upload, Image Gallery display, Reordering and Archiving.
-
-Please note that as of version 1.2.2 PHP 5.3.0 or greater is required.
 
 This two in one plugin provides shortcodes to embed front end user file upload capability and / or step by step workflow.
 
@@ -313,6 +311,14 @@ lynton@wtf-fu.com detailing your requirements.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+* Made code dependant on php >= 5.3.0 conditional so that php >= 5.3.0 is 
+no longer a requirement as it was in 1.2.2 and 1.2.3.
+Php versions < 5.3.0 will now work, but will not attempt to inline css 
+into email output when using the `[wtf_fu_show_files email_format=true]` 
+option.
+* Added additional protection to ajax calls so that any php output during 
+handling of requests is buffered and discarded.
+
 = 1.2.3 =
 * Fix for the `wtf_fu_show_files` number formatting style - when not using
 the reorder attribute, numbers were not properly aligned to the top left corner 
@@ -363,6 +369,15 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 1.2.4 = 
+* Made code dependant on php >= 5.3.0 conditional so that php >= 5.3.0 is 
+no longer a requirement as it was in 1.2.2 and 1.2.3.
+Php versions < 5.3.0 will now work, but will not attempt to inline css 
+into email output when using the `[wtf_fu_show_files email_format=true]` 
+option.
+* Added additional protection to ajax calls so that any php output during 
+handling of requests is buffered and discarded.
+
 = 1.2.3 =
 * Please note that as of 1.2.2 PHP 5.3.0 or greater is required.
 * Fix for the `wtf_fu_show_files` number formatting style - when not using

@@ -153,6 +153,9 @@ class Wtf_Fu_Show_Files_Shortcode {
      * which then delegates to this static method here. 
      */
     public static function wtf_fu_ajax_show_files_function() {
+        
+        // Buffer output during ajax calls.
+        ob_start();
 
         //log_me(array("wtf_fu_ajax_reorder_function" => $_REQUEST));
 
@@ -214,7 +217,12 @@ class Wtf_Fu_Show_Files_Shortcode {
         $xmlResponse = new WP_Ajax_Response($response);
 
         log_me(array('xmlresponse' => $xmlResponse));
+        
+        
         $xmlResponse->send();
+        
+        ob_end_clean();
+        
         /*
          * Intentional, must always die or exit after an ajax call.
          */
@@ -278,17 +286,22 @@ GALLERYJSTEMPLATE;
         /*
          * If this is for inclusion in an email then inline the css into style tags.
          */
-        if ($this->options['email_format'] == true) {
+        if ($this->options['email_format'] == true) {   
+            // namespaced classes only work with php >= 5.3.0
+            if (version_compare(phpversion(), '5.3.0', '>')) {             
+                require_once(plugin_dir_path(__FILE__) . '../assets/tools/wtf_fu_php_53_only.php');
+                
+                // inline the required css for email html display.
+                $css = inline_css_style_file(plugin_dir_path(__FILE__) . '../assets/css/bootstrap.css');
+                $css .= inline_css_style_file(plugin_dir_path(__FILE__) . '../assets/css/wtf-fu-show-files.css');
 
-            require_once(plugin_dir_path(__FILE__) . '../assets/tools/CssToInlineStyles-master/CssToInlineStyles.php');
-            // inline the required css for email html display.
-            $css = inline_css_style_file(plugin_dir_path(__FILE__) . '../assets/css/bootstrap.css');
-            $css .= inline_css_style_file(plugin_dir_path(__FILE__) . '../assets/css/wtf-fu-show-files.css');
-
-            $obj = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($html, $css);
-            $html = $obj->convert();
+                $html = wtf_fu_53_do_inline_style_conversion($html, $css);
+            } else {
+                log_me('WARNING : Could not inline CSS for email_format : '
+                        . 'PHP version needs to be >= 5.3.0 but only php version ' . 
+                        phpversion() . ' was detected');
+            }
         }
-
         return $html;
     }
 

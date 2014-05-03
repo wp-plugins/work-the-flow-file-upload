@@ -41,6 +41,8 @@ class Wtf_Fu_Fileupload_Shortcode {
 
 
     public static function wtf_fu_load_ajax_function() {
+        
+        ob_start();
 
         log_me(array("wtf_fu_load_ajax_function REQUEST=" => $_REQUEST));
         
@@ -62,8 +64,11 @@ class Wtf_Fu_Fileupload_Shortcode {
 
         error_reporting(E_ALL | E_STRICT);
         
+        ob_end_clean(); // clear and discard any output to now
+                        // *must* be before calling UploadHandler()
+        
         $upload_handler = new UploadHandler($options);
-
+        
         die(); // always exit after an ajax call.
     }
 

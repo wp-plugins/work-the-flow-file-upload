@@ -53,6 +53,8 @@ class Wtf_Fu_Workflow_Shortcode {
      * 
      */
     public function wtf_fu_ajax_workflow_function() {
+        
+        ob_start();
 
         // log_me(array("wtf_fu_ajax_workflow_function" => $_REQUEST));
 
@@ -77,6 +79,8 @@ class Wtf_Fu_Workflow_Shortcode {
 
         $xmlResponse = new WP_Ajax_Response($response);
         $xmlResponse->send();
+        
+        ob_end_clean();
         /*
          * Intentional, must always die or exit after an ajax call.
          */

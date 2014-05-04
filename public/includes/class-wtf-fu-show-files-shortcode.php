@@ -153,45 +153,37 @@ class Wtf_Fu_Show_Files_Shortcode {
      * which then delegates to this static method here. 
      */
     public static function wtf_fu_ajax_show_files_function() {
-        
+
         // Buffer output during ajax calls.
         ob_start();
 
         //log_me(array("wtf_fu_ajax_reorder_function" => $_REQUEST));
 
-        switch ($_REQUEST['fn']) {
-
+        $fn = wtf_fu_get_value($_REQUEST, 'fn');
+        
+        switch ($fn) {
             case 'show_files' :
+                $files = wtf_fu_get_value($_REQUEST, 'files');
+                if ($files !== false) {                  
+                    $upload_dir = wtf_fu_get_value($_REQUEST, 'wtf_upload_dir');
+                    $upload_subdir = wtf_fu_get_value($_REQUEST, 'wtf_upload_subdir');
 
-                $paths = wtf_fu_get_user_upload_paths(
-                        $_REQUEST['wtf_upload_dir'], $_REQUEST['wtf_upload_subdir']);
+                    $paths = wtf_fu_get_user_upload_paths($upload_dir, $upload_subdir);
 
-                /*
-                 * Loop over the files and update the timestamps
-                 * 
-                 * This should mean that the resulting files when sorted in 
-                 * date-time order will be in the order as arranged by the user.
-                 */
-                wtf_fu_set_files_order_times($paths['upload_dir'], $_REQUEST['files']);
+                    // Update all the files last modified timestamps
+                    wtf_fu_set_files_order_times($paths['upload_dir'], $files);
 
+                    // Write a file with the list of the files ordering
+                    $filename = wtf_fu_clean_filename("file_order_{$upload_dir}/{$upload_subdir}.txt");
 
-                /*
-                 * Also write a file with the list of files order to the user 
-                 * root Directory.
-                 */
-                $filename = wtf_fu_clean_filename(
-                        "file_order_{$_REQUEST['wtf_upload_dir']}/{$_REQUEST['wtf_upload_subdir']}.txt");
-
-                $file_order_txt = 'User File ordering selections : ' . PHP_EOL;
-                $i = 1;
-                foreach ($_REQUEST['files'] as $file) {
-                    $file_order_txt .= sprintf("%3s\t%s%s", $i, $file, PHP_EOL);
-                    $i++;
+                    $file_order_txt = 'User File ordering selections : ' . PHP_EOL;
+                    $i = 1;
+                    foreach ($files as $file) {
+                        $file_order_txt .= sprintf("%3s\t%s%s", $i, $file, PHP_EOL);
+                        $i++;
+                    }
+                    wtf_fu_write_file($paths['basedir'] . '/' . $filename, $file_order_txt);
                 }
-
-                wtf_fu_write_file(
-                        $paths['basedir'] . '/' . $filename, $file_order_txt);
-
                 break;
 
             default:
@@ -215,18 +207,38 @@ class Wtf_Fu_Show_Files_Shortcode {
         );
 
         $xmlResponse = new WP_Ajax_Response($response);
+        //log_me(array('xmlresponse' => $xmlResponse));
 
-        log_me(array('xmlresponse' => $xmlResponse));
-        
-        
-        $xmlResponse->send();
-        
         ob_end_clean();
         
+        $xmlResponse->send();
+
         /*
          * Intentional, must always die or exit after an ajax call.
          */
         exit;
+    }
+
+    function generate_content() {
+        $html = '<div id="wtf_fu_show_files_output">' . $this->generate_inner_content() . '</div>';
+        
+        if ($this->options['gallery'] == true) {
+            $script = <<<GALLERYJSTEMPLATE
+   <!-- The blueimp Gallery widget -->
+<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter="">
+    <div class="slides"></div>
+    <h3 class="title"></h3>
+    <a class="prev">‹</a>
+    <a class="next">›</a>
+    <a class="close">×</a>
+    <a class="play-pause"></a>
+    <ol class="indicator"></ol>
+</div>
+GALLERYJSTEMPLATE;
+
+            $html .= $script; // getGalleryWidgetTemplate();
+        }
+        return $html;
     }
 
     /**
@@ -235,7 +247,7 @@ class Wtf_Fu_Show_Files_Shortcode {
      * TODO this need reworking to better assemble the list css.
      * need to better separate image / music / reorder styles.
      */
-    function generate_content() {
+    function generate_inner_content() {
 
         $html = '';
 
@@ -252,45 +264,34 @@ class Wtf_Fu_Show_Files_Shortcode {
                 $form_vars = $form_vars . '<input type="hidden" name="' . $k . '" value="' . $v . '" />';
             };
 
-            $html .= "<form id='wtf_show_files_form' action='$action_href' method='post'>"
-                    . "<input type='hidden' name='action' value='wtf_fu_show_files' />"
-                    . "<input type='hidden' name='fn' value='show_files' />";
-
-            $html .= $form_vars;
-            $html .= '<div><button id="reorder_submit_button" class="btn btn-success" type="submit">
-                <i class="glyphicon glyphicon-retweet"></i><span>&nbsp;&nbsp;&nbsp;Save new file order</span></button></div>';
-
-            $html .= '<div id="reorder_response"><p>&nbsp;<p></div></form>';
+            $html .= "<form id='wtf_show_files_form' name='wtf_fu_show_files_form' action='$action_href' method='post'>
+                    <input type='hidden' name='action' value='wtf_fu_show_files' />
+                    <input type='hidden' name='fn' value='show_files' />
+                    $form_vars
+                <div id='reorder_button_container'>
+                <button id='reorder_submit_button' class='btn btn-success' type='submit' disabled='disabled'>
+                <i class='glyphicon glyphicon-retweet'></i>              
+                <span>Update Order</span>
+                </button>
+                <div id='reorder_message'>Drag and drop to change the order.</div>
+                <span class=reorder-process></span>
+                </div>
+                </form>";
         }
 
-        $html .= '<div id="links" class="links">' . $this->generate_files_div() . '</div>';
-
-        if ($this->options['gallery'] == true) {
-            $script = <<<GALLERYJSTEMPLATE
-   <!-- The blueimp Gallery widget -->
-<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter="">
-    <div class="slides"></div>
-    <h3 class="title"></h3>
-    <a class="prev">‹</a>
-    <a class="next">›</a>
-    <a class="close">×</a>
-    <a class="play-pause"></a>
-    <ol class="indicator"></ol>
-</div>
-GALLERYJSTEMPLATE;
-
-
-            $html .= $script; // getGalleryWidgetTemplate();
-        }
+        $html .= $this->generate_files_div();
 
         /*
          * If this is for inclusion in an email then inline the css into style tags.
          */
-        if ($this->options['email_format'] == true) {   
+        if ($this->options['email_format'] == true) {
+            
+            log_me('email_format evaled as true !!!');
+            
             // namespaced classes only work with php >= 5.3.0
-            if (version_compare(phpversion(), '5.3.0', '>')) {             
+            if (version_compare(phpversion(), '5.3.0', '>')) {
                 require_once(plugin_dir_path(__FILE__) . '../assets/tools/wtf_fu_php_53_only.php');
-                
+
                 // inline the required css for email html display.
                 $css = inline_css_style_file(plugin_dir_path(__FILE__) . '../assets/css/bootstrap.css');
                 $css .= inline_css_style_file(plugin_dir_path(__FILE__) . '../assets/css/wtf-fu-show-files.css');
@@ -298,7 +299,7 @@ GALLERYJSTEMPLATE;
                 $html = wtf_fu_53_do_inline_style_conversion($html, $css);
             } else {
                 log_me('WARNING : Could not inline CSS for email_format : '
-                        . 'PHP version needs to be >= 5.3.0 but only php version ' . 
+                        . 'PHP version needs to be >= 5.3.0 but only php version ' .
                         phpversion() . ' was detected');
             }
         }
@@ -307,6 +308,8 @@ GALLERYJSTEMPLATE;
 
     public function generate_files_div() {
 
+        $html = "<div id='wtf_fu_show_files_response'>";
+        
         $container_id = 'files_container';
         $ul_id = 'files_list';
 
@@ -315,7 +318,7 @@ GALLERYJSTEMPLATE;
             $ul_id = 'reorder_sortable';
         }
 
-        $html = "<div id='$container_id'>";
+        $html .= "<div id='$container_id'>";
         $html .= "<ul id='$ul_id'>";
 
         $i = 0;
@@ -325,34 +328,32 @@ GALLERYJSTEMPLATE;
 
                 case 'image' :
                     $file_link = sprintf(
-                            '<a href="%s" title="%s" data-gallery><img src="%s" alt="%s"></a>', $file->fileurl, $file->basename, $file->thumburl, $file->basename);
+                        '<a href="%s" title="%s" data-gallery><img src="%s" alt="%s"></a>', 
+                            $file->fileurl, $file->basename, $file->thumburl, $file->basename);
+                    
                     $number_div = '';
                     if ($this->options['show_numbers'] == true) {
                         $number_div = sprintf('<p class="reorder-number">%s</p>', $i);
                     }
                     $html .= sprintf(
-                            '<li class="list" title="%s">%s%s</li>', $file->basename, $number_div, $file_link);
+                        '<li class="list" title="%s">%s%s</li>', $file->basename, $number_div, $file_link);
                     break;
 
                 case 'music' :
-
+                case 'audio' :
                     $file_link = sprintf(
-                            '<p>%s&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p><p><audio src="%s" controls="controls"></audio></p>', $i, $file->fileurl, $file->basename, $file->fileurl
+                        '<p>%s&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p><p><audio src="%s" controls="controls"></audio></p>', $i, $file->fileurl, $file->basename, $file->fileurl
                     );
-                    $html .= sprintf(
-                            '<li title="%s">%s</li>', $file->basename, $file_link);
-
+                    $html .= sprintf('<li title="%s">%s</li>', $file->basename, $file_link);
                     break;
 
                 default:
-                    $file_link = sprintf(
-                            '<a href="%s">%s</a>', $file->fileurl, $file->basename
-                    );
+                    $file_link = sprintf('<a href="%s">%s</a>', $file->fileurl, $file->basename);
                     break;
             }
         }
 
-        $html .= '</ul></div>';
+        $html .= '</ul></div></div>';
         return $html;
     }
 

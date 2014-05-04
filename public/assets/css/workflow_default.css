@@ -2,6 +2,19 @@
  * Default stylesheet for Workflow pages,
  */
 
+.workflow-process {
+  float: right;
+  display: none;
+}
+.workflow-processing .workflow-process
+{
+  display: block;
+  width: 32px;
+  height: 32px;
+  background: url("../img/loading.gif") center no-repeat;
+  background-size: contain;
+}
+
 .tbs code {
     background-color: #F9F2F4;
     border-radius: 4px;

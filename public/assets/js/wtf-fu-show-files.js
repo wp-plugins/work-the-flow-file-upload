@@ -9,17 +9,31 @@ function wtf_show_files_init() {
     init_sortable();
 
     $('#wtf_show_files_form').on('submit', function(event) {
-
-        $('#reorder_response').html('Saving changes ..');
+    //$(document).on('submit', '#wtf_show_files_form', function(event) {
+        
+        //var myForm = $('#wtf_show_files_form');
+        
+        
+        console.log('showfiles js submit called');
+        
+        //console.log(myForm);
+        
+        // Capture form data fields.
+        var WtfFuShowFilesFormData = $('#wtf_show_files_form').serializeArray();
+        
+        console.log(WtfFuShowFilesFormData);        
+        
+        // disable submit buttons while processing.
+        //$("#wtf_show_files_form:input[type='submit']").attr("disabled", true);
+        //$("#wtf_show_files_form > input[type="hidden"]:nth-child(1)
+        $('#reorder_submit_button').attr("disabled", true);
+        $('#reorder_message').html('Saving changes ..');
 
         var files = $("#reorder_sortable").sortable("toArray", {attribute: "title"});
 
-        // Capture form data fields to pass on to ajax request as POST vars.
-        var WtfFuShowFilesFormData = $("#wtf_show_files_form").serializeArray();
-
         var data = {
-            action: this.action.value,
-            fn: this.fn.value,
+//            action: this.action.value,
+//            fn: this.fn.value,
             //wtf_upload_dir: this.wtf_upload_dir.value,
             //wtf_upload_subdir: this.wtf_upload_subdir.value,
             files: files
@@ -29,20 +43,29 @@ function wtf_show_files_init() {
         $.each(WtfFuShowFilesFormData, function(key, input) {
             data[input.name] = input.value;
         });
+        
+        $('#wtf_fu_show_files_output').addClass('reorder-processing');
 
-        $.post(showfiles_js_vars.url, data, function(data, code, xhr) {
-
+        $.ajax({
+            url: showfiles_js_vars.url,
+            data: data,
+            type: "POST",
+            dataType: 'xml',
+        }).always(function() {
+            $('#wtf_fu_show_files_output').removeClass('reorder-processing');
+            //$('#reorder_submit_button').attr("disabled", false);
+        }).success(function(data, code, xhr) {
             var res = wpAjax.parseAjaxResponse(data, 'response');
             $.each(res.responses, function() {
                 switch (this.what) {
-                    case "stuff":
-                        $('#links').html(this.data);
-                        $('#reorder_response').html('<p>File Order Updated</p>');
-                        init_sortable();
-                        break;
+                    case "stuff" :
+                        $('#wtf_fu_show_files_response').html(this.data);
+                        $('#reorder_message').html('Order Updated');
+                    break;
                 }
             });
-        }, 'xml');
+            init_sortable();// reinitialize the new reorder_sortable div.
+        });
 
         event.preventDefault();
     });
@@ -59,7 +82,8 @@ function init_sortable() {
             tolerance: 'pointer',
             containment: '#sort_container',
             update: function() {
-                $('#reorder_response').html('<p>File order has been changed. Click save to apply your changes.</p>');
+                $('#reorder_submit_button').attr("disabled", false);
+                $('#reorder_message').html('Click save to apply your changes.');
             }
         });
         $('#reorder_sortable').disableSelection();

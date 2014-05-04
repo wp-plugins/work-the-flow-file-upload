@@ -122,15 +122,15 @@ class Wtf_Fu_Workflow_Shortcode {
              * if style is not already loaded from a prior call.
              */
             if (!wp_script_is($style_handle, 'enqueued')) {
+                 
+                wp_enqueue_style($style_handle, plugins_url($this->plugin_slug) . '/public/assets/css/workflow_default.css', array(), Wtf_Fu::VERSION);
+
                 /*
                  * If a plugin has its own style then hook loading the style sheet.
                  */
                 if (has_action('wtf_fu_enqueue_styles_action')) {
                     do_action('wtf_fu_enqueue_styles_action');
-                } else { // use default sheet.
-                    //    log_me("enqueuing $style_handle");
-                    wp_enqueue_style($style_handle, plugins_url($this->plugin_slug) . '/public/assets/css/workflow_default.css', array(), Wtf_Fu::VERSION);
-                }
+                } 
             }
         }
 
@@ -372,7 +372,7 @@ class Wtf_Fu_Workflow_Shortcode {
                 . "<input type='hidden' name='stage' value='$stage' />";
 
 
-        $ret .= '<div class="">';
+        $ret .= '<div class="workflow-buttons"><span class=workflow-process></span>';
         
         if ($stage - 1 >= 0) {
             if (wtf_fu_get_value($stage_options, 'back_active') == true) {
@@ -425,9 +425,8 @@ class Wtf_Fu_Workflow_Shortcode {
     public function generate_content($options) {
 
         do_action("wtf_fu_workflow_init");
-
         $page = $this->generate_workflow_stage_page($options);
-
+        
         return "<div id=\"workflow_response\">$page</div>";
     }
 

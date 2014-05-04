@@ -68,6 +68,10 @@ class Wtf_Fu {
     private function __construct() {
 
         log_me('__construct  Wtf_Fu ');
+        log_me('memory=' . memory_get_usage(true) . "\n");
+        log_me('peak memory=' . memory_get_peak_usage(true) . "\n");
+
+
 
         // Load plugin text domain.
         add_action('init', array($this, 'load_plugin_textdomain'));

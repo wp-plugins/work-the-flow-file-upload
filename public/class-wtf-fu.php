@@ -67,9 +67,9 @@ class Wtf_Fu {
      */
     private function __construct() {
 
-        log_me('__construct  Wtf_Fu ');
-        log_me('memory=' . memory_get_usage(true) . "\n");
-        log_me('peak memory=' . memory_get_peak_usage(true) . "\n");
+        //log_me('__construct  Wtf_Fu ');
+        //log_me('memory=' . memory_get_usage(true) . "\n");
+        //log_me('peak memory=' . memory_get_peak_usage(true) . "\n");
 
 
 

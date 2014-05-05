@@ -311,6 +311,14 @@ lynton@wtf-fu.com detailing your requirements.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 1.2.5 =
+* Fix for issue with internet explorer displaying multiple copies of uploaded files.
+* Improved performance of workflow processing.
+* Added spinner to workflow and reorder pages.
+* Reworked layout and css for wtf_fu_show_files shortcode.
+* Disable buttons when processing workflows, to prevent multiple requests.
+
+= 1.2.4 =
 * Made code dependant on php >= 5.3.0 conditional so that php >= 5.3.0 is 
 no longer a requirement as it was in 1.2.2 and 1.2.3.
 Php versions < 5.3.0 will now work, but will not attempt to inline css 
@@ -369,6 +377,13 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 1.2.5 =
+* Fix for issue with internet explorer displaying multiple copies of uploaded files.
+* Improved performance of workflow processing.
+* Added spinner to workflow and reorder pages.
+* Reworked layout and css for wtf_fu_show_files shortcode.
+* Disable buttons when processing workflows, to prevent multiple requests.
+
 = 1.2.4 = 
 * Made code dependant on php >= 5.3.0 conditional so that php >= 5.3.0 is 
 no longer a requirement as it was in 1.2.2 and 1.2.3.

@@ -1,22 +1,41 @@
 (function($) {
     'use strict';
 
-    $('#workflow_response').unbind("DOMNodeInserted").bind("DOMNodeInserted", function(ev) {
-        if (ev.originalEvent.relatedNode && ev.originalEvent.relatedNode.id === 'workflow_response') {
-            wtf_file_upload_init();
-            wtf_show_files_init();
-        }
+// select the target node
+    var target = document.querySelector('#workflow_response');
+
+// create an observer instance
+    var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            //console.log(mutation.type);
+            var myNodeList = mutation.addedNodes;
+            for (var i = 0; i < myNodeList.length; ++i) {
+                var item = myNodeList[i];
+                if (item.querySelector('#reorder_sortable') !== null) {
+                    wtf_show_files_init();
+                }
+                if (item.querySelector('#fileupload') !== null) {
+                    wtf_file_upload_init();
+                }
+                //console.log(item);
+            }
+        });
     });
 
-    //$('#wtf_workflow_form').on('submit', function(event) {
+// configuration of the observer:
+    var config = {attributes: false, childList: true, characterData: false};
+
+// pass in the target node, as well as the observer options
+    observer.observe(target, config);
+
 
     $(document).on('submit', '#wtf_workflow_form', function(event) {
-        
+
         // The selected button that submitted the form.
         var btn = $(":input[type=submit]:focus");
-        
+
         $(":input[type='submit']").attr("disabled", true);
-                      
+
         var data = {
             action: this.action.value,
             fn: this.fn.value,
@@ -46,10 +65,13 @@
                         break;
                 }
             });
+        }).done(function() {
+           // console.log('done');           
         });
 
         event.preventDefault();
     });
 
-
+// later, you can stop observing
+// observer.disconnect();
 })(jQuery);

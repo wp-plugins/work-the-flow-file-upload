@@ -24,7 +24,7 @@ function wtf_file_upload_init() {
         WtfFuAjaxVars.absoluteurl
     );
 
-    // Load existing files:
+    // Load spinners.
     $('#fileupload').addClass('fileupload-processing');
  
     $.ajax({

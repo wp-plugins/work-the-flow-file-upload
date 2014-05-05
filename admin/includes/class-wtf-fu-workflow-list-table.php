@@ -68,10 +68,10 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
         return $data;
     }
 
-    /**     * ***********************************************************************
+    /**
      * REQUIRED. Set up a constructor that references the parent constructor. We 
      * use the parent reference to set some default configs.
-     * ************************************************************************* */
+     */
     function __construct() {
         global $status, $page;
 

@@ -360,7 +360,15 @@ class Wtf_Fu {
 
             
            // wp_enqueue_script($this->plugin_slug . '-plugin-script', plugins_url('assets/js/public.js', __FILE__), array(), self::VERSION);
-
+           
+            // TODO:   
+            //wp_enqueue_script('jquery');
+            //wp_enqueue_script('jquery-ui-core');
+            //wp_enqueue_script('jquery-ui-widget');
+            //
+            //jquery-ui-core jquery  jquery-ui-widget 
+            
+            // log_me(array('avail scripts :' => $GLOBALS['wp_scripts']));
 
             if (!wp_script_is('jquery')) {
                 wp_enqueue_script('jquery', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/jquery.min.js');
@@ -370,6 +378,7 @@ class Wtf_Fu {
             wp_enqueue_script($this->plugin_slug . 'jquery-ui.js', "//code.jquery.com/ui/1.10.4/jquery-ui.js", array('jquery'), self::VERSION, true);            
 
             wp_enqueue_script($this->plugin_slug . '-jquery-ui-widgit-js', wtf_fu_JQUERY_FILE_UPLOAD_URL . 'js/vendor/jquery.ui.widget.js', array('jquery'), self::VERSION, true);
+                                  
             wp_enqueue_script($this->plugin_slug . '-blueimp-tmpl-js', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/tmpl.min.js', array('jquery'), self::VERSION, true);
             wp_enqueue_script($this->plugin_slug . '-blueimp-load-image-js', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/load-image.min.js', array('jquery'), self::VERSION, true);
             wp_enqueue_script($this->plugin_slug . '-blueimp-canvas-to-blob-js', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/canvas-to-blob.min.js', array('jquery'), self::VERSION, true);

@@ -208,7 +208,7 @@ class Wtf_Fu_Admin {
                         $options_data_key = Wtf_Fu_Option_Definitions::get_workflow_options_key($wf_id);
                         include_once( 'views/admin-workflow-edit.php' );
                         echo '<form method="post" action="options.php">';
-                        submit_button();  
+                        submit_button(); 
                         settings_fields($options_data_key);
                         do_settings_sections($options_data_key);
                         submit_button();
@@ -240,6 +240,7 @@ class Wtf_Fu_Admin {
             case wtf_fu_PAGE_PLUGIN_KEY :
                 echo '<form method="post" action="options.php">';
                 submit_button();
+                settings_errors();                 
                 settings_fields(wtf_fu_OPTIONS_DATA_PLUGIN_KEY);
                 do_settings_sections(wtf_fu_OPTIONS_DATA_PLUGIN_KEY);
                 submit_button();
@@ -249,12 +250,16 @@ class Wtf_Fu_Admin {
             case wtf_fu_PAGE_UPLOAD_KEY :
                 echo '<form method="post" action="options.php">';
                 submit_button();
+                settings_errors();                                 
                 settings_fields(wtf_fu_OPTIONS_DATA_UPLOAD_KEY);
                 do_settings_sections(wtf_fu_OPTIONS_DATA_UPLOAD_KEY);
                 submit_button();
                 echo '</form>';
                 break;
 
+            case wtf_fu_PAGE_DOCUMENATION_KEY :
+                include_once ( 'views/documentation.php');
+                break;
             default :
                 // see if anything else can handle it.
                 if (has_action('wtf_fu_dispay_plugin_admin_page')) {
@@ -321,6 +326,8 @@ class Wtf_Fu_Admin {
                 || ( $init_args['page'] && $init_args['page'] !== $this->plugin_slug )
                 // user page does not require options setup.
                 || ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_USERS_KEY)
+                // documentation page does not require options setup.               
+                || ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_DOCUMENATION_KEY)               
                 // Workflows list page has not options to set up unless 
                 // the 'wftab' sub page is defined.
                 || ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_WORKFLOWS_KEY && !$init_args['wftab'])
@@ -593,7 +600,7 @@ class Wtf_Fu_Admin {
      * From this we can reverse engineer the tab values that were 
      * originally sent to the form.
      */
-    static function parse_options_page_response($option_page) {
+    static function parse_options_page_response($option_page) {       
 
         switch ($option_page) {
 
@@ -753,6 +760,7 @@ class Wtf_Fu_Admin {
             case 'create_medium_images' :
             case 'thumbnail_crop' :
             case 'deny_public_uploads':
+            case 'use_public_dir':
                 echo wtf_fu_checkbox($option_id, $option_name, $val, $label);
                 break;
             case 'max_file_size' :
@@ -785,15 +793,24 @@ class Wtf_Fu_Admin {
             case 'next_js' :
             case 'back_js' :
 
-                echo wtf_fu_textarea($option_id, $option_name, $val, $label);
+                echo wtf_fu_textarea($option_id, $option_name, $val, $label, 1);
                 break;
 
             case 'content_area' :
+                
+                echo "<p>$label</p>";
+                wp_editor($val, $option_id, array("textarea_name" => $option_name, 'textarea_rows' => 25, 'wpautop' => false));                
+                break;
+            
             case 'footer' :
+                echo "<p>$label</p>";
+                wp_editor($val, $option_id, array("textarea_name" => $option_name, 'textarea_rows' => 3, 'wpautop' => false));                
+                break;
+            
             case 'header' :
 
                 echo "<p>$label</p>";
-                wp_editor($val, $option_name);
+                wp_editor($val, $option_id, array("textarea_name" => $option_name, 'textarea_rows' => 5, 'wpautop' => false));                
                 break;
 
             case 'next_active' :

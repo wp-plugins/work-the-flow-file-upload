@@ -492,6 +492,12 @@ class UploadHandler
 
     protected function trim_file_name($name,
             $type = null, $index = null, $content_range = null) {
+        
+        // ADDED wtf_fu LR 10/05/2014 
+        // see https://github.com/blueimp/jQuery-File-Upload/issues/1746        
+        // $name = utf8_decode($name);
+        // END ADDED wtf_fu LR 10/05/2014 
+        
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:

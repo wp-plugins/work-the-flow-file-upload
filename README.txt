@@ -311,6 +311,22 @@ lynton@wtf-fu.com detailing your requirements.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 1.2.6 =
+* Fix for display of admin pages visual editor tab (broken for wp tinymce editor in wp >= 3.9.0)
+* Adjusted sizes of workflow edit fields in admin pages.
+* Turned off `wpautop` on admin page edit fields to prevent editor auto removing `<p>` tags 
+when switching between visual and text editor.
+* Added email and appearance tabs to workflow admin screens. (pro features only).
+* Fix for Filenames with ' in them were not correctly reordering when update order saved 
+in `[wtf_fu_show_files reorder=true]`.
+* Added  `use_public_dir='true'` attribute to `[wtf_fu_show_files]` and `[wtf_fu_upload]`.
+This forces ALL users files to be uploaded to the common `uploads/public` directory. This then
+causes ALL users to have access to the same files. Default is false.
+* Added auto file mimetype detection for displaying mixed filetypes with `[wtf_fu_show_files]`
+mixed files now correctly display as image audio or text.
+* Added file_type='mixed' attribute to the `[wtf_fu_show_files]` shortcode.
+* Added Documentation for shortcodes tab to the admin setting page.
+
 = 1.2.5 =
 * Fix for issue with internet explorer displaying multiple copies of uploaded files.
 * Improved performance of workflow processing.

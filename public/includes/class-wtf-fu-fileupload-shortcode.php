@@ -44,7 +44,7 @@ class Wtf_Fu_Fileupload_Shortcode {
         
         ob_start();
 
-        log_me(array("wtf_fu_load_ajax_function REQUEST=" => $_REQUEST));
+        //log_me(array("wtf_fu_load_ajax_function REQUEST=" => $_REQUEST));
         
         // Get the option defaults.
         $options = Wtf_Fu_Options::get_upload_options();
@@ -60,7 +60,8 @@ class Wtf_Fu_Fileupload_Shortcode {
         $options = self::massageUploadHandlerOptions($options);
 
         // Include the upload handler.
-        require_once(wtf_fu_JQUERY_FILE_UPLOAD_HANDLER_FILE);
+        //require_once(wtf_fu_JQUERY_FILE_UPLOAD_HANDLER_FILE);
+        require_once('UploadHandler.php');
 
         error_reporting(E_ALL | E_STRICT);
         
@@ -68,6 +69,7 @@ class Wtf_Fu_Fileupload_Shortcode {
                         // *must* be before calling UploadHandler()
         
         $upload_handler = new UploadHandler($options);
+        
         
         die(); // always exit after an ajax call.
     }
@@ -93,28 +95,26 @@ class Wtf_Fu_Fileupload_Shortcode {
          * will default to the wp_admin root !
          */
         if (!array_key_exists('wtf_upload_dir', $raw_options) || empty($raw_options['wtf_upload_dir'])) {
-
             die("Option 'wtf_upload_dir' was not found in the request.");
         }
 
-        /*
+         /*
          * user_id 0 will get paths for current user.
          */
         $paths = wtf_fu_get_user_upload_paths(
-                $raw_options['wtf_upload_dir'], $raw_options['wtf_upload_subdir']);
+                $raw_options['wtf_upload_dir'], $raw_options['wtf_upload_subdir'], 0, $raw_options['use_public_dir']);
 
         $options = array();
         $options['script_url'] = admin_url('admin-ajax.php');
         $options['upload_dir'] = $paths['upload_dir'] . '/';
         $options['upload_url'] = $paths['upload_url'] . '/';
 
-
         /*
          * Set up the default array of 'image_versions' options duplicating the 
          * UploadHandler.php defaults values.
          * 
          * Required because the UploadHandler class uses the array '+' operator
-         * to merge these options with its default optoins array. 
+         * to merge these options with its default options array. 
          * 
          * Because of this a nested array will always replace the entire 
          * equivilent array in the Handler. 
@@ -128,7 +128,7 @@ class Wtf_Fu_Fileupload_Shortcode {
             'thumbnail' => array('crop' => true, 'max_width' => 80, 'max_height' => 80)
         );
 
-        if ($raw_options['create_medium_images'] == true) {
+        if (array_key_exists('create_medium_images', $raw_options) && $raw_options['create_medium_images'] == true) {
             $options['image_versions']['medium'] = array('max_width' => 800, 'max_height' => 600);
         }
 

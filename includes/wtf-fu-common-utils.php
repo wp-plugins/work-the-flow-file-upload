@@ -54,6 +54,9 @@ function wtf_fu_update_timestamp($filename, $time) {
         } else {
             log_me("FAILURE : timestamp update for $filename");            
         }      
+    } else {
+        log_me("FAILURE : timestamp update for $filename, file not found.");            
+
     }
 }
 
@@ -88,7 +91,7 @@ function wtf_fu_get_javascript_form_vars($name, $php_array) {
 /* <![CDATA[ */
 var $name = $js_array;
 /* ]]> */             
-</script>
+</script> 
 EOS;
  
     return $js;
@@ -116,6 +119,22 @@ function wtf_fu_get_value($arr, $key, $allow_empty = false) {
     }
     return false;
 }
+
+/**
+ * Wordpress REQUEST vars may have used the deprecated PHP directive magic_quotes_gpc  on
+ * which will escape ' to  \' 
+ * This function will remove them from an array.
+ * @param type $value
+ * @return type
+ */
+function wtf_fu_stripslashes_deep($value)
+{
+    $value = is_array($value) ?
+        array_map('wtf_fu_stripslashes_deep', $value) :
+        stripslashes($value);
+    return $value;
+}
+
 
 /**
  * tests an array for the required attributes.
@@ -161,11 +180,17 @@ function shortcode_requires($code, $keys, $arr) {
  * @return type array -- absolute path and url to be used for an upload location.
  */
 function wtf_fu_get_user_upload_paths( $upload_dir = '', $upload_subdir = '', 
-        $user_id = 0) {
+        $user_id = 0, $use_public_dir = false) {
 
-    $user_id = getUserInfo('ID', $user_id);
-    if (!isset($user_id) || $user_id == '') {
-        $user_id = 'public';
+
+    // override with the requested dir.
+    if ($use_public_dir == true) {
+        $user_id = 'public';        
+    } else {
+        $user_id = getUserInfo('ID', $user_id);
+        if (!isset($user_id) || $user_id == '') {
+            $user_id = 'public';
+        }        
     }
     
     $upload_array = wp_upload_dir();
@@ -358,6 +383,17 @@ function wtf_fu_text_input($id, $name, $value, $size = 80, $label = null) {
     return $html;
 }
 
+/**
+ * 
+ * @param type $id
+ * @param type $name
+ * @param type $val
+ * @param type $label
+ * @param type $rows
+ * @param type $cols
+ * @param type $extra_attrs
+ * @return type
+ */
 function wtf_fu_textarea($id, $name, $val, $label = null, $rows = 5, $cols = 80, $extra_attrs = '') {
     $html = '';
     if ($label) {
@@ -371,11 +407,17 @@ function wtf_fu_textarea($id, $name, $val, $label = null, $rows = 5, $cols = 80,
  * generate checkbox code.
  */
 function wtf_fu_checkbox($id, $option_name, $val, $label) {
-    $html = '<input type="checkbox" id="' . $id . '" name="' . $option_name . '" value="1"' . checked(1, $val, false) . '/>';
-    $html .= '&nbsp;';
-    $html .= '<label for="' . $id . '">' . $label . '</label>';
-    return $html;
+    
+    // Convert to select list of true/false as unchecked checkboxes do not get submitted eith the form.
+    $values = array(array('name' => "No (0)", 'value' => '0'), array('name' => "Yes (1)", 'value' => '1'));
+    return wtf_fu_list_box($id, $option_name, $val, $label, $values);
+    
+//    $html = '<input type="checkbox" id="' . $id . '" name="' . $option_name . '" value="1"' . checked(1, $val, false) . '/>';
+//    $html .= '&nbsp;';
+//    $html .= '<label for="' . $id . '">' . $label . '</label>';
+//    return $html;
 }
+
 
 /**
  * return a drop ldown list box from the $values array
@@ -388,9 +430,8 @@ function wtf_fu_checkbox($id, $option_name, $val, $label) {
  * @return string  html for the select box.
  */
 function wtf_fu_list_box($id, $option_name, $val, $label, $values) {
-    
-    $html = '<label for="' . $id . '">' . $label . '</label>';
-    $html .= "<select id=\"$id\" name=\"$option_name\">";
+       
+    $html = "<select id=\"$id\" name=\"$option_name\">";
     foreach ($values as $v) {
         $html .= "<option ";
         if ($v['value'] == $val) {
@@ -399,13 +440,62 @@ function wtf_fu_list_box($id, $option_name, $val, $label, $values) {
         $html .= "value=\"{$v['value']}\">{$v['name']}</option>";
     }
     $html .= '</select>&nbsp;';
-    
+    $html .= '<label for="' . $id . '">' . $label . '</label>';
         
     return $html;
 }
 
+/**
+ * Returns a table of all the available template fields.
+ */
+function wtf_fu_get_template_fields_table() {
+    $table = "<table><tr><th>TEMPLATE SHORTCUT</th><th>ACTION</th></tr>";
+    
+    $arr = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_labels(wtf_fu_DEFAULTS_TEMPLATE_FIELDS_KEY);
+ 
+    foreach ($arr as $k => $v) {
+        $table .= "<tr><td>$k</td><td>$v</td></tr>";
+    }
+            
+    $table .= '</table>';
+    return $table;
+}
+    
+
+function get_shortcode_info_table($shortcode) {
+    $table = "<table><tr><th>Attribute</th><th>Default Value</th><th>Function</th></tr>";
+    
+    switch ($shortcode) {
+        case 'wtf_fu_upload' :
+            
+            $attr_defs = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_UPLOAD_KEY);
+
+            foreach ($attr_defs as $k => $v) {
+                $label = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_field_label_value(wtf_fu_DEFAULTS_UPLOAD_KEY, $k);
+                $table .= "<tr><td>{$k}</td><td>$v</td><td>$label</td></tr>";
+            }
+            
+            break;
+        case 'wtf_fu_showfiles' :
+            $attr_defs = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY);
+
+            foreach ($attr_defs as $k => $v) {
+                $label = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_field_label_value(wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY, $k);
+                $table .= "<tr><td>{$k}</td><td>$v</td><td>$label</td>";
+            }            
+            break;
+        case 'wtf_fu' :
+            break;
+        default :
+            
+    }
+    $table .= '</table>';
+    
+    return $table;
+}
+
 function wtf_fu_get_example_short_code_attrs($code, $attr) {
-    $ret = "[<string>$code</string>";
+    $ret = "[<strong>$code</strong>";
     foreach ($attr as $k => $v) {
         $ret .= " $k=\"$v\"";
     }

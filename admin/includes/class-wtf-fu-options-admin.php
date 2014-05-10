@@ -88,7 +88,7 @@ class Wtf_Fu_Options_Admin {
     public static function add_new_workflow_option($workflow_id, $options = null) {
         $key = Wtf_Fu_Option_Definitions::get_workflow_options_key($workflow_id);
         if (false === add_option($key, $options)) {
-            die ("adding new workflow failed for key = $key" );
+            log_me ("ERROR : adding new workflow failed for key = $key" );
         }
         return $key;
     }
@@ -133,10 +133,6 @@ class Wtf_Fu_Options_Admin {
         $ret = $wpdb->query($wpdb->prepare(
             "update $wpdb->options SET option_name=%s WHERE option_name=%s" , $new_key, $old_key)
         );
-    
-        //log_me(array('update_option_key()' => 
-        //    array('old_key' => $old_key, 'new_key' => $new_key, 'ret' => $ret)));
-       
         return ret;
     }    
     
@@ -163,12 +159,10 @@ class Wtf_Fu_Options_Admin {
         // MySQL will ignore the parenthesis in the REGEXP but we will use them 
         // to parse out the id later with preg_match.
         $pattern = '^' . Wtf_Fu_Option_Definitions::get_workflow_options_key('([1-9][0-9]*)') . '$';
-     //   log_me($pattern);
         
         $results = $wpdb->get_results(
             $wpdb->prepare("SELECT option_name FROM $wpdb->options WHERE option_name REGEXP %s" , $pattern));
         
-      //  log_me($results);
         foreach ($results as $row) { 
             $match = array();
             if ( preg_match( '/' . $pattern . '/', $row->option_name, $match) ){
@@ -208,12 +202,10 @@ class Wtf_Fu_Options_Admin {
         // MySQL will ignore the parenthesis in the REGEXP but we will use them 
         // to parse out the id later with preg_match.
         $pattern = '^' . Wtf_Fu_Option_Definitions::get_workflow_stage_key('([1-9]+)', '([0-9]+)') . '$';
-     //   log_me($pattern);
         
         $results = $wpdb->get_results(
             $wpdb->prepare("SELECT option_name FROM $wpdb->options WHERE option_name REGEXP %s" , $pattern));
         
-      //  log_me($results);
         foreach ($results as $row) { 
             $match = array();
             if ( preg_match( '/' . $pattern . '/', $row->option_name, $match) ){
@@ -255,7 +247,7 @@ class Wtf_Fu_Options_Admin {
     public static function delete_workflow($id) {
         log_me("Deleting workflow $id");
         if (empty($id)) {
-            die ("Cannot delete an empty workflow id");
+            log_me ("ERROR: Cannot delete an empty workflow id");
         }      
         
         // first delete the workflow stages.
@@ -302,8 +294,7 @@ class Wtf_Fu_Options_Admin {
      * @param type $wfid the numeric workflow id.
      */
     public static function reorder_stages($wfid) {
-        
-        
+                
         $stages = Wtf_Fu_Options::get_workflow_stages($wfid, true); 
         $count = count($stages);
         
@@ -311,18 +302,12 @@ class Wtf_Fu_Options_Admin {
             return false;
         }
         
-        //$first_stage = $stages[0];
-        //$last_stage = $stages[$count - 1];
-        
         $ret = false;        
         $i = -1;
         
         foreach ( $stages as $k => $v ) {
             
-            $i++;
-            
-            log_me(array("$v" => $v) );
-            
+            $i++;           
             if ( $v['key_id'] == $i) {
                 continue;
             }
@@ -333,33 +318,28 @@ class Wtf_Fu_Options_Admin {
              * 
              * move this stage to stage $i
              */
-            $stage_options = get_option($k);
-            
+            $stage_options = get_option($k);           
          
             $new_key = Wtf_Fu_Option_Definitions::get_workflow_stage_key($wfid, $i);
             
-            log_me("reorder_stages() moving stage {$k} -> {$new_key} "); 
+            // log_me("reorder_stages() moving stage {$k} -> {$new_key} "); 
 
             add_option($new_key, $stage_options);
                                               
             if ( false === delete_option($k) ) {
-                die ("REORDER ERROR : could not delete old option key $k");
+                log_me("REORDER ERROR : could not delete old option key $k");
             }
             
             /*
              * update any workflow users currently at this stage to the new stage 
              * value. 
              */
-            Wtf_Fu_Options_Admin::update_all_users_workflow_stage_settings($wfid, $v['key_id'], $i);   
-            
+            Wtf_Fu_Options_Admin::update_all_users_workflow_stage_settings($wfid, $v['key_id'], $i);               
             $ret = true; // modification has occurred.
-
+            break;
         }
         
-        
-        
-        return $ret;
-        
+        return $ret;       
     }
     
     /**

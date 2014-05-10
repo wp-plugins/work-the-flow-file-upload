@@ -1,6 +1,9 @@
 /* 
  * Stylesheet presentation for the [wtf_fu_showfiles] shortcode output.
  */
+#wtf_fu_show_files_output {
+    float: left;
+}
 
 #reorder_button_container, #reorder_button, #reorder_message, #reorder_submit_button {
     display: block;
@@ -48,10 +51,19 @@
     opacity: 0.7;
 }
 
+/* filename padding */
+li.list p.pad_top_20px {
+    position: relative;
+    top: 18px;
+    float: left;
+    margin:0px;    
+    //left: 15px;  
+}
+
 #sort_container, #files_container {
     float:left;
-    width:100%;
-    height:100%;
+//    width:100%;
+//    height:100%;
 }
 
 
@@ -60,6 +72,8 @@
     position: absolute;
     top: 0;
     left: 0;  
+//    border: tomato;
+//    border-style: groove;    
 }
 
 #reorder_sortable, #files_list { 
@@ -69,7 +83,7 @@
     float: left; 
 }
 
-#reorder_sortable li, #files_list li { 
+#reorder_sortable li.list, #files_list li.list { 
     position: relative;
     margin: 6px; 
     list-style-type: none; 
@@ -78,4 +92,30 @@
     height: 80px; 
     font-size: 1em; 
     text-align: center; 
+    overflow: hidden;
+    background: threedshadow;
+}
+
+#reorder_sortable li.list audio, #files_list li.list audio
+{ 
+    width: 80px; 
+    margin:0px;
+    position: absolute;
+    bottom: 0;
+    left: 0; 
+    opacity: 0.6;
+    z-index: 100;
+}
+
+/* vertical overrides */
+#reorder_sortable.vertical li.list, #files_list.vertical li.list {
+    width: 250px; 
+//    height: 250px; 
+    float: none;
+    overflow: inherit;
+}
+
+#reorder_sortable.vertical li.list audio, #files_list.vertical li.list audio {
+    width: 250px;
+    opacity: .8; 
 }

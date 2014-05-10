@@ -188,6 +188,7 @@ class Wtf_Fu_Workflow_Shortcode {
         // Process any embedded short codes that require manual handling .
         //$page = $this->do_shortcode_manually($page); 
         // Attempt any other known shortcodes
+        
         $page = do_shortcode($page);
 
         return $page;

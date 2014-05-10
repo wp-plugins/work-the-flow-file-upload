@@ -51,6 +51,8 @@ define('wtf_fu_PAGE_WORKFLOWS_KEY', 'workflows');
 define('wtf_fu_PAGE_WORKFLOW_OPTION_KEY', 'workflow-options');
 define('wtf_fu_PAGE_WORKFLOW_STAGE_OPTION_KEY', 'workflow-stage-options');
 define('wtf_fu_PAGE_USERS_KEY', 'user-options');
+define('wtf_fu_PAGE_DOCUMENATION_KEY', 'documentation');
+
 
 
 /**
@@ -60,6 +62,8 @@ define('wtf_fu_DEFAULTS_PLUGIN_KEY', 'wtf-fu-plugin-defaults');
 define('wtf_fu_DEFAULTS_UPLOAD_KEY', 'wtf-fu-upload-defaults');
 define('wtf_fu_DEFAULTS_STAGE_KEY', 'wtf-fu-stage-defaults');
 define('wtf_fu_DEFAULTS_WORKFLOW_KEY', 'wtf-fu-workflow-defaults');
+define('wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY', 'wtf-fu-showfiles-defaults');
+define('wtf_fu_DEFAULTS_TEMPLATE_FIELDS_KEY', 'wtf-fu-template-fields');
 
 define('wtf_fu_DEFAULT_WORKFLOW_TEMPLATE', '<div class="panel panel-default tbs">
         <div class="panel-heading">
@@ -77,6 +81,34 @@ define('wtf_fu_DEFAULT_WORKFLOW_TEMPLATE', '<div class="panel panel-default tbs"
             <p><small>%%WTF_FU_POWERED_BY_LINK%%</small></p>
         </div>
     </div>');
+
+define ('wtf_fu_pro_DEFAULT_EMAIL_TEMPLATE' , 'Hi <strong>%%USER_NAME%%</strong>,
+<br/>
+<p>Congratulations !</p>
+<br/>
+
+<p>You have just successfully completed the <strong>%%WORKFLOW_STAGE_TITLE%%</strong> stage of 
+the <strong>%%WORKFLOW_NAME%%</strong> at %%SITE_URL%%.</p>
+
+<p>We have received the following files you have uploaded for our attention :</p>
+
+<p>
+[wtf_fu_show_files wtf_upload_dir="demofiles" email_format="1"]
+</p>
+
+<p>Please check that this list is complete, and feel free to contact us at <br/>
+%%ADMIN_EMAIL%% if you have any concerns.</p>
+
+<br/>
+<br/>
+<p>regards,</p> 
+%%ADMIN_NAME%% <br/>
+<p><small>%%ADMIN_EMAIL%%</small></p>
+<hr/>
+<p><small>This has been an automated email response from %%SITE_URL%%</small>
+<br/> %%WTF_FU_POWERED_BY_LINK%% </p>
+<hr/>'
+);
 
 /**
  * Class consists of static methods to return option keys and values.
@@ -113,6 +145,7 @@ class Wtf_Fu_Option_Definitions {
             ),
             wtf_fu_DEFAULTS_UPLOAD_KEY => array(
                 'deny_public_uploads'=> '1',
+                'use_public_dir'=> '0',
                 'wtf_upload_dir' => 'wtf-fu_files',
                 'wtf_upload_subdir' => 'default',
                 'accept_file_types' => 'jpg|jpeg|mpg|mp3|png|gif|wav|ogg',
@@ -149,8 +182,29 @@ class Wtf_Fu_Option_Definitions {
                 'back_js' => '',
                 'pre_hook' => '',
                 'post_hook' => '',
-            )
+            ), 
+            wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY => array(
+                'wtf_upload_dir' => '', // set after initialised.
+                'wtf_upload_subdir' => '', // set after initialised.
+                'reorder' => '0',
+                'gallery' => '1',
+                'file_type' => 'auto',
+                'email_format' => '0',
+                'show_numbers' => '1',
+                'audio_controls' => '1',
+                'vertical' => '0',
+                'download_links' => '0',
+                'use_public_dir' => '0'
+                )
         );
+        
+        
+        // Keep in sync with the file upload defaults.
+        $this->all_pages_default_options[wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY]['wtf_upload_dir'] = 
+                $this->all_pages_default_options[wtf_fu_DEFAULTS_UPLOAD_KEY]['wtf_upload_dir'];
+        $this->all_pages_default_options[wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY]['wtf_upload_subdir'] = 
+                $this->all_pages_default_options[wtf_fu_DEFAULTS_UPLOAD_KEY]['wtf_upload_subdir'];  
+        
 
         $this->all_pages_default_options = apply_filters('wtf_fu_all_pages_default_options_filter', $this->all_pages_default_options);
 
@@ -173,6 +227,8 @@ class Wtf_Fu_Option_Definitions {
                  have implemented your own conditional logic around your embedded wtf-fu shortcodes, 
                  or you understand the risks and really do want to allow ANY user to be able to 
                  upload files to your site.',
+                'use_public_dir'=> 'Causes uploads to use the <code>/uploads/public</code> as the root directory instead of <code>/uploads/[user_id]</code>.
+                    This has the effect of causing uploads to be shared amoungst all users.',
                 'wtf_upload_dir' =>
                 'The default upload directory name. 
                     This will be under the users upload directory.
@@ -263,8 +319,45 @@ class Wtf_Fu_Option_Definitions {
                 enters this stage.',
                 'post_hook' => 'Enter a user defined function to be executed after a user 
                 leaves this stage.',          
-            )
+            ),
+           wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY => array(
+                'wtf_upload_dir' => '', // set after initialised.
+                'wtf_upload_subdir' => '', // set after initialised.
+                'reorder' => 'set to 1 (true) to add a re-ordering button and make the list sortable. '
+               . 'When submitted files last modified timestamp is updated to reflect the new order. '
+               . 'Additionally a file is created in the root upload directory containing a list of the files in the resorted order.',
+                'gallery' => 'set to 1 (true) to show images in a gallery display when clicked.',
+                'file_type' => 'Deprecated : File types are autodetected and displayed since 1.2.6.',
+                'email_format' => '0 (false) or 1 (true) If set then an attempt to inline the css formatting will be made so that it can be used in email output.'
+               . 'Do not use this for displaying on web pages. This is mainly used by the email templates and hooked user functions which call the shortcode function directly.',
+                'show_numbers' => '0 (false) or 1 (true). '
+               . 'Causes the order number to be displayed in the top left corner.',
+                'audio_controls' => 'Causes audio contols to be displayed for audio files.',
+                'vertical' => '0 (false) or 1 (true). '
+               . 'Force the display into vertical mode with one file per row.',
+                'download_links' => '0 (false) or 1 (true). '
+               . 'Display a download link for downloading files.',
+                'use_public_dir' => '0 (false) or 1 (true). '
+               . 'Force listing of files from the uploads/public directory rather than the uploads/user_id directory.'
+                ),  
+            wtf_fu_DEFAULTS_TEMPLATE_FIELDS_KEY => array(
+                '%%WORKFLOW_NAME%%' => 'The name of the current workflow.',
+                '%%WORKFLOW_STAGE_TITLE%%' =>'The current workflow stage title.',          
+                '%%USER_NAME%%' => 'The current users display name.',
+                '%%USER_EMAIL%%' => 'The current users email address.',
+                '%%ADMIN_NAME%%' => 'The site administrators display name.',        
+                '%%ADMIN_EMAIL%%' => 'The site administrators email address.',
+                '%%SITE_URL%%' => 'The url link for this web site.',
+                '%%SITE_NAME%%' => 'The name of this web site.',
+                '%%WTF_FU_POWERED_BY_LINK%%' => 'Display a WFT-FU Powered by link to wtf-fu.com.'
+                )                           
         );
+        
+        // Keep in sync with the file upload defaults.
+        $this->all_pages_default_labels[wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY]['wtf_upload_dir'] = 
+                $this->all_pages_default_labels[wtf_fu_DEFAULTS_UPLOAD_KEY]['wtf_upload_dir'];
+        $this->all_pages_default_labels[wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY]['wtf_upload_subdir'] = 
+                $this->all_pages_default_labels[wtf_fu_DEFAULTS_UPLOAD_KEY]['wtf_upload_subdir']; 
         
         $this->all_pages_default_labels = apply_filters('wtf_fu_all_pages_default_labels_filter', $this->all_pages_default_labels);
 
@@ -286,7 +379,10 @@ class Wtf_Fu_Option_Definitions {
             ),
             wtf_fu_PAGE_USERS_KEY => array(
                 'title' => 'Manage Users',
-            )
+            ),
+            wtf_fu_PAGE_DOCUMENATION_KEY => array(
+                'title' => 'Documentation',
+            )            
         );
         
         $this->menu_page_values = apply_filters('wtf_fu_menu_page_values_filter', $this->menu_page_values);
@@ -329,6 +425,10 @@ class Wtf_Fu_Option_Definitions {
     public function get_page_option_fields_default_values($page_key) {
         return ($this->all_pages_default_options[$page_key]);
     }
+    
+    public function get_page_option_fields_default_labels($page_key) {
+        return ($this->all_pages_default_labels[$page_key]);
+    }    
 
     /**
      * Use to retrieve a single field default value.
@@ -349,7 +449,8 @@ class Wtf_Fu_Option_Definitions {
      */
     public function get_page_option_field_label_value($page_key, $field_name) {     
         return ($this->all_pages_default_labels[$page_key][$field_name]);
-    }    
+    }
+    
     /**
      * Returns array of all the menu pages keys.
      */

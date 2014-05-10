@@ -152,8 +152,18 @@ class Wtf_Fu_Options {
     }
     
     static function get_upload_options() {
-        return get_option(
+        
+        // Merge the default options with the ones that are in the database.
+        // This is so that unset options will get included as the factory default values.
+                
+        $default_options = 
+            Wtf_Fu_Option_Definitions::get_instance()->
+                get_page_option_fields_default_values(wtf_fu_DEFAULTS_UPLOAD_KEY);
+        
+        $stored_options = get_option(
                 Wtf_Fu_Option_Definitions::get_upload_options_key());
+        
+        return shortcode_atts($default_options, $stored_options);
     }
     
     static function get_plugin_options() {

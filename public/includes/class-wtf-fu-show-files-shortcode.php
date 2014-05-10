@@ -60,20 +60,14 @@ class Wtf_Fu_Show_Files_Shortcode {
          * We are only interested in the directory names for this shortcode.
          */
         $this->options = shortcode_atts(
-                array(
-            'wtf_upload_dir' => $default_upload_settings['wtf_upload_dir'],
-            'wtf_upload_subdir' => $default_upload_settings['wtf_upload_subdir'],
-            'reorder' => false,
-            'gallery' => false,
-            'file_type' => "image",
-            'email_format' => false,
-            'show_numbers' => true,
-                ), $attr);
+                Wtf_Fu_Option_Definitions::get_instance()->
+                        get_page_option_fields_default_values(wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY)
+                , $attr);
 
         /*
          * Current User upload directory paths.
          */
-        $this->paths = wtf_fu_get_user_upload_paths($this->options['wtf_upload_dir'], $this->options['wtf_upload_subdir']);
+        $this->paths = wtf_fu_get_user_upload_paths($this->options['wtf_upload_dir'], $this->options['wtf_upload_subdir'], 0, $this->options['use_public_dir']);
 
         /*
          * Glob the files.
@@ -160,15 +154,20 @@ class Wtf_Fu_Show_Files_Shortcode {
         //log_me(array("wtf_fu_ajax_reorder_function" => $_REQUEST));
 
         $fn = wtf_fu_get_value($_REQUEST, 'fn');
-        
+
         switch ($fn) {
             case 'show_files' :
+                
                 $files = wtf_fu_get_value($_REQUEST, 'files');
-                if ($files !== false) {                  
+                
+                $files = wtf_fu_stripslashes_deep($files);
+                
+                if ($files !== false) {
                     $upload_dir = wtf_fu_get_value($_REQUEST, 'wtf_upload_dir');
                     $upload_subdir = wtf_fu_get_value($_REQUEST, 'wtf_upload_subdir');
+                    $use_public_dir = wtf_fu_get_value($_REQUEST, 'use_public_dir');
 
-                    $paths = wtf_fu_get_user_upload_paths($upload_dir, $upload_subdir);
+                    $paths = wtf_fu_get_user_upload_paths($upload_dir, $upload_subdir, 0, $use_public_dir);
 
                     // Update all the files last modified timestamps
                     wtf_fu_set_files_order_times($paths['upload_dir'], $files);
@@ -210,7 +209,7 @@ class Wtf_Fu_Show_Files_Shortcode {
         //log_me(array('xmlresponse' => $xmlResponse));
 
         ob_end_clean();
-        
+
         $xmlResponse->send();
 
         /*
@@ -220,7 +219,7 @@ class Wtf_Fu_Show_Files_Shortcode {
     }
 
     function generate_content() {
-        $html = '<div id="wtf_fu_show_files_output">' . $this->generate_inner_content() . '</div>';
+        $html = '<div id="wtf_fu_show_files_output">' . $this->generate_inner_content() . '</div>';        
         
         if ($this->options['gallery'] == true) {
             $script = <<<GALLERYJSTEMPLATE
@@ -285,9 +284,9 @@ GALLERYJSTEMPLATE;
          * If this is for inclusion in an email then inline the css into style tags.
          */
         if ($this->options['email_format'] == true) {
-            
+
             log_me('email_format evaled as true !!!');
-            
+
             // namespaced classes only work with php >= 5.3.0
             if (version_compare(phpversion(), '5.3.0', '>')) {
                 require_once(plugin_dir_path(__FILE__) . '../assets/tools/wtf_fu_php_53_only.php');
@@ -309,7 +308,7 @@ GALLERYJSTEMPLATE;
     public function generate_files_div() {
 
         $html = "<div id='wtf_fu_show_files_response'>";
-        
+
         $container_id = 'files_container';
         $ul_id = 'files_list';
 
@@ -317,44 +316,94 @@ GALLERYJSTEMPLATE;
             $container_id = 'sort_container';
             $ul_id = 'reorder_sortable';
         }
+        
+        $vertical_class = '';
+        if ($this->options['vertical'] == true) {
+            $vertical_class = 'vertical';
+        }
 
         $html .= "<div id='$container_id'>";
-        $html .= "<ul id='$ul_id'>";
+        $html .= "<ul id='$ul_id'  class='$vertical_class'>";
 
         $i = 0;
         foreach ($this->files as $file) {
             $i++;
-            switch ($this->options['file_type']) {
-
-                case 'image' :
-                    $file_link = sprintf(
-                        '<a href="%s" title="%s" data-gallery><img src="%s" alt="%s"></a>', 
-                            $file->fileurl, $file->basename, $file->thumburl, $file->basename);
-                    
-                    $number_div = '';
-                    if ($this->options['show_numbers'] == true) {
-                        $number_div = sprintf('<p class="reorder-number">%s</p>', $i);
-                    }
-                    $html .= sprintf(
-                        '<li class="list" title="%s">%s%s</li>', $file->basename, $number_div, $file_link);
-                    break;
-
-                case 'music' :
-                case 'audio' :
-                    $file_link = sprintf(
-                        '<p>%s&nbsp;&nbsp;&nbsp;<a href="%s">%s</a></p><p><audio src="%s" controls="controls"></audio></p>', $i, $file->fileurl, $file->basename, $file->fileurl
-                    );
-                    $html .= sprintf('<li title="%s">%s</li>', $file->basename, $file_link);
-                    break;
-
-                default:
-                    $file_link = sprintf('<a href="%s">%s</a>', $file->fileurl, $file->basename);
-                    break;
-            }
+            $html .= $this->render_file_li($i, $file);
         }
 
         $html .= '</ul></div></div>';
         return $html;
+    }
+
+    function render_file_li($number, $file) {
+
+        $file_type_arr = wp_check_filetype_and_ext($file->fileurl, $file->fileurl);
+        $mime_type = 'text/html';
+
+        if ($file_type_arr != false) {
+            $mime_type = $file_type_arr['type'];
+        }
+        $mime_parts = explode('/', $mime_type);
+        $image_type = $mime_parts[0];
+
+        $number_div = '';
+        $gallery_att = '';
+        $audio_controls = '';
+        $file_title_class = '';
+
+        
+        if ($this->options['gallery'] == true) {
+            $gallery_att = 'data-gallery';
+        }
+        if ($this->options['show_numbers'] == true) {
+            $file_title_class = 'pad_top_20px';
+            $number_div = "<p class='reorder-number'>$number</p>";
+        } 
+        if ($this->options['audio_controls'] == true) {
+            $audio_controls = ' controls="controls"';
+        } 
+        
+        $download = false;       
+        if ($this->options['download_links'] == true) {
+            $download = true;
+        } 
+               
+        switch ($image_type) {
+            case 'image' :
+                $file_link = sprintf(
+                    '<a %s href="%s" title="%s"><img src="%s" alt="%s" type="%s">%s</a>', 
+                    $gallery_att, $file->fileurl, $file->basename, $file->thumburl, $file->basename, $mime_type, $file->basename);
+                break;
+
+            case 'music' :
+            case 'audio' :
+               if ($download) {  
+                    $file_link = sprintf(
+                        '<a class="%s" href="%s">%s</a><audio src="%s"%s></audio>', 
+                        $file_title_class, $file->fileurl, $file->basename, $file->fileurl, $audio_controls);                   
+                } else {               
+                    $file_link = sprintf(
+                        '<p class="%s" title="%s">%s</p><audio src="%s"%s></audio>', 
+                        $file_title_class, $file->basename, $file->basename, $file->fileurl, $audio_controls);
+                }                
+                break;
+
+            case 'text' :
+            default: // default to text if type not found.
+                
+                if ($download) {  
+                    $file_link = sprintf('<a class="%s" href="%s">%s</a>', $file_title_class, $file->fileurl, $file->basename);
+                } else {
+                    $file_link = sprintf('<p class="%s" title="%s">%s</p>', $file_title_class, $file->basename, $file->basename);
+                }               
+                break;
+        }
+        
+        $line = sprintf('<li class="list" title="%s">%s%s</li>', $file->basename, $number_div, $file_link);
+
+
+ 
+        return $line;
     }
 
 }

@@ -3,8 +3,8 @@ Contributors: lynton_reed
 Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
-Tested up to: 3.9.0
-Stable tag: 1.2.5
+Tested up to: 3.9.1
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -311,7 +311,14 @@ lynton@wtf-fu.com detailing your requirements.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
-= 1.3.0 =
+= 2.0.0 =
+* Introduction of workflow and email templates.
+* New shortcut `%%xxx%%%` field placeholders.
+* New shortcode attributes documentation tab.
+* `[wtf_fu_showfiles]` css updates.
+* Extra shortcode attributes.
+* Admin pages improvements.
+* Added export of workflows as json files for backup (import not implemented yet.
 * Fix for display of admin pages visual editor tab (broken for wp tinymce editor in wp >= 3.9.0)
 * Adjusted sizes of workflow edit fields in admin pages.
 * Turned off `wpautop` on admin page edit fields to prevent editor auto removing `<p>` tags 
@@ -398,6 +405,15 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 2.0.0 =
+* Introduction of workflow and email templates.
+* New shortcut `%%xxx%%%` field placeholders.
+* New shortcode attributes documentation tab.
+* `[wtf_fu_showfiles]` css updates.
+* Extra shortcode attributes.
+* Admin pages improvements.
+* Bug fixes (see changelog for more.)
+
 = 1.2.5 =
 * Fix for issue with internet explorer displaying multiple copies of uploaded files.
 * Improved performance of workflow processing.

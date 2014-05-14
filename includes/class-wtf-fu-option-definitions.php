@@ -51,6 +51,7 @@ define('wtf_fu_PAGE_WORKFLOWS_KEY', 'workflows');
 define('wtf_fu_PAGE_WORKFLOW_OPTION_KEY', 'workflow-options');
 define('wtf_fu_PAGE_WORKFLOW_STAGE_OPTION_KEY', 'workflow-stage-options');
 define('wtf_fu_PAGE_USERS_KEY', 'user-options');
+define('wtf_fu_PAGE_TEMPLATES_KEY', 'templates');
 define('wtf_fu_PAGE_DOCUMENATION_KEY', 'documentation');
 
 
@@ -67,46 +68,41 @@ define('wtf_fu_DEFAULTS_TEMPLATE_FIELDS_KEY', 'wtf-fu-template-fields');
 
 define('wtf_fu_DEFAULT_WORKFLOW_TEMPLATE', '<div class="panel panel-default tbs">
         <div class="panel-heading">
-            <h1 class="panel-title"><strong>%%WTF_FU_WORKFLOW_NAME%%</strong></h1>
-            %%WTF_FU_WORKFLOW_BUTTON_BAR%%
-            <h2>%%WTF_FU_WORKFLOW_STAGE_TITLE%%</h2>
-            %%WTF_FU_WORKFLOW_STAGE_HEADER%%
+            <h1 class="panel-title"><strong>%%WORKFLOW_NAME%%</strong></h1>
+            %%WORKFLOW_BUTTON_BAR%%
+            <h2>%%WORKFLOW_STAGE_TITLE%%</h2>
+            %%WORKFLOW_STAGE_HEADER%%
         </div>
         <div class="panel-body tbs">
-            %%WTF_FU_WORKFLOW_STAGE_CONTENT%%
+            %%WORKFLOW_STAGE_CONTENT%%
         </div>        
         <div class="panel-footer">
-            %%WTF_FU_WORKFLOW_BUTTON_BAR%%
-            <p><small>%%WTF_FU_WORKFLOW_STAGE_FOOTER%%</small></p>
+            %%WORKFLOW_BUTTON_BAR%%
+            <p><small>%%WORKFLOW_STAGE_FOOTER%%</small></p>
             <p><small>%%WTF_FU_POWERED_BY_LINK%%</small></p>
         </div>
     </div>');
 
-define ('wtf_fu_pro_DEFAULT_EMAIL_TEMPLATE' , 'Hi <strong>%%USER_NAME%%</strong>,
+define ('wtf_fu_DEFAULT_EMAIL_TEMPLATE' , 'Hi <strong>%%USER_NAME%%</strong>,
 <br/>
 <p>Congratulations !</p>
 <br/>
-
 <p>You have just successfully completed the <strong>%%WORKFLOW_STAGE_TITLE%%</strong> stage of 
 the <strong>%%WORKFLOW_NAME%%</strong> at %%SITE_URL%%.</p>
-
 <p>We have received the following files you have uploaded for our attention :</p>
-
 <p>
-[wtf_fu_show_files wtf_upload_dir="demofiles" email_format="1"]
+[wtf_fu_show_files email_format="1"]
 </p>
-
 <p>Please check that this list is complete, and feel free to contact us at <br/>
 %%ADMIN_EMAIL%% if you have any concerns.</p>
-
 <br/>
 <br/>
 <p>regards,</p> 
 %%ADMIN_NAME%% <br/>
 <p><small>%%ADMIN_EMAIL%%</small></p>
 <hr/>
-<p><small>This has been an automated email response from %%SITE_URL%%</small>
-<br/> %%WTF_FU_POWERED_BY_LINK%% </p>
+<p><small>This has been an automated email response from %%SITE_URL%%
+<br/>%%WTF_FU_POWERED_BY_LINK%%</small></p>
 <hr/>'
 );
 
@@ -205,9 +201,7 @@ class Wtf_Fu_Option_Definitions {
         $this->all_pages_default_options[wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY]['wtf_upload_subdir'] = 
                 $this->all_pages_default_options[wtf_fu_DEFAULTS_UPLOAD_KEY]['wtf_upload_subdir'];  
         
-
         $this->all_pages_default_options = apply_filters('wtf_fu_all_pages_default_options_filter', $this->all_pages_default_options);
-
 
         /**
          * Set up the help texts for all fields. Keys should be identical to the 
@@ -217,9 +211,13 @@ class Wtf_Fu_Option_Definitions {
             wtf_fu_DEFAULTS_PLUGIN_KEY => array(
                 'remove_all_data_on_uninstall' =>
                 'Check this to allow the removal of all the plugin and user 
-                     workflow options data during uninstall.',
-                'include_plugin_style' => 'Check to include the bootstrap css used by workflow',                
-                'show_powered_by_link' => 'Support this plugin by including a powered by link to wtf-fu.com on your site.'
+                 workflow options data during uninstall. <br/>
+                 It is recommended to leave this off unless you are really sure you want to remove all your data when you uninstall this plugin.
+                 If off then it is safe to delete and reinstall this plugin without losing your data.',
+                'include_plugin_style' => 'Check to include the bootstrap css used by workflow. <br/>'
+                . 'It is recommended to leave this on unless you have style conflicts with your theme.',                
+                'show_powered_by_link' => 'Supports this plugin by allowing the inclusion of a powered by link to wtf-fu.com when the %%WTF_FU_POWERED_BY_LINK%% shortcut is used in your templates.'
+                . 'if false then the link will never be included, even when the shortcut is used in a template.'
             ),
             wtf_fu_DEFAULTS_UPLOAD_KEY => array(
                 'deny_public_uploads' => 'Restrict access to logged in users only. 
@@ -285,19 +283,16 @@ class Wtf_Fu_Option_Definitions {
                 'Check to enable testing mode. 
                     In testing mode forward and next button will always be shown.',
                 'name' =>
-                'The name for this workflow.
-                    You can retrieve this name by including the shortcode 
-                    <code>[wtf_fu type="get" value="workflow" id="workflow_id_here" key="name"]</code>
-                    in your stage content fields',
+                'The name for this workflow. '
+                . 'This value can be referenced in stage content and email and workflow templates using the <code>%%WORKFLOW_NAME%% shortcut</code>',
                 'include_plugin_style_default_overrides' => 'Check to include the default workflow style overloads.',                
                 'default_back_label' => 'Default Back Button text label. (used if not overridden in stages)',
                 'default_next_label' => 'Default Next Button text label. (used if not overridden in stages)',
             ),
             wtf_fu_DEFAULTS_STAGE_KEY => array(
                 'stage_title' =>
-                'The text for the title bar for this stage.
-                    The value for this field may be automatically displayed using the <code>%%WTF_FU_WORKFLOW_STAGE_TITLE%%</code>
-                    in the workflow page_html_template (pro version only.)',
+                'The text for the title bar for this stage.'
+                . 'This value can be referenced in stage content and email and workflow templates (pro version only.) using the <code>%%WORKFLOW_STAGE_TITLE%% shortcut</code>',
                 'header' => 'Content to be displayed in the header.',
                 'content_area' =>
                 'The main content for the stage. 
@@ -340,16 +335,20 @@ class Wtf_Fu_Option_Definitions {
                 'use_public_dir' => '0 (false) or 1 (true). '
                . 'Force listing of files from the uploads/public directory rather than the uploads/user_id directory.'
                 ),  
-            wtf_fu_DEFAULTS_TEMPLATE_FIELDS_KEY => array(
-                '%%WORKFLOW_NAME%%' => 'The name of the current workflow.',
-                '%%WORKFLOW_STAGE_TITLE%%' =>'The current workflow stage title.',          
+            wtf_fu_DEFAULTS_TEMPLATE_FIELDS_KEY => array(          
                 '%%USER_NAME%%' => 'The current users display name.',
                 '%%USER_EMAIL%%' => 'The current users email address.',
                 '%%ADMIN_NAME%%' => 'The site administrators display name.',        
                 '%%ADMIN_EMAIL%%' => 'The site administrators email address.',
                 '%%SITE_URL%%' => 'The url link for this web site.',
                 '%%SITE_NAME%%' => 'The name of this web site.',
-                '%%WTF_FU_POWERED_BY_LINK%%' => 'Display a WFT-FU Powered by link to wtf-fu.com.'
+                '%%WORKFLOW_NAME%%' => 'The name of the current workflow.',
+                '%%WORKFLOW_STAGE_TITLE%%' =>'The current workflow stage title.',
+                '%%WORKFLOW_STAGE_HEADER%%' => 'The current workflow stage header content (Workflow Templates only)',
+                '%%WORKFLOW_BUTTON_BAR%%' => 'The button bar with PREV and NEXT buttons (Workflow Templates only)',
+                '%%WORKFLOW_STAGE_CONTENT%%' => 'The current workflow stage main content (Workflow Templates only)',
+                '%%WORKFLOW_STAGE_FOOTER%%' => 'The current workflow stage footer content (Workflow Templates only)',
+                '%%WTF_FU_POWERED_BY_LINK%%' => 'Includes a WFT-FU Powered by link to wtf-fu.com. (If allowed on the Plugin System Options page.)',
                 )                           
         );
         
@@ -358,7 +357,7 @@ class Wtf_Fu_Option_Definitions {
                 $this->all_pages_default_labels[wtf_fu_DEFAULTS_UPLOAD_KEY]['wtf_upload_dir'];
         $this->all_pages_default_labels[wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY]['wtf_upload_subdir'] = 
                 $this->all_pages_default_labels[wtf_fu_DEFAULTS_UPLOAD_KEY]['wtf_upload_subdir']; 
-        
+                                
         $this->all_pages_default_labels = apply_filters('wtf_fu_all_pages_default_labels_filter', $this->all_pages_default_labels);
 
         //log_me(array('all_pages_default_options' => $this->all_pages_default_options));
@@ -380,13 +379,20 @@ class Wtf_Fu_Option_Definitions {
             wtf_fu_PAGE_USERS_KEY => array(
                 'title' => 'Manage Users',
             ),
+            wtf_fu_PAGE_TEMPLATES_KEY => array(
+                'title' => 'Templates', // <small>PRO only</small>',
+            ),            
             wtf_fu_PAGE_DOCUMENATION_KEY => array(
                 'title' => 'Documentation',
             )            
         );
+
         
         $this->menu_page_values = apply_filters('wtf_fu_menu_page_values_filter', $this->menu_page_values);
         //log_me($this->menu_page_values);
+        
+                log_me('END of __construct  Wtf_Fu_Option_Definitions ');      
+
         
    }
 

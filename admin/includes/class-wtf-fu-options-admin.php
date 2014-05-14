@@ -648,10 +648,14 @@ class Wtf_Fu_Options_Admin {
             if (!add_option($new_stage_key, $stage_options)) {
                 die ("adding demo stage failed");
             }
-        }   
+        }
+        return ("A new copy of the demo workflow with id = $wf_index has been added.");
     }
     
     
+    /**
+     * 
+     */
     public static function add_new_workflow() {
 
         /* get default workflow options. */
@@ -668,7 +672,8 @@ class Wtf_Fu_Options_Admin {
         /* set the id */
         $options['id'] = $new_wf_index;
         
-        self::add_new_workflow_option($new_wf_index, $options);       
+        self::add_new_workflow_option($new_wf_index, $options);  
+        return ("A new workflow with id = $new_wf_index has been added.");
     }
     
     /**
@@ -725,6 +730,55 @@ class Wtf_Fu_Options_Admin {
             self::add_new_workflow_stage_options($new_wf_index, $old_stage);	
         }
     }
+    
+    /**
+     * Exports a workflow to a json encoded file.
+     * @param string $id
+     */
+    public static function export_workflow($id) {
+        if (empty($id)) {
+            die ("Cannot export an empty workflow id");
+        }       
+        
+        // array of the existing workflow options to clone.
+        $options = get_option(Wtf_Fu_Option_Definitions::get_workflow_options_key($id));
+
+        if ($options === false) {
+            die ("could not find workflow to export.");
+        }
+        
+        $allstages = Wtf_Fu_Options::get_workflow_stages($id, false);   
+        
+        $installed_version = get_option("wtf-fu_version");
+        $date = date("Y-m-d_His");
+        
+        $json = json_encode(array('options' => $options, 'stages' => $allstages, 'version' => $installed_version));
+        
+        // log_me(array('json encoded workflow' => $json) );
+        
+        $filename = "workflow_{$options['name']}_{$installed_version}_$date.json";
+        
+        ob_clean();
+
+        echo $json;
+header("Content-Type: text/json; charset=" . get_option( 'blog_charset'));
+header("Content-Disposition: attachment; filename=$filename");
+exit();
+        
+        
+      //  wtf_fu_write_file($filename, $json);                    
+    }   
+    
+    
+    public static function import_workflow($filename) {
+        
+        $json = wtf_fu_read_file($filename);
+
+        $arr = json_decode($json);
+        
+        log_me(array('restored arr = '=>$arr));             
+    }       
+    
     
     /**
      * adds new stage options for a workflow.

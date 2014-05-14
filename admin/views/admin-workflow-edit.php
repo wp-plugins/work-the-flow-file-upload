@@ -33,6 +33,8 @@ if (isset($_GET['stage_id'])) {
 
 if (isset($_REQUEST['delete_stage'])) {
     Wtf_Fu_Options_Admin::delete_stage_and_reorder($wfid, $_REQUEST['delete_stage']);
+    // remove the delete tab and redirect back to page.
+    wp_redirect( remove_query_arg('delete_stage', $_SERVER['REQUEST_URI']));
 }
 
 if (isset($_GET['wftab'])) {
@@ -75,11 +77,12 @@ if (isset($_GET['wftab'])) {
     /*
      * extra tab for + to add a new stage.
      */
-    echo sprintf("<a href=\"?page=%s&tab=%s&wftab=%s&wf_id=%s&stage_id=%s\" class=\"nav-tab\">%s</a>" ,
+    echo sprintf("<a href=\"?page=%s&tab=%s&wftab=%s&wf_id=%s&stage_id=%s\" class=\"nav-tab\" title='Add new Stage [%s]'>%s</a>" ,
         $page_slug,
         wtf_fu_PAGE_WORKFLOWS_KEY,
         wtf_fu_PAGE_WORKFLOW_STAGE_OPTION_KEY,
         $wfid,
+        $stage + 1, // add one to the last stage that was found.
         $stage + 1, // add one to the last stage that was found.
         "+"
     );  
@@ -89,13 +92,14 @@ if (isset($_GET['wftab'])) {
      * then return to the workflow option tab
      */
     if ( isset( $_REQUEST['stage_id']) ) {
-        echo sprintf("<a href=\"?page=%s&tab=%s&wftab=%s&wf_id=%s&delete_stage=%s\" class=\"nav-tab\" "
-                . "onClick=\"return confirm('WARNING! This will PREMANENTLY DELETE STAGE %s. "
-                . "and cannot be undone! Stages numbers will be reordered after the delete. Do NOT do a browser page refresh after the delete or multiple deletes may occur.');\">%s</a>" ,
+        echo sprintf("<a href=\"?page=%s&tab=%s&wftab=%s&wf_id=%s&delete_stage=%s\" class=\"nav-tab\" title='Delete Current Stage [%s]'"
+                . "onClick=\"return confirm('Confirm to DELETE STAGE %s. "
+                . "This cannot be undone! Remaing stages will be re-numbered in consecutive order.');\">%s</a>" ,
             $page_slug,
             wtf_fu_PAGE_WORKFLOWS_KEY,
             wtf_fu_PAGE_WORKFLOW_OPTION_KEY,
             $wfid,
+            $stage_id,
             $stage_id,
             $stage_id,
             "-"

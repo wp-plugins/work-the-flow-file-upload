@@ -35,7 +35,7 @@ class Wtf_Fu_Workflow_Shortcode {
      */
     private function __construct() {
         $this->enqueue_scripts();
-        add_action('wtf_fu_workflow_init', array($this, 'workflow_controller'));
+        add_action('wtf_fu_workflow_init', array($this, 'workflow_controller'));        
     }
 
     /**
@@ -113,7 +113,7 @@ class Wtf_Fu_Workflow_Shortcode {
 
         // This workflows options.
         $wf_options = Wtf_Fu_Options::get_workflow_options($wfid);
-        $plugin_options = Wtf_Fu_Options::get_plugin_options();
+
 
         if (wtf_fu_get_value($wf_options, 'include_plugin_style_default_overrides') == true) {
 
@@ -134,13 +134,8 @@ class Wtf_Fu_Workflow_Shortcode {
             }
         }
 
-        $show_powered_by_link = wtf_fu_get_value($plugin_options, 'show_powered_by_link');
-
-
         // This user's workflow options including the current stage they are at in this workflow.
         $user_wf_options = Wtf_Fu_Options::get_user_workflow_options($wfid, 0, true);
-
-        //log_me(array('user_wf_options' => $user_wf_options));
 
         if ($user_wf_options === false) {
             // User not logged on so we get the stage from the form submit action.
@@ -159,36 +154,47 @@ class Wtf_Fu_Workflow_Shortcode {
         // Stage specfic options and content settings
         $stage_options = Wtf_Fu_Options::get_workflow_stage_options($wfid, $stage);
 
-        $content = wtf_fu_get_value($stage_options, 'content_area');
-        $title = wtf_fu_get_value($stage_options, 'stage_title');
-        $footer = wtf_fu_get_value($stage_options, 'footer');
-
         $testing_mode = wtf_fu_get_value($wf_options, 'testing_mode');
 
         $buttons = $this->getButtonBarHtml($wfid, $stage, $stage_options, $wf_options);
 
-        $page_template = wtf_fu_get_value($wf_options, 'page_html_template');
+        $template_id = wtf_fu_get_value($wf_options, 'page_template', true);
 
-        if ($page_template === false) {
-            $page_template = wtf_fu_DEFAULT_WORKFLOW_TEMPLATE;
-        }
-
-        $replace = array(
-            '%%WTF_FU_WORKFLOW_NAME%%' => wtf_fu_get_value($wf_options, 'name'),
-            '%%WTF_FU_WORKFLOW_STAGE_TITLE%%' => $title,
-            '%%WTF_FU_WORKFLOW_STAGE_HEADER%%' => wtf_fu_get_value($stage_options, 'header'),
-            '%%WTF_FU_WORKFLOW_BUTTON_BAR%%' => $buttons,
-            '%%WTF_FU_WORKFLOW_STAGE_CONTENT%%' => $content,
-            '%%WTF_FU_WORKFLOW_STAGE_FOOTER%%' => $footer,
-            '%%WTF_FU_POWERED_BY_LINK%%' => $show_powered_by_link ? wtf_fu_powered_by_link() : ''
-        );
-
-        $page = str_replace(array_keys($replace), array_values($replace), $page_template);
-
-        // Process any embedded short codes that require manual handling .
-        //$page = $this->do_shortcode_manually($page); 
-        // Attempt any other known shortcodes
+        $page_template = wtf_fu_DEFAULT_WORKFLOW_TEMPLATE;
         
+
+        if ($template_id != 0 && has_filter('wtf_fu_get_workflow_template_filter')) {
+             $page_template = apply_filters('wtf_fu_get_workflow_template_filter', $template_id);
+        }
+        
+            
+        // First do the field level replacement in the template and in the content fields.
+        $fields = array(
+            'template' => $page_template,
+            'workflow_name' => wtf_fu_get_value($wf_options, 'name'),
+            'stage_title' => wtf_fu_get_value($stage_options, 'stage_title'), 
+            'stage_header' => wtf_fu_get_value($stage_options, 'header'),
+            'stage_content' => wtf_fu_get_value($stage_options, 'content_area'),
+            'footer' => wtf_fu_get_value($stage_options, 'footer')
+            );
+        
+        $fields = wtf_fu_replace_shortcut_values($fields);
+        
+        // Then do the content replacement of the expanded fields into the template itself.
+        
+        // Add in the buttons.
+        $replace = array (
+            '%%WORKFLOW_BUTTON_BAR%%' => $buttons,
+            '%%WORKFLOW_NAME%%' => $fields['workflow_name'],
+            '%%WORKFLOW_STAGE_TITLE%%' => $fields['stage_title'],
+            '%%WORKFLOW_STAGE_HEADER%%' => $fields['stage_header'],
+            '%%WORKFLOW_STAGE_CONTENT%%' => $fields['stage_content'],
+            '%%WORKFLOW_STAGE_FOOTER%%' => $fields['footer']
+                );
+
+        $page = str_replace(array_keys($replace), array_values($replace), $fields['template']);
+        
+        // Finally attempt any embedded shortcodes 
         $page = do_shortcode($page);
 
         return $page;

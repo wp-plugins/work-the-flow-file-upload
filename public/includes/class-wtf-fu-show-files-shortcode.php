@@ -371,8 +371,8 @@ GALLERYJSTEMPLATE;
         switch ($image_type) {
             case 'image' :
                 $file_link = sprintf(
-                    '<a %s href="%s" title="%s"><img src="%s" alt="%s" type="%s">%s</a>', 
-                    $gallery_att, $file->fileurl, $file->basename, $file->thumburl, $file->basename, $mime_type, $file->basename);
+                    '<a %s href="%s" title="%s"><span>%s</span><img src="%s" alt="%s" type="%s"></a>', 
+                    $gallery_att, $file->fileurl, $file->basename, $file->basename, $file->thumburl, $file->basename, $mime_type);
                 break;
 
             case 'music' :

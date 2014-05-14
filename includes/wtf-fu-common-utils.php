@@ -19,6 +19,22 @@
  * Utilities for general use oon both public and admin side.
  */
 
+function wtf_fu_get_version_info() {
+    
+    $core = get_option('wtf-fu_version');
+    $pro = get_option('wtf-fu-pro_version');
+    $proactive = class_exists('Wtf_Fu_Pro');
+    $info = '';
+    if ($pro && !$proactive) {
+        $info = '&nbsp; WARNING&nbsp!&nbsp;&nbsp;pro extension is not activated&nbsp!';  
+    } 
+    
+    return sprintf("core:&nbsp;%s&nbsp;&nbsp;&nbsp;pro:&nbsp;%s&nbsp;%s", 
+        "v$core",
+        $pro ? "v$pro" : 'not installed',
+        $info );
+}
+
 /**
  * Sets last modified timestamps for $files to now - count files seconds.
  * 1 second apart so that they can be ordered by last modified time.
@@ -362,7 +378,14 @@ function log_me($message) {
 }
 
 function wtf_fu_powered_by_link() {
-    return '<small>[<a href="http://wtf-fu.com/download/">powered by wtf-fu</a>, a wordpress workflow and html5 file upload plugin.]</small>';
+    $plugin_options = Wtf_Fu_Options::get_plugin_options();
+    $show_powered_by_link = wtf_fu_get_value($plugin_options, 'show_powered_by_link');
+    
+    if ($show_powered_by_link == true) {
+        return '[<a href="http://wtf-fu.com/download/">powered by wtf-fu</a>, a wordpress workflow and html5 file upload plugin.]';
+    } else {
+        return '';
+    }
 }
 
 function wtf_fu_text_only($id, $name, $value, $size = 80, $label = null) {
@@ -448,7 +471,7 @@ function wtf_fu_list_box($id, $option_name, $val, $label, $values) {
 /**
  * Returns a table of all the available template fields.
  */
-function wtf_fu_get_template_fields_table() {
+function wtf_fu_get_template_fields_table($ignore = false) {
     $table = "<table><tr><th>TEMPLATE SHORTCUT</th><th>ACTION</th></tr>";
     
     $arr = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_labels(wtf_fu_DEFAULTS_TEMPLATE_FIELDS_KEY);
@@ -463,7 +486,7 @@ function wtf_fu_get_template_fields_table() {
     
 
 function get_shortcode_info_table($shortcode) {
-    $table = "<table><tr><th>Attribute</th><th>Default Value</th><th>Function</th></tr>";
+    $table = "<table><tr><th>SHORTCODE ATTRIBUTE</th><th>DEFAULT VALUE</th><th>DESCRIPTION</th></tr>";
     
     switch ($shortcode) {
         case 'wtf_fu_upload' :
@@ -502,3 +525,34 @@ function wtf_fu_get_example_short_code_attrs($code, $attr) {
     $ret .= ']';
     return $ret;
 }
+
+/**
+ * populates shortcut replacement values if needed.
+ * 
+ * @param type $wf_options
+ * @param type $stage_options
+ * @param type $fields
+ * @return type
+ */
+function wtf_fu_replace_shortcut_values($fields) {
+        
+        $wp_admin = new Wp_User(1);
+        $wp_user = wp_get_current_user();
+    
+        // Replace all shortcuts except button bar which is done in the workflow shortcode class.
+        $replace = array(
+            '%%USER_NAME%%' => $wp_user->display_name,
+            '%%USER_EMAIL%%' => $wp_user->user_email,
+            '%%ADMIN_NAME%%' => $wp_admin->display_name,
+            '%%ADMIN_EMAIL%%' => get_option('admin_email'),
+            '%%SITE_URL%%' => site_url(),
+            '%%WTF_FU_POWERED_BY_LINK%%' => wtf_fu_powered_by_link(),
+            '%%SITE_NAME%%' => get_bloginfo('name'),                
+            '%%WTF_FU_POWERED_BY_LINK%%' => wtf_fu_powered_by_link()
+        );
+        
+        $fields = str_replace(array_keys($replace), array_values($replace), $fields);
+        
+        return $fields;
+}
+

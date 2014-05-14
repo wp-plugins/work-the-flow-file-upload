@@ -1,10 +1,45 @@
-(function ( $ ) {
-	"use strict";
+(function($) {
+    "use strict";
 
-	$(function () {
+    $(function() {
 
-		// Place your administration-specific JavaScript here
 
-	});
+    $(document).on('click', '#wtf_fu_operation_button', function(event) {
+        
+        console.log('this is ', this);
+
+        var data = {
+            action: 'wtf_fu_admin_operations',
+            operation: this.name,
+            value: this.value
+        };
+        
+        console.log(data);
+
+        $.ajax({
+            url: ajaxurl,
+            data: data,
+            type: "POST",
+            dataType: 'xml',
+        }).always(function() {
+           // this.attr("disabled", false);
+        }).success(function(data, code, xhr) {
+            var res = wpAjax.parseAjaxResponse(data, 'response');
+            $.each(res.responses, function() {
+                switch (this.what) {
+                    case "stuff":
+                        alert(this.data);
+                        break;
+                }
+            });
+        }).done(function() {
+             window.location.reload();
+           // console.log('done');           
+        });
+
+        event.preventDefault();
+    });
+
+    });
 
 }(jQuery));

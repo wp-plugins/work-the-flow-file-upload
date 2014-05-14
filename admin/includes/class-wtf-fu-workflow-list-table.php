@@ -1,21 +1,22 @@
 <?php
+
 /*  Copyright 2013  Lynton Reed  (email : lynton@wtf-fu.com)
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as 
-    published by the Free Software Foundation.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License, version 2, as
+  published by the Free Software Foundation.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 
-/* 
+/*
  * The WP_List_Table class isn't automatically available to plugins, so we need
  * to check if it's available and load it if necessary.
  */
@@ -23,8 +24,8 @@ if (!class_exists('WP_List_Table')) {
     require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 }
 
-require_once plugin_dir_path( __FILE__ ) . 'class-wtf-fu-options-admin.php';
-require_once plugin_dir_path( __FILE__ ) . '../../includes/class-wtf-fu-option-definitions.php';
+require_once plugin_dir_path(__FILE__) . 'class-wtf-fu-options-admin.php';
+require_once plugin_dir_path(__FILE__) . '../../includes/class-wtf-fu-option-definitions.php';
 
 
 
@@ -40,30 +41,28 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
 
     function get_workflows_data() {
         $data = array();
-        
+
         // retrieve all workflow keys with options (keys_only= false)
         $workflows = Wtf_Fu_Options_Admin::get_all_workflows(false);
-        
+
         foreach ($workflows as $option_key => $workflow) {
             $users = Wtf_Fu_Options_Admin::get_workflow_users($workflow['key_id']);
             $user_details = ''; //$first = true;
-            foreach($users as $user) {
+            foreach ($users as $user) {
                 //if (!$first) {$user_details .= ", ";} else {$first = false;}
-                $user_details .= sprintf("<li>%s [stage %s]</li>",
-                        $user['user']->display_name,
-                        $user['workflow_settings']['stage']); 
+                $user_details .= sprintf("<li>%s [stage %s]</li>", $user['user']->display_name, $user['workflow_settings']['stage']);
             }
             $options = $workflow['options'];
             // sanity check
             if ($options['id'] != $workflow['key_id']) {
                 log_me("WARNING! mismatching id keys found for workflow key_id = {$workflow['key_id']} id = {$options['id']}");
             }
-            $data[] = array (
+            $data[] = array(
                 'id' => $options['id'],
                 'name' => $options['name'],
                 'number_of_users' => count($users),
                 'user_details' => $user_details
-                );
+            );
         }
         return $data;
     }
@@ -74,16 +73,6 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
      */
     function __construct() {
         global $status, $page;
-
-        if (isset($_REQUEST['addnew'])) {
-            Wtf_Fu_Options_Admin::add_new_workflow();
-        }
-        
-        if (isset($_REQUEST['adddemo'])) {
-            Wtf_Fu_Options_Admin::add_new_demo_workflow();
-        }
-        
-        
         
         //Set parent defaults
         parent::__construct(array(
@@ -143,31 +132,17 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
      * @return string Text to be placed inside the column <td> (workflow name only)
      */
     function column_name($item) {
-        
-        $edit_link = sprintf('<a href="?page=%s&tab=%s&wftab=%s&wtf-fu-action=%s&wf_id=%s">%s</a>',
-                $_REQUEST['page'], 
-                wtf_fu_PAGE_WORKFLOWS_KEY, 
-                wtf_fu_PAGE_WORKFLOW_OPTION_KEY, 
-                'edit', 
-                $item['id'],
-                $item['name']
-                );
 
-        $actions = array(           
-            
-            'clone' => sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&wf_id=%s">Clone</a>', 
-                $_REQUEST['page'], 
-                wtf_fu_PAGE_WORKFLOWS_KEY,
-                'clone',                    
-                $item['id']
-                ),
+        $edit_link = sprintf('<a href="?page=%s&tab=%s&wftab=%s&wtf-fu-action=%s&wf_id=%s">%s</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, wtf_fu_PAGE_WORKFLOW_OPTION_KEY, 'edit', $item['id'], $item['name']
+        );
 
-            'delete' => sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&wf_id=%s" onClick="return confirm(\'WARNING! You are about to premanently delete this Workflow ? Are you sure about this ?\');">Delete</a>', 
-                $_REQUEST['page'],
-                wtf_fu_PAGE_WORKFLOWS_KEY,
-                'delete', 
-                $item['id']
-                ),
+        $actions = array(
+            'clone' => sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&wf_id=%s">Clone</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, 'clone', $item['id']
+            ),
+            'delete' => sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&wf_id=%s" onClick="return confirm(\'WARNING! You are about to premanently delete this Workflow ? Are you sure about this ?\');">Delete</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, 'delete', $item['id']
+            ),
+            'export' => sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&wf_id=%s">Export</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, 'export', $item['id']
+            )
         );
 
         //Return the name contents
@@ -259,11 +234,11 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
     function get_bulk_actions() {
         $actions = array(
             'delete' => 'Delete',
-            'clone' => 'Clone'
+            'clone' => 'Clone',
+            'export' => 'Export'
         );
         return $actions;
     }
-
 
     /**
      * process bulk action delete or clone.
@@ -271,36 +246,61 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
      */
     function process_bulk_action() {
 
-        
+        $redirect = false;
         // One of possibly many requests for a bulk action.
         if (isset($_REQUEST['workflow'])) {
-            
+
             foreach ($_REQUEST['workflow'] as $wf_id) {
-                
+
                 /* process bulk action ... */
                 switch ($this->current_action()) {
                     case 'delete' :
                         Wtf_Fu_Options_Admin::delete_workflow($wf_id);
+                        $redirect = true;
                         break;
                     case 'clone' :
                         Wtf_Fu_Options_Admin::clone_workflow($wf_id);
+                        $redirect = true;
+                        break;
+                    case 'export' :
+                        Wtf_Fu_Options_Admin::export_workflow($wf_id);
+                        $redirect = true;
                         break;
                     default :
                 }
-            } 
+            }
         }
-        
+
         /* Check if any single action links have been clicked. */
-        if ( isset($_REQUEST['wtf-fu-action']) && isset($_REQUEST['wf_id']) ) {
+        if (isset($_REQUEST['wtf-fu-action']) && isset($_REQUEST['wf_id'])) {
             switch ($_REQUEST['wtf-fu-action']) {
                 case 'delete' :
                     Wtf_Fu_Options_Admin::delete_workflow($_REQUEST['wf_id']);
+                    $redirect = true;
                     break;
                 case 'clone' :
                     Wtf_Fu_Options_Admin::clone_workflow($_REQUEST['wf_id']);
+                    $redirect = true;
+                    break;
+                case 'export' :
+                    Wtf_Fu_Options_Admin::export_workflow($_REQUEST['wf_id']);
+                    $redirect = true;
                     break;
                 default :
             }
+        }
+
+        log_me($_SERVER['REQUEST_URI']);
+
+        if ($redirect) {
+            // redirect back to the base page so we remoce the bulk actions from the url.
+            //$remove_args = array('wtf-fu-action');
+            //$redirect_uri = remove_query_arg($remove_args, $_SERVER['REQUEST_URI']);
+
+            $redirect_uri = sprintf("?page=%s&tab=%s", $_REQUEST['page'], $_REQUEST['tab']);
+            log_me(array('redirect url' => $redirect_uri));
+            wp_redirect($redirect_uri);
+            exit;
         }
     }
 

@@ -4,7 +4,7 @@
  * Plugin Name:       Work the Flow File Upload
  * Plugin URI:        http://wtf-fu.com
  * Description:       Front end Html5 File Upload and configurable Workflow steps. Multiple file drag and drop, gallery image display, file reordering and archiving.
- * Version:           1.2.5
+ * Version:           2.0.0
  * Author:            Lynton Reed
  * Author URI:        http://wtf-fu.com
  * Text Domain:       wtf-fu
@@ -76,7 +76,8 @@ add_action( 'plugins_loaded', array( 'Wtf_Fu', 'get_instance' ) );
  * Load the admin class only if we are *really* admin and not admin just 
  * because of a front end AJAX call.
  */
-if ( is_admin() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
+//if ( is_admin() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
+if ( is_admin() ) {
     require_once( plugin_dir_path( __FILE__ ) . 'admin/class-wtf-fu-admin.php' );
     add_action( 'plugins_loaded', array( 'Wtf_Fu_Admin', 'get_instance' ) );  
 }

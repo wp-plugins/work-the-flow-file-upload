@@ -19,6 +19,9 @@
 require_once plugin_dir_path(__FILE__)
         . '../includes/class-wtf-fu-option-definitions.php';
 
+require_once plugin_dir_path(__FILE__)
+        . 'includes/class-wtf-fu-options-admin.php';
+
 class Wtf_Fu_Admin {
 
     /**
@@ -65,12 +68,69 @@ class Wtf_Fu_Admin {
         add_action('admin_menu', array($this, 'add_plugin_admin_menu'));
 
         // Add an action link pointing to the options page.
-        $plugin_basename = plugin_basename(plugin_dir_path(__DIR__) . $this->plugin_slug . '.php');
+        $plugin_basename = plugin_basename( plugin_dir_path( realpath( dirname( __FILE__ ) ) ) . $this->plugin_slug . '.php' );        
         add_filter('plugin_action_links_' . $plugin_basename, array($this, 'add_action_links'));
 
         // add to the admin init hook. This is called when the admin page first loads.
         add_action('admin_init', array($this, 'init_page_options'));
+        
+        add_action( 'wp_ajax_wtf_fu_admin_operations', array($this, 'wtf_fu_admin_operations_callback'));
+        
     }
+    
+    /**
+     * Ajax callback from js.
+     */
+    function wtf_fu_admin_operations_callback() {
+        
+        ob_start();
+   
+        log_me('wtf_fu_admin_operations_callback');
+        
+        $response_message = 'done';
+        
+        switch ($_REQUEST['operation']) {
+            case 'add_new_empty_workflow' :
+                $response_message = Wtf_Fu_Options_Admin::add_new_workflow();
+                //Wtf_Fu_Pro_Options_Admin::add_new_email_template();
+                break;
+            case 'add_new_demo_workflow' :
+                $response_message = Wtf_Fu_Options_Admin::add_new_demo_workflow();
+                break; 
+            case 'add_new_default_email_template' :
+                if(has_action('wtf_fu_add_new_default_email_template_action')) {
+                    do_action('wtf_fu_add_new_default_email_template_action');
+                } else {
+                    log_me(" operation action not found for : {$_REQUEST['operation']}");      
+                }
+                break;              
+            case 'add_new_default_workflow_template' :
+                if(has_action('wtf_fu_add_new_default_workflow_template_action')) {
+                    do_action('wtf_fu_add_new_default_workflow_template_action');
+                } else {
+                    log_me(" operation action not found for : {$_REQUEST['operation']}");      
+                }
+                break;     
+                
+            default :
+                log_me("invalid operation {$_REQUEST['operation']}");      
+        }   
+        
+        $response = array(
+            'what' => 'stuff',
+            'action' => 'wtf_fu_admin_operations',
+            'id' => '1', //new WP_Error('oops','I had an accident.'),
+            'data' => $response_message,
+                //    'supplemental'
+        );
+
+        $xmlResponse = new WP_Ajax_Response($response);
+        $xmlResponse->send();
+        
+        ob_end_clean();
+	exit;
+}    
+
 
     /**
      * Return an instance of this class.
@@ -96,7 +156,7 @@ class Wtf_Fu_Admin {
         if (!isset($this->plugin_screen_hook_suffix)) {
             return;
         }
-
+        
         $screen = get_current_screen();
         if ($this->plugin_screen_hook_suffix == $screen->id) {
             wp_enqueue_style($this->plugin_slug . '-admin-styles', plugins_url('assets/css/admin.css', __FILE__), array(), Wtf_Fu::VERSION);
@@ -116,7 +176,19 @@ class Wtf_Fu_Admin {
 
         $screen = get_current_screen();
         if ($this->plugin_screen_hook_suffix == $screen->id) {
-            wp_enqueue_script(self::$plugin_slug . '-admin-script', plugins_url('assets/js/admin.js', __FILE__), array('jquery'), Wtf_Fu::VERSION);
+            log_me('admin enqueing');
+            
+            $url = site_url('/wp-includes/js/wp-ajax-response.js');
+            wp_enqueue_script('wp-ajax-response', $url, array('jquery'), Wtf_Fu::VERSION, true);
+            
+            
+            $script_tag = $this->plugin_slug . '-admin-script';
+            
+            wp_enqueue_script($script_tag, plugins_url('assets/js/admin.js', __FILE__), array('jquery', 'wp-ajax-response'), Wtf_Fu::VERSION, true);
+            //wp_localize_script($script_tag, 'ajax_object', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'we_value' => 1234 ) ); 
+            
+        } else {
+            log_me(array('not enqueing ' => array($this->plugin_screen_hook_suffix , $screen->id )));
         }
     }
 
@@ -130,29 +202,36 @@ class Wtf_Fu_Admin {
         /*
          * Add a settings page to the Settings menu.
          */       
-        $wtf_title = 'Wtf-fu';
-        $wtf_fulltitle = 'Work The Flow - File Upload';
-        $this->plugin_screen_hook_suffix = self::wtf_fu_do_add_options_page(
+        $wtf_title = 'wtf-fu';
+        $wtf_fulltitle = 'Work The Flow / File Upload';
+//        $this->plugin_screen_hook_suffix = self::wtf_fu_do_add_options_page(
+//            __($wtf_fulltitle, $this->plugin_slug), 
+//            __($wtf_title, $this->plugin_slug), //slug used as the text domain.
+//            'manage_options', 
+//            $this->plugin_slug, 
+//            array($this, 'display_plugin_admin_page') // callback.
+//        );
+
+        add_options_page(
             __($wtf_fulltitle, $this->plugin_slug), 
-            __($wtf_title, $this->plugin_slug), //slug used as the text domain.
-            'administrator', 
+            __($wtf_fulltitle, $this->plugin_slug), //slug used as the text domain.
+            'manage_options', 
             $this->plugin_slug, 
             array($this, 'display_plugin_admin_page') // callback.
         );
 
-        
+
         /*
          * Add the same page as a menu.
          */
-        add_menu_page(
+        $this->plugin_screen_hook_suffix = $menu_page_hook = add_menu_page(         
             __($wtf_fulltitle, $this->plugin_slug), 
-            __($wtf_title, $this->plugin_slug), //slug used as the text domain.
-            'administrator', 
+            __($wtf_fulltitle, $this->plugin_slug), //slug used as the text domain.
+            'manage_options', 
             $this->plugin_slug, // The ID used to bind submenu items to this menu
             array($this, 'display_plugin_admin_page') // callback.
         );
-
-
+        
         /*
          * Add submenu pages.
          */
@@ -160,7 +239,7 @@ class Wtf_Fu_Admin {
         // log_me(array('pages'=> $menu_pages));
         foreach ($menu_pages as $page_key => $values) {
 
-            add_submenu_page(
+            $sub_menu_page_hook = add_submenu_page(
                 // The ID of the top-level menu page to which this submenu item belongs
                 $this->plugin_slug,
                 // The value used to populate the browser's title bar when the menu page is active
@@ -174,8 +253,45 @@ class Wtf_Fu_Admin {
                 //create_function(null, 'display_plugin_admin_page( "' . $page_key . '");')
                 array($this, 'display_plugin_admin_page')
             );
+            //        log_me(array('sub-menupagehook' => $sub_menu_page_hook));
+
         }
+        //add_action('load-'.$this->plugin_screen_hook_suffix, array($this, 'init_page_options'));
+
+        add_action('load-'.$this->plugin_screen_hook_suffix, array($this, 'my_admin_add_help_tab'));
     }
+    
+    
+    function my_admin_add_help_tab () {
+    
+    $screen = get_current_screen();
+    //log_me(array('my_admin_add_help_tab' => $screen));
+    
+
+    /*
+     * Check if current screen is My Admin Page
+     * Don't add help tab if it's not
+     */
+    if ( $screen->id != $this->plugin_screen_hook_suffix )
+        return;
+
+    // Add my_help_tab if current screen is My Admin Page
+    $screen->add_help_tab( array(
+        'id'	=> 'overview',
+        'title'	=> __('Overview'),
+        'content'	=> '<p>' . __( 'Coming soon ... Overview about this page.' ) . '</p>',
+    ) );
+        $screen->add_help_tab( array(
+        'id'	=> 'usage',
+        'title'	=> __('Usage'),
+        'content'	=> '<p>' . __( 'Coming soon ... General Usage Information about this page.' ) . '</p>',
+    ) );
+        $screen->add_help_tab( array(
+        'id'	=> 'notes',
+        'title'	=> __('Notes :'),
+        'content'	=> '<p>' . __( 'This is not fully implemented yet in this release.<br/> The help information below will be moving up to here soon, to reduce clutter on the main screen.' ) . '</p>',
+    ) );        
+}
 
     /**
      * Render the settings page for this plugin.
@@ -260,11 +376,18 @@ class Wtf_Fu_Admin {
             case wtf_fu_PAGE_DOCUMENATION_KEY :
                 include_once ( 'views/documentation.php');
                 break;
+            
+            case wtf_fu_PAGE_TEMPLATES_KEY :
+                if (! has_action('wtf_fu_dispay_plugin_admin_page')) {
+                    include_once ( 'views/admin-templates-nonpro.php');                   
+                }
+    
             default :
-                // see if anything else can handle it.
-                if (has_action('wtf_fu_dispay_plugin_admin_page')) {
-                    return do_action('wtf_fu_dispay_plugin_admin_page');
-                }                
+                
+        }
+        
+        if (has_action('wtf_fu_dispay_plugin_admin_page')) {
+            return do_action('wtf_fu_dispay_plugin_admin_page');
         }
     }
 
@@ -274,7 +397,7 @@ class Wtf_Fu_Admin {
      * @since    1.0.0
      */
     public function add_action_links($links) {
-
+log_me(array('add_action_links' => $links));
         return array_merge(
                 array(
             'settings' => '<a href="' . admin_url('options-general.php?page=' . $this->plugin_slug) . '">' . __('Settings', $this->plugin_slug) . '</a>'
@@ -307,12 +430,12 @@ class Wtf_Fu_Admin {
      * 
      */
     public function init_page_options() {
-
+        
         log_me(array("init_page_options hook _REQUEST" => $_REQUEST));
 
         $init_args = array();
 
-        foreach (array('page', 'tab', 'wftab', 'option_page', 'wtf-fu-action', 'wf_id', 'email_id') as $var) {
+        foreach (array('page', 'tab', 'wftab', 'option_page', 'wtf-fu-action', 'wf_id', 'id', 'template-type') as $var) {
             $init_args[$var] = wtf_fu_get_value($_REQUEST, $var);
         }
         
@@ -325,12 +448,15 @@ class Wtf_Fu_Admin {
                 // page not for this plugin.
                 || ( $init_args['page'] && $init_args['page'] !== $this->plugin_slug )
                 // user page does not require options setup.
-                || ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_USERS_KEY)
+                || ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_USERS_KEY )
                 // documentation page does not require options setup.               
-                || ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_DOCUMENATION_KEY)               
+                || ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_DOCUMENATION_KEY )               
                 // Workflows list page has not options to set up unless 
                 // the 'wftab' sub page is defined.
-                || ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_WORKFLOWS_KEY && !$init_args['wftab'])
+                || ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_WORKFLOWS_KEY && !$init_args['wftab'] )
+                // Templates list page has not options to set up unless 
+                // the 'template-type' is defined.                        
+                || ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_TEMPLATES_KEY && !$init_args['template-type'] )
         ) {
             return; // no options init required, or not a page for us.
         }
@@ -491,7 +617,16 @@ class Wtf_Fu_Admin {
      */
     static function wtf_fu_do_add_options_page($page_title, $menu_title, $capability, $menu_slug, $callback) {
         
+        
         $ret = add_options_page($page_title, $menu_title, $capability, $menu_slug, $callback);
+        log_me(array(
+            'add_options_page ret='=> $ret, 
+             'page_title' => $page_title, 
+            'menu_title' => $menu_title, 
+            'capability' => $capability, 
+            'menu_slug' => $menu_slug, 
+            // 'callback' => $callback  
+                ));
         return $ret;
     }
 
@@ -588,7 +723,7 @@ class Wtf_Fu_Admin {
                 
                 break;
             default:
-                echo '<p>' . __("TODO no description available for this page [key={$section_page}].", 'wtf_fu') . '</p>';
+                //echo '<p>' . __("TODO no description available for this page [key={$section_page}].", 'wtf_fu') . '</p>';
         }
     }
 
@@ -856,13 +991,18 @@ class Wtf_Fu_Admin {
             case 'default_next_label' :
                 echo wtf_fu_text_input($option_id, $option_name, $val, 60, $label);
                 break;
+            
+            case 'page_template' :
+                if (!has_action('wtf_fu_render_workflow_options_field_action')) {
+                    $values = array(array('name' => 'none', 'value' => 0));
+                    echo wtf_fu_list_box($option_id, $option_name, $val, $label, $values);   
+                }
+                break;
+            
             default : 
                 
-                /*
-                 * call action hook to process any additional hooked fields.
-                 */
-                do_action('wtf_fu_render_workflow_options_field_action', $args, $option_id, $option_name, $val);
         }
+        do_action('wtf_fu_render_workflow_options_field_action', $args, $option_id, $option_name, $val);
     }
 
 }

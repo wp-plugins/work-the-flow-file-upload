@@ -43,7 +43,7 @@ class Wtf_Fu {
      * references.
      * @var     string
      */
-    const VERSION = '1.2.5';
+    const VERSION = '2.0.0';
 
     /**
      * Unique plugin identifier.
@@ -361,7 +361,7 @@ class Wtf_Fu {
             
            // wp_enqueue_script($this->plugin_slug . '-plugin-script', plugins_url('assets/js/public.js', __FILE__), array(), self::VERSION);
            
-            // TODO:   
+            // TODO:   better if we can use local wp resources instead of cde.jquery.com
             //wp_enqueue_script('jquery');
             //wp_enqueue_script('jquery-ui-core');
             //wp_enqueue_script('jquery-ui-widget');

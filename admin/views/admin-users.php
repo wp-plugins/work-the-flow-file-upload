@@ -26,10 +26,10 @@ $table->prepare_items();
 ?>
 <div class="wrap">
     <div id="icon-users" class="icon32"><br/></div>
-    <h2>Workflows</h2>
+    <h2>Manage Users</h2>
     <div style="background:#ECECEC;border:1px solid #CCC;padding:0 10px;margin-top:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;">
-        <p>These users have currently active Workflows.</p>
-        <p>Click a users name to manage that users uploaded files</p>
+        <p>List of users with currently active Workflows.</p>
+        <p>Click a users name to manage that users uploaded files.</p>
         <p>Click edit (under the users name) to go to the Wordpress User settings page for that user.</p> 
         <p>To modify a user(s) stage in a workflow, change the users stage number, click the checkbox in the left column and select 'Update' from the bulk actions menu. Then Apply</p>
     </div>

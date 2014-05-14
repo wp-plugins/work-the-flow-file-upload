@@ -1,1 +1,20 @@
 /* This stylesheet is used to style the admin option form of the plugin. */
+#wtf_admin_templates li { 
+    position: relative;
+    margin: 6px; 
+    list-style-type: none; 
+    float: left; 
+    width: 250px; 
+    height: 250px; 
+    font-size: 1em; 
+    text-align: left; 
+    overflow: hidden;
+    border: #333333;
+    border-style: outset; 
+    background: #ccffff;
+}
+
+#wtf_admin_templates li a img {
+    width:100%;
+    heaight:100%;
+}

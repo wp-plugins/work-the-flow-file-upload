@@ -27,7 +27,7 @@ $page_slug = $this->plugin_slug;
 ?>
 
 <div class="wrap">
-    <h2><?php echo esc_html(get_admin_page_title()); ?></h2>
+    <h3><?php echo esc_html(get_admin_page_title());?>&nbsp;&nbsp;<small>[&nbsp;<?php echo wtf_fu_get_version_info(); ?>&nbsp]</small></h3>
 <div style="background:#ECECEC;border:1px solid #CCC;padding:0 10px;margin-top:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;">    
     <small>To help support the free plugin, please consider rating us 
         <a title="***** Fantastic!" href="http://wordpress.org/support/view/plugin-reviews/work-the-flow-file-upload?rate=5#postform" target="_blank"><span>*****</span></a> on WordPress.org.<br/>

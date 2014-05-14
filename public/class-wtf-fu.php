@@ -345,8 +345,8 @@ class Wtf_Fu {
             
             $plugin_options = Wtf_Fu_Options::get_plugin_options();
             if (wtf_fu_get_value($plugin_options, 'include_plugin_style') == true) {
-                wp_enqueue_style($this->plugin_slug . '-tbs-styles', plugins_url($this->plugin_slug) . '/public/assets/css/bootstrap.css', array(), Wtf_Fu::VERSION);
-                wp_enqueue_style($this->plugin_slug . '-show-files-css', plugins_url($this->plugin_slug) . '/public/assets/css/wtf-fu-show-files.css', array(), Wtf_Fu::VERSION);               
+                wp_enqueue_style($this->plugin_slug . '-tbs-styles', plugin_dir_url( __FILE__ ) . '/assets/css/bootstrap.css', array(), Wtf_Fu::VERSION);
+                wp_enqueue_style($this->plugin_slug . '-show-files-css', plugin_dir_url( __FILE__ ) . '/assets/css/wtf-fu-show-files.css', array(), Wtf_Fu::VERSION);               
             }          
         }
     }

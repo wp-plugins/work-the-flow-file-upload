@@ -123,7 +123,7 @@ class Wtf_Fu_Workflow_Shortcode {
              */
             if (!wp_script_is($style_handle, 'enqueued')) {
                  
-                wp_enqueue_style($style_handle, plugins_url($this->plugin_slug) . '/public/assets/css/workflow_default.css', array(), Wtf_Fu::VERSION);
+                wp_enqueue_style($style_handle, plugin_dir_url( __FILE__) . '../assets/css/workflow_default.css', array(), Wtf_Fu::VERSION);
 
                 /*
                  * If a plugin has its own style then hook loading the style sheet.

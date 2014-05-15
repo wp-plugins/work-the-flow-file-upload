@@ -5,7 +5,7 @@ function wtf_show_files_init() {
         return; // nothing to do.
     }
 
-    console.log('wtf_show_files_init activation.');
+    // console.log('wtf_show_files_init activation.');
     init_sortable();
 
     $('#wtf_show_files_form').on('submit', function(event) {
@@ -59,7 +59,7 @@ function init_sortable() {
             cursor: 'move',
             scrollSensitivity: 40,
             tolerance: 'pointer',
-            containment: '#sort_container',
+            containment: 'parent',
             update: function() {
                 $('#reorder_submit_button').attr("disabled", false);
                 $('#reorder_message').html('Click update to apply your changes.');

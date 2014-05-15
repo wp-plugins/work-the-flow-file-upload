@@ -4,7 +4,7 @@ Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
 Tested up to: 3.9.1
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -311,6 +311,11 @@ lynton@wtf-fu.com detailing your requirements.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 2.0.1 =
+* Updates to showfiles shortcode css, fixes issue with moving image showing 
+outside container when ordering in some themes. Also some email format issues.
+* Reverted the 2.0.0 export workflow feature for now. 
+
 = 2.0.0 =
 * Introduction of workflow and email templates.
 * New shortcut `%%xxx%%%` field placeholders.
@@ -405,6 +410,10 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 2.0.1 =
+* Updates to showfiles shortcode css, fixes issue with moving image showing 
+outside container when ordering in some themes. Also some email format issues.
+* Reverted the 2.0.0 export workflow feature for now. 
 = 2.0.0 =
 * Introduction of workflow and email templates.
 * New shortcut `%%xxx%%%` field placeholders.

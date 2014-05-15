@@ -736,6 +736,9 @@ class Wtf_Fu_Options_Admin {
      * @param string $id
      */
     public static function export_workflow($id) {
+        
+        ob_start();
+        
         if (empty($id)) {
             die ("Cannot export an empty workflow id");
         }       
@@ -758,15 +761,12 @@ class Wtf_Fu_Options_Admin {
         
         $filename = "workflow_{$options['name']}_{$installed_version}_$date.json";
         
-        ob_clean();
+        ob_end_clean();
 
+        header("Content-Type: text/json; charset=" . get_option( 'blog_charset'));
+        header("Content-Disposition: attachment; filename=$filename");
         echo $json;
-header("Content-Type: text/json; charset=" . get_option( 'blog_charset'));
-header("Content-Disposition: attachment; filename=$filename");
-exit();
-        
-        
-      //  wtf_fu_write_file($filename, $json);                    
+        exit();                    
     }   
     
     

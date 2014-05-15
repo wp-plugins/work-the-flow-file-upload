@@ -219,6 +219,28 @@ class Wtf_Fu_Show_Files_Shortcode {
     }
 
     function generate_content() {
+        
+        // for emails just want the files.
+        if ($this->options['email_format'] == true) {
+            // namespaced classes only work with php >= 5.3.0
+            $html = $this->generate_files_div();
+            
+            if (version_compare(phpversion(), '5.3.0', '>')) {
+                require_once(plugin_dir_path(__FILE__) . '../assets/tools/wtf_fu_php_53_only.php');
+
+                // inline the required css for email html display.
+                $css = inline_css_style_file(plugin_dir_path(__FILE__) . '../assets/css/bootstrap.css');
+                $css .= inline_css_style_file(plugin_dir_path(__FILE__) . '../assets/css/wtf-fu-show-files.css');
+
+                $html = wtf_fu_53_do_inline_style_conversion($html, $css);
+            } else {
+                log_me('WARNING : Could not inline CSS for email_format : '
+                        . 'PHP version needs to be >= 5.3.0 but only php version ' .
+                        phpversion() . ' was detected');
+            }          
+            return $html;
+        }
+        
         $html = '<div id="wtf_fu_show_files_output">' . $this->generate_inner_content() . '</div>';        
         
         if ($this->options['gallery'] == true) {
@@ -280,28 +302,6 @@ GALLERYJSTEMPLATE;
 
         $html .= $this->generate_files_div();
 
-        /*
-         * If this is for inclusion in an email then inline the css into style tags.
-         */
-        if ($this->options['email_format'] == true) {
-
-            log_me('email_format evaled as true !!!');
-
-            // namespaced classes only work with php >= 5.3.0
-            if (version_compare(phpversion(), '5.3.0', '>')) {
-                require_once(plugin_dir_path(__FILE__) . '../assets/tools/wtf_fu_php_53_only.php');
-
-                // inline the required css for email html display.
-                $css = inline_css_style_file(plugin_dir_path(__FILE__) . '../assets/css/bootstrap.css');
-                $css .= inline_css_style_file(plugin_dir_path(__FILE__) . '../assets/css/wtf-fu-show-files.css');
-
-                $html = wtf_fu_53_do_inline_style_conversion($html, $css);
-            } else {
-                log_me('WARNING : Could not inline CSS for email_format : '
-                        . 'PHP version needs to be >= 5.3.0 but only php version ' .
-                        phpversion() . ' was detected');
-            }
-        }
         return $html;
     }
 
@@ -350,11 +350,15 @@ GALLERYJSTEMPLATE;
         $gallery_att = '';
         $audio_controls = '';
         $file_title_class = '';
+        $vertical_span='';
 
         
         if ($this->options['gallery'] == true) {
             $gallery_att = 'data-gallery';
         }
+        if ($this->options['vertical'] == true) {
+            $vertical_span = sprintf("<span>%s</span>", $file->basename);
+        }        
         if ($this->options['show_numbers'] == true) {
             $file_title_class = 'pad_top_20px';
             $number_div = "<p class='reorder-number'>$number</p>";
@@ -371,8 +375,8 @@ GALLERYJSTEMPLATE;
         switch ($image_type) {
             case 'image' :
                 $file_link = sprintf(
-                    '<a %s href="%s" title="%s"><span>%s</span><img src="%s" alt="%s" type="%s"></a>', 
-                    $gallery_att, $file->fileurl, $file->basename, $file->basename, $file->thumburl, $file->basename, $mime_type);
+                    '<a %s href="%s" title="%s">%s<img src="%s" alt="%s" type="%s"></a>', 
+                    $gallery_att, $file->fileurl, $file->basename, $vertical_span, $file->thumburl, $file->basename, $mime_type);
                 break;
 
             case 'music' :
@@ -400,9 +404,6 @@ GALLERYJSTEMPLATE;
         }
         
         $line = sprintf('<li class="list" title="%s">%s%s</li>', $file->basename, $number_div, $file_link);
-
-
- 
         return $line;
     }
 

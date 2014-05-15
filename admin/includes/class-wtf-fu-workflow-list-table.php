@@ -140,9 +140,9 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
             'clone' => sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&wf_id=%s">Clone</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, 'clone', $item['id']
             ),
             'delete' => sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&wf_id=%s" onClick="return confirm(\'WARNING! You are about to premanently delete this Workflow ? Are you sure about this ?\');">Delete</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, 'delete', $item['id']
-            ),
+            ) /*,
             'export' => sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&wf_id=%s">Export</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, 'export', $item['id']
-            )
+            )*/
         );
 
         //Return the name contents
@@ -234,8 +234,8 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
     function get_bulk_actions() {
         $actions = array(
             'delete' => 'Delete',
-            'clone' => 'Clone',
-            'export' => 'Export'
+            'clone' => 'Clone'/*,
+            'export' => 'Export'*/
         );
         return $actions;
     }

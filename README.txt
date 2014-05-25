@@ -4,7 +4,7 @@ Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
 Tested up to: 3.9.1
-Stable tag: 2.0.1
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -173,7 +173,7 @@ Welcome `[wtf_fu type="get" value="display_name"], // display the current users 
 = Do I need to create a workflow just to enable file upload features ? =
 
 No, the workflow and file upload capabilities are completely separate entities. 
-You can add file uploads to a page by embedding the `[wtf_fu_wtf_fu_upload]` shortcode directly to a page. 
+You can add file uploads to a page by embedding the `[wtf_fu_upload]` shortcode directly to a page. 
 There is no need to use a workflow at all if standalone file uploads are all you need.
 
 However it is often useful to embed this short code inside a workflow stage so that uploading is then part of a defined workflow.
@@ -197,7 +197,7 @@ e.g. to change the workflow header background to blue use :
 
 `.tbs .panel-heading {background-color: #428bca;}` in your child theme style.css file overrides.
 
-You may also wish to consider the paid PRO extension for this plugin which provides additional options for template editing.
+You may also wish to consider the paid PRO extension for this plugin which provides template editing, allowing you to define your own layout elements.
 http://wtf-fu.com/download
 
 = How do I restrict the number of files that can be uploaded ? =
@@ -281,16 +281,27 @@ http://wtf-fu.com/ which extends the plugin with template editing capability as 
 
 = Where can I get more information about how to use this plugin ? =
 
-Go to http://wtf-fu.com which is the web site where this product is officially maintained.
+See the `documentation` tab in the plugins settings page.
 
-Install the demo workflow from the admin workflows tab, which provides a demo workflow detailing 
-how to use the plugin shortcodes.
+Clone the demo workflow in the admin workflows tab. The demo includes workflow stages with embedded uploads and file displays.
+You can then just edit this to suit your needs.
+
+Go to http://wtf-fu.com where this product is maintained, and try out the live demo.
+
+= What do get with the PRO extension that is not in the free one ? =
+
+The PRO extension added additional features on top of the core features including :
+ 
+* Ability to edit and manage workflow and email templates to create your own layouts.
+* Ability to attach automated email templates to workflow stages to automatically send emails when a user passes through a workflow stage.
+* [wtf_eval] psuedo short code for embedding php code into workflow content.
+* 12 months priority support and automated product updates.
 
 = Can you build me a customized version of this plugin ? =
 
 If you have special requirements for a custom built plugin or even just want a 
-website configured for you using this one then please contact me at 
-lynton@wtf-fu.com detailing your requirements.
+website configured for you using this one then please email me at 
+lynton@wtf-fu.com for a quote.
 
 
 == Screenshots ==
@@ -311,8 +322,16 @@ lynton@wtf-fu.com detailing your requirements.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 2.1.0 =
+* Removed extra spacing from `[wtf_fu_show_files]` when using email_format.
+* Fix for image files with non-ascii characters links broken in automated emails with embedded `[wtf_fu_show_files]` shortcode.
+* Extra shortcut fields `%%WORKFLOW_STAGE_NUMBER%%` `%%ALL_WORKFLOW_USERS_EMAILS%%` and `%%ALL_SITE_USERS_EMAILS%%` added.
+* Documentation corrections ( the `[wtf_fu_show_files]` shortcode documentation was incorrectly documented as wtf_fu_showfiles ).
+* Pseudo shortcode `[wtf_eval]` added to allow evaluation of php code inside workflow content (pro feature).
+* Support for Export and import of workflows added (pro feature). This allows you to export a workflow to a file and import it into another site.
+
 = 2.0.1 =
-* Updates to showfiles shortcode css, fixes issue with moving image showing 
+* Updates to show_files shortcode css, fixes issue with moving image showing 
 outside container when ordering in some themes. Also some email format issues.
 * Reverted the 2.0.0 export workflow feature for now. 
 
@@ -320,7 +339,7 @@ outside container when ordering in some themes. Also some email format issues.
 * Introduction of workflow and email templates.
 * New shortcut `%%xxx%%%` field placeholders.
 * New shortcode attributes documentation tab.
-* `[wtf_fu_showfiles]` css updates.
+* `[wtf_fu_show_files]` css updates.
 * Extra shortcode attributes.
 * Admin pages improvements.
 * Added export of workflows as json files for backup (import not implemented yet.
@@ -328,7 +347,7 @@ outside container when ordering in some themes. Also some email format issues.
 * Adjusted sizes of workflow edit fields in admin pages.
 * Turned off `wpautop` on admin page edit fields to prevent editor auto removing `<p>` tags 
 when switching between visual and text editor.
-* Added template tab to workflow admin screens. (pro features only).
+* Added template tab to workflow admin screens. (pro feature).
 * Fix for Filenames with ' in them were not correctly reordering when update order saved 
 in `[wtf_fu_show_files reorder=true]`.
 * Added  `use_public_dir='true'` attribute to `[wtf_fu_show_files]` and `[wtf_fu_upload]`.
@@ -336,7 +355,7 @@ This forces ALL users files to be uploaded to the common `uploads/public` direct
 causes ALL users to have access to the same files. Default is false.
 * Added auto file mimetype detection for displaying mixed filetypes with `[wtf_fu_show_files]`
 mixed file types now correctly display as image / audio or text. 
-* Deprecated the file_type attribute for [wtf_fu_showfiles] shortcode as detection of type is now done automatically
+* Deprecated the file_type attribute for [wtf_fu_show_files] shortcode as detection of type is now done automatically
 setting file_type will not break anything but now will have no effect.
 * Added Documentation tab with full list of shortcode attributes to the admin setting page.
 * Replaced all admin page checkboxes with true/false options list. This forces false values to be saved correctly.
@@ -410,15 +429,23 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 2.1.0 =
+* Removed extra spacing from `[wtf_fu_show_files]` when using email_format.
+* Fix for image files with non-ascii characters links broken in automated emails with embedded `[wtf_fu_show_files]` shortcode.
+* Extra shortcut fields `%%WORKFLOW_STAGE_NUMBER%%` `%%ALL_WORKFLOW_USERS_EMAILS%%` and `%%ALL_SITE_USERS_EMAILS%%` added.
+* Documentation corrections ( the `[wtf_fu_show_files]` shortcode documentation was incorrectly documented as wtf_fu_showfiles ).
+* Pseudo shortcode `[wtf_eval]` added to allow evaluation of php code inside workflow content (pro feature).
+* Support for Export and import of workflows added (pro feature). This allows you to export a workflow to a file and import it into another site.
+
 = 2.0.1 =
-* Updates to showfiles shortcode css, fixes issue with moving image showing 
+* Updates to show_files shortcode css, fixes issue with moving image showing 
 outside container when ordering in some themes. Also some email format issues.
 * Reverted the 2.0.0 export workflow feature for now. 
 = 2.0.0 =
 * Introduction of workflow and email templates.
 * New shortcut `%%xxx%%%` field placeholders.
 * New shortcode attributes documentation tab.
-* `[wtf_fu_showfiles]` css updates.
+* `[wtf_fu_show_files]` css updates.
 * Extra shortcode attributes.
 * Admin pages improvements.
 * Bug fixes (see changelog for more.)

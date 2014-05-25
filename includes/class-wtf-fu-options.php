@@ -132,6 +132,73 @@ class Wtf_Fu_Options {
 /*
  * Non User related methods for setting options for workflows and stages. 
  */
+
+    
+    /**
+     * merge existing options with default ones and discards any not defined in the 
+     * current options defaults array.
+     * 
+     * @param type $options
+     * @param type $default_options
+     */
+    public static function update_options_from_default_options($key, $options, $default_options) {
+
+        $updated_options = array();
+
+        foreach ($default_options as $k => $v) {
+            if (array_key_exists($k, $options)) {
+                $updated_options[$k] = $options[$k];
+            } else {
+                $updated_options[$k] = $v;
+            }
+        }
+
+        update_option($key, $updated_options);
+    }
+    
+    /**
+     * returns ALL the stages from ALL workflows.
+     * ie every stage in the database,
+     * inteneded for use by functions that need to access every stage 
+     * e.g. upgrading the db during installation.
+     * 
+     * If keys only == true (default) just the 'key_id' (ie the workflow id)
+     * is returned in the array.
+     * 
+     * Otherwise all the options for the key are retrieved and included in
+     * the returned array with the key 'options' as well as the 'key_id'
+     * 
+     * @global type $wpdb
+     * @return array('option_key_into_the_db' => array( 'key_id' => 2, 'options' => options array.)
+     */
+    public static function get_all_workflow_stages($keys_only = true) {
+
+        global $wpdb;
+        $keys = array();
+
+        // MySQL will ignore the parenthesis in the REGEXP but we will use them 
+        // to parse out the id later with preg_match.
+        $pattern = '^' . Wtf_Fu_Option_Definitions::get_workflow_stage_key('([1-9]+)', '([0-9]+)') . '$';
+
+        $results = $wpdb->get_results(
+                $wpdb->prepare("SELECT option_name FROM $wpdb->options WHERE option_name REGEXP %s", $pattern));
+
+        foreach ($results as $row) {
+            $match = array();
+            if (preg_match('/' . $pattern . '/', $row->option_name, $match)) {
+                if (!$keys_only) {
+                    $keys[$row->option_name] = array(
+                        'key_id' => $match[1],
+                        'options' => get_option($row->option_name)
+                    );
+                } else {
+                    $keys[$row->option_name] = array('key_id' => $match[1]);
+                }
+            }
+        }
+        return $keys;
+    }
+    
     
     /**
      * 
@@ -245,7 +312,137 @@ class Wtf_Fu_Options {
 
       //  log_me(array('getWorkFlowStageIDs' => $ids));
         return $ids;
+    }  
+    
+    /**
+     * return array of all users that have user option settings for 
+     * the given workflow id.
+     * 
+     * returns array keyed on user id with
+     * array ( <user_id> => 'workflow_settings' => array ('id' => <workflow_id> ', 'stage' => <stage>),
+     *                      'user' => WPUser )
+     * 
+     * @param type $workflow_id (if 0 then all site users are returned)
+     * 
+     */
+    static function get_workflow_users($workflow_id = 0) {
+        $users = array();
+        $all_users = get_users();
+
+        foreach ($all_users as $user) {
+            
+            $user_id = $user->ID;
+            if ($workflow_id != 0) {
+            
+                $options = Wtf_Fu_Options::get_user_workflow_options($workflow_id, $user_id, false);
+                if ($options) {
+                    $users[$user_id]['workflow_settings'] = $options;
+                    $users[$user_id]['user'] = $user;
+                }
+                
+            } else {
+                $users[$user_id]['workflow_settings'] = false;
+                $users[$user_id]['user'] = $user;               
+            }
+        }
+        return $users;
+    }
+    
+    /**
+     * Retrieves all workflow ids and options as an array keyed on the 
+     * workflows option keys.
+     * 
+     * If keys only == true (default) just the 'key_id' (ie the workflow id)
+     * is returned in the array.
+     * 
+     * Otherwise all the options for the key are retrieved and included in
+     * the returned array with the key 'options' as well as the 'key_id'
+     * 
+     * @global type $wpdb
+     * @return array('option_key_into_the_db' => array( 'key_id' => 2, 'options' => options array.)
+     */
+     static function get_all_workflows($keys_only = true) {
+
+        global $wpdb;
+        $keys = array();
+
+        // MySQL will ignore the parenthesis in the REGEXP but we will use them 
+        // to parse out the id later with preg_match.
+        $pattern = '^' . Wtf_Fu_Option_Definitions::get_workflow_options_key('([1-9][0-9]*)') . '$';
+
+        $results = $wpdb->get_results(
+                $wpdb->prepare("SELECT option_name FROM $wpdb->options WHERE option_name REGEXP %s", $pattern));
+
+        foreach ($results as $row) {
+            $match = array();
+            if (preg_match('/' . $pattern . '/', $row->option_name, $match)) {
+                if (!$keys_only) {
+                    $keys[$row->option_name] = array(
+                        'key_id' => $match[1],
+                        'options' => get_option($row->option_name)
+                    );
+                } else {
+                    $keys[$row->option_name] = array('key_id' => $match[1]);
+                }
+            }
+        }
+        return $keys;
+    }    
+    
+    /**
+     * returns an array of all exisiting workflow ids.
+     */
+    static function get_all_workflow_ids() {
+        $ids = array();
+
+        // get all workflows , keys only.
+        $option_keys = Wtf_Fu_Options::get_all_workflows(true);
+        foreach ($option_keys as $k => $v) {
+            $ids[] = (int) $v['key_id'];
+        }
+        asort($ids, SORT_NUMERIC);
+
+        //  log_me(array('getWorkFlowIDs' => $ids));
+        return $ids;
+    }    
+
+    /**
+     * return all a users workflows settings as
+     * array (<user_settings_table_key> => array( 'id' => id, 'stage' => stage)
+     * 
+     * @param type $user_id
+     */
+    static function get_user_workflows_settings($user_id) {
+        $ret = array();
+        $all_workflows = Wtf_Fu_Options::get_all_workflow_ids();
+        foreach ($all_workflows as $wfid) {
+            $options = Wtf_Fu_Options
+                    ::get_user_workflow_options($wfid, $user_id, false);
+            if ($options) {
+                $ret[$wfid] = $options;
+            }
+        }
     }   
     
+    /**
+     * return string of all emails for users in a workflow
+     * @param type $workflow_id (if 0 then all site users emails returned
+     * @return type
+     */
+    static function get_all_user_emails($workflow_id = 0) {
+        
+        $users = Wtf_Fu_Options::get_workflow_users($workflow_id);
+        $emails = array();
+
+        //log_me($users);
+        
+        foreach ($users as $user) {
+            $emails[] = $user['user']->user_email;
+        }
+
+        $email_list = implode(',', $emails);
+        
+        return $email_list;
+    }    
     
 } // end class.

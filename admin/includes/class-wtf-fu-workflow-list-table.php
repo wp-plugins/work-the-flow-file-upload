@@ -43,10 +43,10 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
         $data = array();
 
         // retrieve all workflow keys with options (keys_only= false)
-        $workflows = Wtf_Fu_Options_Admin::get_all_workflows(false);
+        $workflows = Wtf_Fu_Options::get_all_workflows(false);
 
         foreach ($workflows as $option_key => $workflow) {
-            $users = Wtf_Fu_Options_Admin::get_workflow_users($workflow['key_id']);
+            $users = Wtf_Fu_Options::get_workflow_users($workflow['key_id']);
             $user_details = ''; //$first = true;
             foreach ($users as $user) {
                 //if (!$first) {$user_details .= ", ";} else {$first = false;}
@@ -140,9 +140,10 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
             'clone' => sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&wf_id=%s">Clone</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, 'clone', $item['id']
             ),
             'delete' => sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&wf_id=%s" onClick="return confirm(\'WARNING! You are about to premanently delete this Workflow ? Are you sure about this ?\');">Delete</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, 'delete', $item['id']
-            ) /*,
-            'export' => sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&wf_id=%s">Export</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, 'export', $item['id']
-            )*/
+            ),
+           // 'export' => sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&wf_id=%s">Export</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, 'export', $item['id']
+            'export' => sprintf('<a href="?wtf-fu-export=%s&id=%s">Export</a>', 'workflow', $item['id']
+            )
         );
 
         //Return the name contents
@@ -234,8 +235,8 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
     function get_bulk_actions() {
         $actions = array(
             'delete' => 'Delete',
-            'clone' => 'Clone'/*,
-            'export' => 'Export'*/
+            'clone' => 'Clone',
+         //   'export' => 'Export'
         );
         return $actions;
     }
@@ -262,10 +263,10 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
                         Wtf_Fu_Options_Admin::clone_workflow($wf_id);
                         $redirect = true;
                         break;
-                    case 'export' :
-                        Wtf_Fu_Options_Admin::export_workflow($wf_id);
-                        $redirect = true;
-                        break;
+               //     case 'export' :
+               //         Wtf_Fu_Options_Admin::export_workflow($wf_id);
+               //         $redirect = true;
+               //         break;
                     default :
                 }
             }
@@ -282,10 +283,10 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
                     Wtf_Fu_Options_Admin::clone_workflow($_REQUEST['wf_id']);
                     $redirect = true;
                     break;
-                case 'export' :
-                    Wtf_Fu_Options_Admin::export_workflow($_REQUEST['wf_id']);
-                    $redirect = true;
-                    break;
+             //   case 'export' :
+             //       Wtf_Fu_Options_Admin::export_workflow($_REQUEST['wf_id']);
+             //       $redirect = true;
+             //       break;
                 default :
             }
         }
@@ -299,7 +300,7 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
 
             $redirect_uri = sprintf("?page=%s&tab=%s", $_REQUEST['page'], $_REQUEST['tab']);
             log_me(array('redirect url' => $redirect_uri));
-            wp_redirect($redirect_uri);
+            wp_safe_redirect($redirect_uri);
             exit;
         }
     }

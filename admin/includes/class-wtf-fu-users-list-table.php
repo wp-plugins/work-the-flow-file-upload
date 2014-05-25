@@ -57,26 +57,21 @@ class Wtf_Fu_Users_List_Table extends WP_List_Table {
     }
 
     function get_data() {
+        
         $data = array();
-
-
-        log_me('get_data()');
 
         /*
          * retrieve all workflow keys and there options (keys_only= false) 
          */
-        $workflows = Wtf_Fu_Options_Admin::get_all_workflows(false);
+        $workflows = Wtf_Fu_Options::get_all_workflows(false);
 
         foreach ($workflows as $workflow) {
 
             $workflow_id = $workflow['key_id'];
             $workflow_name = $workflow['options']['name'];
 
-            $user_workflow_settings = Wtf_Fu_Options_Admin
+            $user_workflow_settings = Wtf_Fu_Options
                     ::get_workflow_users($workflow_id);
-
-            // log_me(array('user_workflow_settings=' => $user_workflow_settings));
-
 
             foreach ($user_workflow_settings as $user) {
 
@@ -87,8 +82,6 @@ class Wtf_Fu_Users_List_Table extends WP_List_Table {
                 }
 
                 $row_id = self::get_user_list_row_id_key($user['user']->ID, $workflow_id);
-
-                //$row_vars = array('row_id' => $row_id, 'user_id' => $user['user']->ID);
 
                 $data[] = array(
                     'row_id' => $row_id,
@@ -171,11 +164,6 @@ class Wtf_Fu_Users_List_Table extends WP_List_Table {
         $actions = array(
             'edit user' => sprintf('<a href="%s?user_id=%s">Edit</a>', 'user-edit.php', $item['user_id']
             )
-
-                //'clone' => sprintf('<a href="?page=%s&tab=%s&action=%s&wf_id=%s">Clone</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, 'clone', $item['id']
-                //),
-                //'delete' => sprintf('<a href="?page=%s&tab=%s&action=%s&wf_id=%s">Delete</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, 'delete', $item['id']
-                //),
         );
 
         $link = sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&user=%s">%s</a>', $_REQUEST['page'], wtf_fu_PAGE_USERS_KEY, 'user', $item['user_id'], $item['user_name']);

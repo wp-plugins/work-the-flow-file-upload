@@ -44,7 +44,7 @@ if (array_key_exists('remove_all_data_on_uninstall', $options ) && $options['rem
     $results = $wpdb->get_results(
             $wpdb->prepare("DELETE FROM $wpdb->options WHERE option_name LIKE '%s'", "%wtf-fu%"));
     
-    error_log("1. results=" . print_r($results, true));
+    //error_log("1. results=" . print_r($results, true));
 
     /*
      * Delete all user options from the usermeta table.
@@ -52,7 +52,7 @@ if (array_key_exists('remove_all_data_on_uninstall', $options ) && $options['rem
     $results = $wpdb->get_results(
             $wpdb->prepare("DELETE FROM $wpdb->usermeta WHERE meta_key LIKE '%s'", "%wtf-fu%"));
     
-    error_log("2. results=" . print_r($results, true));
+    //error_log("2. results=" . print_r($results, true));
 }
 
 

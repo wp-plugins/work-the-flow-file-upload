@@ -17,6 +17,10 @@
                 if (item.querySelector('#fileupload') !== null) {
                     wtf_file_upload_init();
                 }
+                if (item.querySelector('#accordion') !== null) {
+                    wtf_accordion_init();
+                }
+                
                 //console.log(item);
             }
         });
@@ -71,6 +75,16 @@
 
         event.preventDefault();
     });
+    
+    wtf_accordion_init();
+     
+function wtf_accordion_init() {
+    $("#accordion").accordion({ 
+    collapsible: true,
+    heightStyle: "content",
+    active: false
+}); 
+}
 
 // later, you can stop observing
 // observer.disconnect();

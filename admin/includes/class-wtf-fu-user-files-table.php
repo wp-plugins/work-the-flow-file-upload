@@ -53,7 +53,7 @@ class Wtf_Fu_User_Files_Table extends WP_List_Table {
                 );
         }
         
-        log_me(array('data=' => $data));
+        //log_me(array('data=' => $data));
         return $data;
     }
 
@@ -77,12 +77,12 @@ class Wtf_Fu_User_Files_Table extends WP_List_Table {
         $this->files_root = $files_root;
         $this->files_url = $files_url;
                 
-        log_me(array ( "Wtf_Fu_User_Files_Table __construct" => array(
-            'filearray' => $this->filearray, 
-            'subpath' => $this->subpath,
-            'user_id' => $this->user_id,
-            'files_root' => $this->files_root,
-            'files_url' => $this->files_url)));
+//        log_me(array ( "Wtf_Fu_User_Files_Table __construct" => array(
+//            'filearray' => $this->filearray, 
+//            'subpath' => $this->subpath,
+//            'user_id' => $this->user_id,
+//            'files_root' => $this->files_root,
+//            'files_url' => $this->files_url)));
     }
 
     /**
@@ -247,7 +247,7 @@ class Wtf_Fu_User_Files_Table extends WP_List_Table {
      */
     function process_bulk_action() {
         
-        log_me( array('user_flies_table : process_bulk_action $_REQUEST' => $_REQUEST));
+        //log_me( array('user_flies_table : process_bulk_action $_REQUEST' => $_REQUEST));
 
         if ( isset( $_REQUEST['file'] ) ) {
 

@@ -127,7 +127,7 @@ class Wtf_Fu_Option_Definitions {
      */
     private function __construct() {
         
-        log_me('__construct  Wtf_Fu_Option_Definitions ');      
+        // log_me('__construct  Wtf_Fu_Option_Definitions ');      
                
         /**
          * The field names / default values 
@@ -344,11 +344,14 @@ class Wtf_Fu_Option_Definitions {
                 '%%SITE_NAME%%' => 'The name of this web site.',
                 '%%WORKFLOW_NAME%%' => 'The name of the current workflow.',
                 '%%WORKFLOW_STAGE_TITLE%%' =>'The current workflow stage title.',
+                '%%WORKFLOW_STAGE_NUMBER%%' => 'The current stage number.',
                 '%%WORKFLOW_STAGE_HEADER%%' => 'The current workflow stage header content (Workflow Templates only)',
                 '%%WORKFLOW_BUTTON_BAR%%' => 'The button bar with PREV and NEXT buttons (Workflow Templates only)',
                 '%%WORKFLOW_STAGE_CONTENT%%' => 'The current workflow stage main content (Workflow Templates only)',
                 '%%WORKFLOW_STAGE_FOOTER%%' => 'The current workflow stage footer content (Workflow Templates only)',
                 '%%WTF_FU_POWERED_BY_LINK%%' => 'Includes a WFT-FU Powered by link to wtf-fu.com. (If allowed on the Plugin System Options page.)',
+                '%%ALL_WORKFLOW_USERS_EMAILS%%' => 'A list of users emails addresses that have commenced using the curent workflow.',
+                '%%ALL_SITE_USERS_EMAILS%%' => 'A list of all the sites registered users emails addresses.'
                 )                           
         );
         
@@ -357,11 +360,9 @@ class Wtf_Fu_Option_Definitions {
                 $this->all_pages_default_labels[wtf_fu_DEFAULTS_UPLOAD_KEY]['wtf_upload_dir'];
         $this->all_pages_default_labels[wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY]['wtf_upload_subdir'] = 
                 $this->all_pages_default_labels[wtf_fu_DEFAULTS_UPLOAD_KEY]['wtf_upload_subdir']; 
-                                
+        
+        // add in extra hooked label default values.
         $this->all_pages_default_labels = apply_filters('wtf_fu_all_pages_default_labels_filter', $this->all_pages_default_labels);
-
-        //log_me(array('all_pages_default_options' => $this->all_pages_default_options));
-        //log_me(array("default_field_labels" => $this->all_pages_default_labels));
 
         /**
          * The option page keys and settings for setting up submenus.
@@ -386,14 +387,8 @@ class Wtf_Fu_Option_Definitions {
                 'title' => 'Documentation',
             )            
         );
-
-        
+       
         $this->menu_page_values = apply_filters('wtf_fu_menu_page_values_filter', $this->menu_page_values);
-        //log_me($this->menu_page_values);
-        
-                log_me('END of __construct  Wtf_Fu_Option_Definitions ');      
-
-        
    }
 
     /**

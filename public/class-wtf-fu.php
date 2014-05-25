@@ -43,7 +43,7 @@ class Wtf_Fu {
      * references.
      * @var     string
      */
-    const VERSION = '2.0.1';
+    const VERSION = '2.1.0';
 
     /**
      * Unique plugin identifier.
@@ -62,8 +62,7 @@ class Wtf_Fu {
     protected static $instance = null;
 
     /**
-     * Initialize the plugin by setting localization and loading public scripts
-     * and styles.
+     * Initialize the plugin.
      */
     private function __construct() {
 
@@ -71,8 +70,8 @@ class Wtf_Fu {
         //log_me('memory=' . memory_get_usage(true) . "\n");
         //log_me('peak memory=' . memory_get_peak_usage(true) . "\n");
 
-
-
+        add_action('init', array($this, 'check_for_upgrade'));
+        
         // Load plugin text domain.
         add_action('init', array($this, 'load_plugin_textdomain'));
 
@@ -242,7 +241,7 @@ class Wtf_Fu {
     private static function single_activate() {
 
 
-        require_once( plugin_dir_path(__FILE__) . '../admin/includes/class-wtf-fu-options-admin.php' );
+       // require_once( plugin_dir_path(__FILE__) . '../admin/includes/class-wtf-fu-options-admin.php' );
         $installed_ver = get_option("wtf-fu_version");
 
         /*
@@ -261,14 +260,14 @@ class Wtf_Fu {
          */
         $default_plugin_options = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_PLUGIN_KEY);
         $plugin_options = get_option(wtf_fu_OPTIONS_DATA_PLUGIN_KEY);
-        Wtf_Fu_Options_Admin::update_options_from_default_options(wtf_fu_OPTIONS_DATA_PLUGIN_KEY, $plugin_options, $default_plugin_options);
+        Wtf_Fu_Options::update_options_from_default_options(wtf_fu_OPTIONS_DATA_PLUGIN_KEY, $plugin_options, $default_plugin_options);
 
         /*
          * upload default options.
          */
         $default_upload_options = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_UPLOAD_KEY);
         $upload_options = get_option(wtf_fu_OPTIONS_DATA_UPLOAD_KEY);
-        Wtf_Fu_Options_Admin::update_options_from_default_options(wtf_fu_OPTIONS_DATA_UPLOAD_KEY, $upload_options, $default_upload_options);
+        Wtf_Fu_Options::update_options_from_default_options(wtf_fu_OPTIONS_DATA_UPLOAD_KEY, $upload_options, $default_upload_options);
 
         if ($installed_ver != self::VERSION) {
 
@@ -287,9 +286,9 @@ class Wtf_Fu {
                      */
 
                     $default_workflow_options = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_WORKFLOW_KEY);
-                    foreach (Wtf_Fu_Options_Admin::get_all_workflows(false) as $k => $v) {
+                    foreach (Wtf_Fu_Options::get_all_workflows(false) as $k => $v) {
                         // updates workflow options to be in sync with the current installations default option keys.
-                        Wtf_Fu_Options_Admin::update_options_from_default_options($k, $v['options'], $default_workflow_options);
+                        Wtf_Fu_Options::update_options_from_default_options($k, $v['options'], $default_workflow_options);
                     }
 
                     /*
@@ -297,15 +296,15 @@ class Wtf_Fu {
                      */
 
                     $default_stage_options = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_STAGE_KEY);
-                    foreach (Wtf_Fu_Options_Admin::get_all_workflow_stages(false) as $k => $v) {
+                    foreach (Wtf_Fu_Options::get_all_workflow_stages(false) as $k => $v) {
                         // updates workflow stage options to be in sync with the current installations default option keys.
-                        Wtf_Fu_Options_Admin::update_options_from_default_options($k, $v['options'], $default_stage_options);
+                        Wtf_Fu_Options::update_options_from_default_options($k, $v['options'], $default_stage_options);
                     }
 
                     break;
             }
 
-            log_me("upgrading from $installed_ver to {self::VERSION}");
+            log_me("upgrading from $installed_ver to " . self::VERSION);
 
             update_option("wtf-fu_version", self::VERSION);
         }
@@ -331,6 +330,17 @@ class Wtf_Fu {
 
         load_textdomain($domain, trailingslashit(WP_LANG_DIR) . $domain . '/' . $domain . '-' . $locale . '.mo');
     }
+    
+    /**
+     * Check database version to see if upgrade is requred.
+     * called from inti hook as activate hook may not have been called during upgrade.
+     */
+    public function check_for_upgrade() {       
+        $installed_ver = get_option("wtf-fu_version");
+        if (version_compare($installed_ver, self::VERSION, '!=')) {
+            self::single_activate();
+        }
+    }   
 
     /**
      * Register and enqueue public-facing style sheet.

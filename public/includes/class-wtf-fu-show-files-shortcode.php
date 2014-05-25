@@ -88,13 +88,13 @@ class Wtf_Fu_Show_Files_Shortcode {
 
                 $info->filename = $filename;
                 $info->basename = basename($filename);
-                $info->fileurl = $this->paths['upload_url'] . '/' . $info->basename;
+                $info->fileurl = $this->paths['upload_url'] . '/' . rawurlencode($info->basename);
 
                 $info->thumb = $this->paths['upload_dir']
                         . '/thumbnail/' . $info->basename;
 
                 $info->thumburl = $this->paths['upload_url']
-                        . '/thumbnail/' . $info->basename;
+                        . '/thumbnail/' . rawurlencode($info->basename);
 
                 if (!file_exists($info->thumb)) {
                     $info->thumb = 'thumnail image not found';
@@ -157,11 +157,11 @@ class Wtf_Fu_Show_Files_Shortcode {
 
         switch ($fn) {
             case 'show_files' :
-                
+
                 $files = wtf_fu_get_value($_REQUEST, 'files');
-                
+
                 $files = wtf_fu_stripslashes_deep($files);
-                
+
                 if ($files !== false) {
                     $upload_dir = wtf_fu_get_value($_REQUEST, 'wtf_upload_dir');
                     $upload_subdir = wtf_fu_get_value($_REQUEST, 'wtf_upload_subdir');
@@ -219,13 +219,14 @@ class Wtf_Fu_Show_Files_Shortcode {
     }
 
     function generate_content() {
-        
+
         // for emails just want the files.
         if ($this->options['email_format'] == true) {
             // namespaced classes only work with php >= 5.3.0
             $html = $this->generate_files_div();
-            
-            if (version_compare(phpversion(), '5.3.0', '>')) {
+
+            if (version_compare(phpversion(), '5.3.0', '>=')) {
+
                 require_once(plugin_dir_path(__FILE__) . '../assets/tools/wtf_fu_php_53_only.php');
 
                 // inline the required css for email html display.
@@ -237,28 +238,30 @@ class Wtf_Fu_Show_Files_Shortcode {
                 log_me('WARNING : Could not inline CSS for email_format : '
                         . 'PHP version needs to be >= 5.3.0 but only php version ' .
                         phpversion() . ' was detected');
-            }          
+            }
             return $html;
         }
         
-        $html = '<div id="wtf_fu_show_files_output">' . $this->generate_inner_content() . '</div>';        
-        
-        if ($this->options['gallery'] == true) {
-            $script = <<<GALLERYJSTEMPLATE
-   <!-- The blueimp Gallery widget -->
-<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter="">
-    <div class="slides"></div>
-    <h3 class="title"></h3>
-    <a class="prev">‹</a>
-    <a class="next">›</a>
-    <a class="close">×</a>
-    <a class="play-pause"></a>
-    <ol class="indicator"></ol>
-</div>
-GALLERYJSTEMPLATE;
+        $html = '';
 
-            $html .= $script; // getGalleryWidgetTemplate();
+        $html .= '<div id="wtf_fu_show_files_output">' . $this->generate_inner_content() . '</div>';
+        
+                // Add in the gallery controls if required.
+        if ($this->options['gallery'] == true) {
+
+            $blueimp_gallery_conrols = 
+            '<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter="">
+                <div class="slides"></div>
+                <h3 class="title"></h3>
+                <a class="prev">‹</a>
+                <a class="next">›</a>
+                <a class="close">×</a>
+                <a class="play-pause"></a>
+                <ol class="indicator"></ol>
+            </div>';
+            $html .= $blueimp_gallery_conrols;
         }
+
         return $html;
     }
 
@@ -316,7 +319,7 @@ GALLERYJSTEMPLATE;
             $container_id = 'sort_container';
             $ul_id = 'reorder_sortable';
         }
-        
+
         $vertical_class = '';
         if ($this->options['vertical'] == true) {
             $vertical_class = 'vertical';
@@ -344,65 +347,60 @@ GALLERYJSTEMPLATE;
             $mime_type = $file_type_arr['type'];
         }
         $mime_parts = explode('/', $mime_type);
-        $image_type = $mime_parts[0];
+        $file_type = $mime_parts[0];
 
         $number_div = '';
         $gallery_att = '';
         $audio_controls = '';
         $file_title_class = '';
-        $vertical_span='';
+        $vertical_span = '';
 
-        
+
         if ($this->options['gallery'] == true) {
             $gallery_att = 'data-gallery';
         }
         if ($this->options['vertical'] == true) {
             $vertical_span = sprintf("<span>%s</span>", $file->basename);
-        }        
+        }
         if ($this->options['show_numbers'] == true) {
             $file_title_class = 'pad_top_20px';
-            $number_div = "<p class='reorder-number'>$number</p>";
-        } 
+            $number_div = "<span class='reorder-number'>$number</span>";
+        }
         if ($this->options['audio_controls'] == true) {
             $audio_controls = ' controls="controls"';
-        } 
-        
-        $download = false;       
+        }
+
+        $download = false;
         if ($this->options['download_links'] == true) {
             $download = true;
-        } 
-               
-        switch ($image_type) {
+        }
+
+        switch ($file_type) {
             case 'image' :
                 $file_link = sprintf(
-                    '<a %s href="%s" title="%s">%s<img src="%s" alt="%s" type="%s"></a>', 
-                    $gallery_att, $file->fileurl, $file->basename, $vertical_span, $file->thumburl, $file->basename, $mime_type);
+                        '<a %s href="%s" title="%s">%s<img src="%s" alt="%s" type="%s"></a>', $gallery_att, $file->fileurl, $file->basename, $vertical_span, $file->thumburl, $file->basename, $mime_type);
                 break;
-
-            case 'music' :
             case 'audio' :
-               if ($download) {  
+                if ($download) {
                     $file_link = sprintf(
-                        '<a class="%s" href="%s">%s</a><audio src="%s"%s></audio>', 
-                        $file_title_class, $file->fileurl, $file->basename, $file->fileurl, $audio_controls);                   
-                } else {               
+                            '<a class="%s" href="%s">%s</a><audio src="%s"%s></audio>', $file_title_class, $file->fileurl, $file->basename, $file->fileurl, $audio_controls);
+                } else {
                     $file_link = sprintf(
-                        '<p class="%s" title="%s">%s</p><audio src="%s"%s></audio>', 
-                        $file_title_class, $file->basename, $file->basename, $file->fileurl, $audio_controls);
-                }                
+                            '<span class="%s" title="%s">%s</span><audio src="%s"%s></audio>', $file_title_class, $file->basename, $file->basename, $file->fileurl, $audio_controls);
+                }
                 break;
 
             case 'text' :
             default: // default to text if type not found.
-                
-                if ($download) {  
+
+                if ($download) {
                     $file_link = sprintf('<a class="%s" href="%s">%s</a>', $file_title_class, $file->fileurl, $file->basename);
                 } else {
-                    $file_link = sprintf('<p class="%s" title="%s">%s</p>', $file_title_class, $file->basename, $file->basename);
-                }               
+                    $file_link = sprintf('<span class="%s" title="%s">%s</span>', $file_title_class, $file->basename, $file->basename);
+                }
                 break;
         }
-        
+
         $line = sprintf('<li class="list" title="%s">%s%s</li>', $file->basename, $number_div, $file_link);
         return $line;
     }

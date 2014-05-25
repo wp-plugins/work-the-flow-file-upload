@@ -25,7 +25,8 @@
 }
 
 .tbs .panel-title {
-    color: #F1EA45;    
+    color: #F1EA45; 
+    line-height: 1.5;    
 }
 
 .tbs .panel-heading {
@@ -35,7 +36,7 @@
     border-top-left-radius: 15px;
     border-top-right-radius: 15px; 
     padding: 30px 15px 15px 30px;   
-    line-height: 1.0;
+    line-height: 1.2;
 }
 
 .tbs .panel-body {

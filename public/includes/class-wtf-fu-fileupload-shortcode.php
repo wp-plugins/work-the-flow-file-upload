@@ -95,7 +95,9 @@ class Wtf_Fu_Fileupload_Shortcode {
          * will default to the wp_admin root !
          */
         if (!array_key_exists('wtf_upload_dir', $raw_options) || empty($raw_options['wtf_upload_dir'])) {
-            die("Option 'wtf_upload_dir' was not found in the request.");
+            // die("Option 'wtf_upload_dir' was not found in the request.");
+            // force to use public dir if not defined,
+            // $raw_options['wtf_upload_dir'] = 'public';
         }
 
          /*
@@ -103,6 +105,8 @@ class Wtf_Fu_Fileupload_Shortcode {
          */
         $paths = wtf_fu_get_user_upload_paths(
                 $raw_options['wtf_upload_dir'], $raw_options['wtf_upload_subdir'], 0, $raw_options['use_public_dir']);
+        
+
 
         $options = array();
         $options['script_url'] = admin_url('admin-ajax.php');
@@ -228,7 +232,7 @@ class Wtf_Fu_Fileupload_Shortcode {
         $defaults = Wtf_Fu_Options::get_upload_options();
 
         if ((wtf_fu_get_value($defaults, 'deny_public_uploads') == true) && !is_user_logged_in()) {
-            return("<div class=\"alert\">Access Denied! You be logged in to access file upload features. Please log on and try again.</div>");
+            return("<div class=\"alert\">Public upload access is denied. Please log in and try again.</div>");
         }
 
         // override with any short code attributes.

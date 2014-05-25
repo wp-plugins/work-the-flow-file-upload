@@ -102,17 +102,17 @@ class Wtf_Fu_Workflow_Shortcode {
                 die("No 'id' attribute was found. Check that the shortcode contains the 'id' attribute. Try [wtf-fu id=\"1\"]  or  [wtf-fu type=\"workflow\" id=\"1\"]");
             }
             // id fron the passed shortcode options 
-            $wfid = $options['id'];
+            $workflow_id = $options['id'];
         } else { // get the wfid from the post vars.
             if (!isset($_POST['workflow_id'])) {
                 log_me('workflow_id not found in POST vars.');
             }
-            $wfid = $_POST['workflow_id'];
+            $workflow_id = $_POST['workflow_id'];
         }
 
 
         // This workflows options.
-        $wf_options = Wtf_Fu_Options::get_workflow_options($wfid);
+        $wf_options = Wtf_Fu_Options::get_workflow_options($workflow_id);
 
 
         if (wtf_fu_get_value($wf_options, 'include_plugin_style_default_overrides') == true) {
@@ -135,7 +135,7 @@ class Wtf_Fu_Workflow_Shortcode {
         }
 
         // This user's workflow options including the current stage they are at in this workflow.
-        $user_wf_options = Wtf_Fu_Options::get_user_workflow_options($wfid, 0, true);
+        $user_wf_options = Wtf_Fu_Options::get_user_workflow_options($workflow_id, 0, true);
 
         if ($user_wf_options === false) {
             // User not logged on so we get the stage from the form submit action.
@@ -152,87 +152,44 @@ class Wtf_Fu_Workflow_Shortcode {
 
 
         // Stage specfic options and content settings
-        $stage_options = Wtf_Fu_Options::get_workflow_stage_options($wfid, $stage);
+        $stage_options = Wtf_Fu_Options::get_workflow_stage_options($workflow_id, $stage);
 
         $testing_mode = wtf_fu_get_value($wf_options, 'testing_mode');
 
-        $buttons = $this->getButtonBarHtml($wfid, $stage, $stage_options, $wf_options);
+        $buttons = $this->getButtonBarHtml($workflow_id, $stage, $stage_options, $wf_options);
 
         $template_id = wtf_fu_get_value($wf_options, 'page_template', true);
 
         $page_template = wtf_fu_DEFAULT_WORKFLOW_TEMPLATE;
         
-
+        // Override default template if filter available.
         if ($template_id != 0 && has_filter('wtf_fu_get_workflow_template_filter')) {
              $page_template = apply_filters('wtf_fu_get_workflow_template_filter', $template_id);
         }
-        
-            
+                   
         // First do the field level replacement in the template and in the content fields.
-        $fields = array(
-            'template' => $page_template,
-            'workflow_name' => wtf_fu_get_value($wf_options, 'name'),
-            'stage_title' => wtf_fu_get_value($stage_options, 'stage_title'), 
-            'stage_header' => wtf_fu_get_value($stage_options, 'header'),
-            'stage_content' => wtf_fu_get_value($stage_options, 'content_area'),
-            'footer' => wtf_fu_get_value($stage_options, 'footer')
-            );
+        $fields = array( 'template' => $page_template );
         
-        $fields = wtf_fu_replace_shortcut_values($fields);
         
-        // Then do the content replacement of the expanded fields into the template itself.
+        // Do this twice to expand any additional shortcuts included by the first expansion.
+        // eg. '%%WORKFLOW_STAGE_TITLE%%'  may expand to include '%%WORKFLOW_STAGE_NUMBER%%'       
+        $fields = wtf_fu_replace_shortcut_values($fields, $workflow_id, $stage);
+        $fields = wtf_fu_replace_shortcut_values($fields, $workflow_id, $stage); // intentional 2nd call.       
         
-        // Add in the buttons.
-        $replace = array (
-            '%%WORKFLOW_BUTTON_BAR%%' => $buttons,
-            '%%WORKFLOW_NAME%%' => $fields['workflow_name'],
-            '%%WORKFLOW_STAGE_TITLE%%' => $fields['stage_title'],
-            '%%WORKFLOW_STAGE_HEADER%%' => $fields['stage_header'],
-            '%%WORKFLOW_STAGE_CONTENT%%' => $fields['stage_content'],
-            '%%WORKFLOW_STAGE_FOOTER%%' => $fields['footer']
-                );
+        // Buttons need to be done here.
+        $replace = array ('%%WORKFLOW_BUTTON_BAR%%' => $buttons);
 
         $page = str_replace(array_keys($replace), array_values($replace), $fields['template']);
         
-        // Finally attempt any embedded shortcodes 
+        // Attempt any embedded shortcodes, this may or may not see other plugins shortcodes.
         $page = do_shortcode($page);
-
-        return $page;
-    }
-
-    /**
-     * Do any wtf-fu shortcodes manually here.
-     * This is because calling do_shortcode() directly on a [wtf-fu-upload] shortcode
-     * The shortcode handler cannot access wp_localise_scripts correctly and so impossible for it 
-     * to correctly set the needed js vars.
-     * 
-     * To work around this we need to process any wtf-fu codes here. 
-     * @param type $page
-     */
-    function do_shortcode_manually($page) {
-
-        $pattern = '/\[wtf_fu_upload([^\]]*)\]/';
-        $matches = array();
-
-        if (preg_match_all($pattern, $page, $matches, PREG_SET_ORDER) != 0) {
-            foreach ($matches as $match) {
-                $page = str_replace($match[0], $this->process_upload_shortcode($match[1]), $page);
-            }
+        
+        // Eval any php code inside of [wtf_eval] blocks.
+        if (has_filter('wtf_fu_eval_filter')) {
+            $page = apply_filters('wtf_fu_eval_filter', $page);
         }
 
         return $page;
-    }
-
-    /**
-     * manually process a wtf_fu_upload shortcode.
-     * @param type $code
-     */
-    function process_upload_shortcode($attr_str) {
-        log_me("process_upload_shortcode for attr_str = $attr_str");
-
-        $upload_instance = new Wtf_Fu_Fileupload_Shortcode(shortcode_parse_atts($attr_str));
-
-        return $upload_instance->generate_content();
     }
 
     /**

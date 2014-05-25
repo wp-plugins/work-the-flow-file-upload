@@ -135,25 +135,25 @@ class Wtf_Fu_Options {
 
     
     /**
-     * merge existing options with default ones and discards any not defined in the 
-     * current options defaults array.
+     * merge existing options with any new default ones. 
+     * To be safe does not delete any options.
+     * This will be achieved the next time they get saved from the appropriate edit screen.
      * 
      * @param type $options
      * @param type $default_options
      */
     public static function update_options_from_default_options($key, $options, $default_options) {
 
-        $updated_options = array();
-
+        $update_required = false;
         foreach ($default_options as $k => $v) {
-            if (array_key_exists($k, $options)) {
-                $updated_options[$k] = $options[$k];
-            } else {
-                $updated_options[$k] = $v;
-            }
+            if ( !array_key_exists($k, $options)) {
+                $options[$k] = $v;  // add in new option.
+                $update_required = true;
+            } 
         }
-
-        update_option($key, $updated_options);
+        if ($update_required === true) {
+            update_option($key, $options);
+        }
     }
     
     /**

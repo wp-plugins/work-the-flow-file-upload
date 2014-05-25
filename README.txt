@@ -4,7 +4,7 @@ Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
 Tested up to: 3.9.1
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -288,13 +288,14 @@ You can then just edit this to suit your needs.
 
 Go to http://wtf-fu.com where this product is maintained, and try out the live demo.
 
-= What do get with the PRO extension that is not in the free one ? =
+= What do I get with the PRO extension that is not in the free one ? =
 
-The PRO extension added additional features on top of the core features including :
+When installed, the PRO extension activates these additional features in the plugin :
  
 * Ability to edit and manage workflow and email templates to create your own layouts.
 * Ability to attach automated email templates to workflow stages to automatically send emails when a user passes through a workflow stage.
 * [wtf_eval] psuedo short code for embedding php code into workflow content.
+* Ability to save, export and import workflows and move them between sites.
 * 12 months priority support and automated product updates.
 
 = Can you build me a customized version of this plugin ? =
@@ -322,6 +323,10 @@ lynton@wtf-fu.com for a quote.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 2.1.1 =
+* Fix issue with the 2.1.0 upgrade which could cause the PRO license key field to need re-entering under some circumstances.
+If affected please enter your PRO license key again. Apologies to anyone affected.
+
 = 2.1.0 =
 * Removed extra spacing from `[wtf_fu_show_files]` when using email_format.
 * Fix for image files with non-ascii characters links broken in automated emails with embedded `[wtf_fu_show_files]` shortcode.
@@ -429,6 +434,10 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 2.1.1 =
+* Fix issue with the 2.1.0 upgrade which could cause the PRO license key field to need re-entering under some circumstances.
+If affected please enter your PRO license key again. Apologies to anyone affected.
+
 = 2.1.0 =
 * Removed extra spacing from `[wtf_fu_show_files]` when using email_format.
 * Fix for image files with non-ascii characters links broken in automated emails with embedded `[wtf_fu_show_files]` shortcode.

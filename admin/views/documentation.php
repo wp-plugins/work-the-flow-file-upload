@@ -60,7 +60,7 @@ require_once plugin_dir_path(__FILE__) . '../includes/wtf-fu-admin-utils.php';
             <p><?php echo wtf_fu_get_template_fields_table(); ?></p>   
             <p>Email Templates may also contain the <code><strong>[wtf_fu_show_files email_format='1']</strong></code> shortcode if desired to include a show_files display inside an email.<br/>
             The email_format option is used here to cause the html output to inline the css for use inside an email.</p>
-            <p>The default email template is below, this can be edited or cloned as desired for your own emails in the <code>Emails tab</code> where you can add your own html to the message as well as 
+            <p>The default email template is below, this can be edited or cloned as desired for your own emails in the <code>Templates tab</code> You can add your own html to the message as well as 
                 modify the TO: CC: BCC: and FROM: fields.</p>
             <p>After that you will be able to select the template to be emailed from a drop down list in the workflow stage options and the email will be automatically sent once the stage is completed by a user.</p>
             <p><blockquote><?php echo wtf_fu_DEFAULT_EMAIL_TEMPLATE?></blockquote></p>

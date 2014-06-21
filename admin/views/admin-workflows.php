@@ -15,15 +15,19 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/*
+ * Handle any bulk actions first then redirect to remove the actions from the url.
+ */
+
 require_once plugin_dir_path(__FILE__)
         . '../../admin/includes/class-wtf-fu-workflow-list-table.php';
 
 
-        if (class_exists('Wtf_fu_Pro')) {
-            $import_nonce = wp_nonce_field('wtf_fu_import_nonce', 'wtf_fu_import_nonce', true);
-            $import_submit_button = get_submit_button(__('Import'), 'secondary', 'submit', true);
-            
-            $import_section = "
+if (class_exists('Wtf_fu_Pro')) {
+    $import_nonce = wp_nonce_field('wtf_fu_import_nonce', 'wtf_fu_import_nonce', true);
+    $import_submit_button = get_submit_button(__('Import'), 'secondary', 'submit', true);
+
+    $import_section = "
                 <div class='postbox'><h3><span>Import Settings</span></h3>
         <div class='inside'>
             <p>Import a previously exported workflow from a .json file.</p>
@@ -37,15 +41,14 @@ require_once plugin_dir_path(__FILE__)
             </form>
         </div>
     </div>";
-        } else { 
-            $import_section = "
+} else {
+    $import_section = "
                 <div class='postbox'><h3><span>Import Settings</span></h3>
         <div class='inside'>
             <p>Import and Export of workflows requires the PRO extension to be installed and activated.</p>
         </div>
-    </div>";            
-            
-        }
+    </div>";
+}
 /*
  * Add new workflow link.
  */
@@ -70,27 +73,21 @@ $workflowListTable->prepare_items();
             <small><strong>notes: </strong>
                 <ol><li>Workflows are always created with an id equal to the first available number starting at 1. <br/> If a workflow is deleted then its number will be reused for the next added workflow. <br/>
                         Any embedded workflow shortcodes that were using this workflow id will then reference the new workflow.</li>
-                    <li>Importing of any exported json files is not yet implemented.<br/></li>
                 </ol>
             </small>    
     </div>
     <p>
         <button name='add_new_empty_workflow' id='wtf_fu_operation_button' value="1"><span>Add New Empty Workflow</span></button>
         <button name='add_new_demo_workflow' id='wtf_fu_operation_button' value="1"><span>Add New Cloned Demo Workflow</span></button>
-        <?php echo $import_section; ?>
-
-        
-        
-        
-        
-</p>
-<!-- Forms are NOT created automatically, so you need to wrap the table in one to use features like bulk actions -->
-<form id="workflows-filter" method="get">
-    <!-- For plugins, we also need to ensure that the form posts back to our current page -->
-    <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
-    <input type="hidden" name="tab" value="<?php echo $_REQUEST['tab'] ?>" />
-    <input type="hidden" name="wtf-fu-action" value="<?php echo wtf_fu_get_value($_REQUEST, 'wtf-fu-action'); ?>" />
-    <!-- Now we can render the completed list table -->
-    <?php $workflowListTable->display() ?>
-</form>
+        <?php echo $import_section; ?>    
+    </p>
+    <!-- Forms are NOT created automatically, so you need to wrap the table in one to use features like bulk actions -->
+    <form id="workflows-filter" method="get">
+        <!-- For plugins, we also need to ensure that the form posts back to our current page -->
+        <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+        <input type="hidden" name="tab" value="<?php echo $_REQUEST['tab'] ?>" />
+        <input type="hidden" name="wtf-fu-action" value="<?php echo wtf_fu_get_value($_REQUEST, 'wtf-fu-action'); ?>" />
+        <!-- Now we can render the completed list table -->
+        <?php $workflowListTable->display() ?>
+    </form>
 </div>

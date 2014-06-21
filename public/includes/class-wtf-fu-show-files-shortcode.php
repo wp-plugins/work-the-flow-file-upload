@@ -47,7 +47,7 @@ class Wtf_Fu_Show_Files_Shortcode {
      */
     public function set_options($attr) {
 
-        log_me(array("set_options passed in " => $attr));
+        //log_me(array("set_options passed in " => $attr));
 
         /*
          * retrieve the default upload options to act as defaults.
@@ -113,7 +113,7 @@ class Wtf_Fu_Show_Files_Shortcode {
      * under the user upload directory. 
      */
     public function __construct() {
-        log_me('__construct  Wtf_Fu_Filereorder_Shortcode ');
+        // log_me('__construct  Wtf_Fu_Filereorder_Shortcode ');
     }
 
     /**
@@ -125,11 +125,11 @@ class Wtf_Fu_Show_Files_Shortcode {
         // If the single instance hasn't been set, set it now.
         if (null == self::$instance) {
             self::$instance = new self;
-            log_me("new " . __CLASS__ . " instance created.");
+            //log_me("new " . __CLASS__ . " instance created.");
             return self::$instance;
         }
 
-        log_me("existing  " . __CLASS__ . " instance returned.");
+        //log_me("existing  " . __CLASS__ . " instance returned.");
         return self::$instance;
     }
 

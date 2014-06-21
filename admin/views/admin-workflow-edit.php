@@ -31,15 +31,9 @@ if (isset($_GET['stage_id'])) {
     $stage_id = $_GET['stage_id'];
 }
 
-if (isset($_REQUEST['delete_stage'])) {
-    Wtf_Fu_Options_Admin::delete_stage_and_reorder($wfid, $_REQUEST['delete_stage']);
-    // remove the delete tab and redirect back to page.
-    wp_redirect( remove_query_arg('delete_stage', $_SERVER['REQUEST_URI']));
-}
-
 if (isset($_GET['wftab'])) {
     $active_tab = $_GET['wftab'];
-    $stages = Wtf_Fu_Options::getWorkFlowStageIDs($wfid);
+    $stages = Wtf_Fu_Options::get_stage_ids_in_order($wfid);
 }
 
 

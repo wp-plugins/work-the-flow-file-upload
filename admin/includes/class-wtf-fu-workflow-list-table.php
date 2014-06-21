@@ -241,69 +241,6 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
         return $actions;
     }
 
-    /**
-     * process bulk action delete or clone.
-     * also doess single actions as well.
-     */
-    function process_bulk_action() {
-
-        $redirect = false;
-        // One of possibly many requests for a bulk action.
-        if (isset($_REQUEST['workflow'])) {
-
-            foreach ($_REQUEST['workflow'] as $wf_id) {
-
-                /* process bulk action ... */
-                switch ($this->current_action()) {
-                    case 'delete' :
-                        Wtf_Fu_Options_Admin::delete_workflow($wf_id);
-                        $redirect = true;
-                        break;
-                    case 'clone' :
-                        Wtf_Fu_Options_Admin::clone_workflow($wf_id);
-                        $redirect = true;
-                        break;
-               //     case 'export' :
-               //         Wtf_Fu_Options_Admin::export_workflow($wf_id);
-               //         $redirect = true;
-               //         break;
-                    default :
-                }
-            }
-        }
-
-        /* Check if any single action links have been clicked. */
-        if (isset($_REQUEST['wtf-fu-action']) && isset($_REQUEST['wf_id'])) {
-            switch ($_REQUEST['wtf-fu-action']) {
-                case 'delete' :
-                    Wtf_Fu_Options_Admin::delete_workflow($_REQUEST['wf_id']);
-                    $redirect = true;
-                    break;
-                case 'clone' :
-                    Wtf_Fu_Options_Admin::clone_workflow($_REQUEST['wf_id']);
-                    $redirect = true;
-                    break;
-             //   case 'export' :
-             //       Wtf_Fu_Options_Admin::export_workflow($_REQUEST['wf_id']);
-             //       $redirect = true;
-             //       break;
-                default :
-            }
-        }
-
-        log_me($_SERVER['REQUEST_URI']);
-
-        if ($redirect) {
-            // redirect back to the base page so we remoce the bulk actions from the url.
-            //$remove_args = array('wtf-fu-action');
-            //$redirect_uri = remove_query_arg($remove_args, $_SERVER['REQUEST_URI']);
-
-            $redirect_uri = sprintf("?page=%s&tab=%s", $_REQUEST['page'], $_REQUEST['tab']);
-            log_me(array('redirect url' => $redirect_uri));
-            wp_safe_redirect($redirect_uri);
-            exit;
-        }
-    }
 
     /**
      * REQUIRED! This is where you prepare your data for display. This method will
@@ -354,7 +291,7 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
          * Optional. You can handle your bulk actions however you see fit. In this
          * case, we'll handle them within our package just to keep things clean.
          */
-        $this->process_bulk_action();
+        //$this->process_bulk_action();
 
 
         /**

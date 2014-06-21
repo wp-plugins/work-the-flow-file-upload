@@ -140,13 +140,13 @@ class Wtf_Fu_Options_Admin {
      * If a stage is modified then any users at this modified stage are checked 
      * and updated to the new stage.
      *
-     * returns true if any reordering was required false otherwise.
+     * returns true if any reordering was done or false otherwise.
      * 
      * @param type $wfid the numeric workflow id.
      */
     public static function reorder_stages($wfid) {
 
-        $stages = Wtf_Fu_Options::get_workflow_stages($wfid, true);
+        $stages = Wtf_Fu_Options::get_stage_ids_in_order($wfid);
         $count = count($stages);
 
         if ($count < 1) {
@@ -156,10 +156,14 @@ class Wtf_Fu_Options_Admin {
         $ret = false;
         $i = -1;
 
-        foreach ($stages as $k => $v) {
+        //log_me(array('stages' => $stages));
+        foreach ($stages as $v) {
 
             $i++;
-            if ($v['key_id'] == $i) {
+            
+            // log_me("i=$i, v['key_id'] ={$v['key_id']}");
+            
+            if ($v == $i) {
                 continue;
             }
 
@@ -169,7 +173,8 @@ class Wtf_Fu_Options_Admin {
              * 
              * move this stage to stage $i
              */
-            $stage_options = get_option($k);
+            $stage_key = Wtf_Fu_Option_Definitions::get_workflow_stage_key($wfid, $v);
+            $stage_options = get_option($stage_key);
 
             $new_key = Wtf_Fu_Option_Definitions::get_workflow_stage_key($wfid, $i);
 
@@ -177,17 +182,16 @@ class Wtf_Fu_Options_Admin {
 
             add_option($new_key, $stage_options);
 
-            if (false === delete_option($k)) {
-                log_me("REORDER ERROR : could not delete old option key $k");
+            if (false === delete_option($stage_key)) {
+                log_me("ERROR reordering stages, could not remove the relocated stage with key $stage_key when moving from stage $v to $i");
             }
 
             /*
              * update any workflow users currently at this stage to the new stage 
              * value. 
              */
-            Wtf_Fu_Options_Admin::update_all_users_workflow_stage_settings($wfid, $v['key_id'], $i);
+            Wtf_Fu_Options_Admin::update_all_users_workflow_stage_settings($wfid, $v, $i);
             $ret = true; // modification has occurred.
-            break;
         }
 
         return $ret;
@@ -208,7 +212,7 @@ class Wtf_Fu_Options_Admin {
     $wfid, $current_stage, $new_stage) {
 
 
-        $wf_users = Wtf_Fu_Options_Admin::get_workflow_users($wfid);
+        $wf_users = Wtf_Fu_Options::get_workflow_users($wfid);
 
         // log_me(array( '$wf_users' => $wf_users));
 
@@ -491,7 +495,7 @@ class Wtf_Fu_Options_Admin {
                 die("adding demo stage failed");
             }
         }
-        return ("A new copy of the demo workflow with id = $wf_index has been added.");
+        return ($wf_index);
     }
 
     /**
@@ -566,7 +570,7 @@ class Wtf_Fu_Options_Admin {
      */
     public static function add_new_workflow_stage_options($wf_index, $stage) {
 
-        log_me(array("adding stage key-id = {$stage['key_id']} to workflow $wf_index" => $stage));
+        //log_me(array("adding stage key-id = {$stage['key_id']} to workflow $wf_index" => $stage));
 
         if (!array_key_exists('key_id', $stage)) {
             die("stage index to add is unavailable in passed stage options => 'key_id'");

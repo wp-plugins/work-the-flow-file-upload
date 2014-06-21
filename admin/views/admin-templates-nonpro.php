@@ -66,7 +66,7 @@ $pics_list .= '</ol>';
         <p>With the PRO package is installed you can attach email templates to Workflow stages from a dropdown listbox. <br/>
             This will then automatically generate and send an email whenever a user passes through the stage that the email is attached to.<br/>
             Similarly you can attach Workflow page templates to a Workflow on the Workflow option tab, in this way you can create different layouts for different workflows.</p>
-        <p>Templates also support embedding of <strong>shortcut fields</strong> and the <code>[wtf_fu_showfiles]</code> shortcode.</p>
+        <p>Templates also support embedding of <strong>shortcut fields</strong> and the <code>[wtf_fu_show_files]</code> shortcode. See the documentation tab for more details on available template shortcuts.</p>
         <p>You can see some screenshots of the PRO version of the relevant page tabs below.</p>       
     </div>
     <?php echo $pics_list; ?>

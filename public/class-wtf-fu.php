@@ -43,7 +43,7 @@ class Wtf_Fu {
      * references.
      * @var     string
      */
-    const VERSION = '2.1.1';
+    const VERSION = '2.2.0';
 
     /**
      * Unique plugin identifier.
@@ -432,7 +432,7 @@ class Wtf_Fu {
             $fileupload_handle = $this->plugin_slug . '-file-upload';
 
             if (!wp_script_is($fileupload_handle, 'enqueued')) {
-                log_me('class-wtf-fu registering and enqueuing ' . $fileupload_handle);
+                //log_me('class-wtf-fu registering and enqueuing ' . $fileupload_handle);
                 wp_register_script($fileupload_handle, plugin_dir_url(__FILE__) . 'assets/js/wtf-fu-file-upload.js', array('jquery', 'wp-ajax-response'), Wtf_Fu::VERSION, true);
                 wp_enqueue_script($fileupload_handle);
 
@@ -440,9 +440,9 @@ class Wtf_Fu {
                     'absoluteurl' => wtf_fu_JQUERY_FILE_UPLOAD_URL . 'cors/result.html?%s'
                 ));
 
-                log_me("uploadFilesHtml  wp_localize_script for $fileupload_handle = $ret");
+                //log_me("uploadFilesHtml  wp_localize_script for $fileupload_handle = $ret");
             } else {
-                log_me("$fileupload_handle is already enqueued");
+                //log_me("$fileupload_handle is already enqueued");
             }
             
             

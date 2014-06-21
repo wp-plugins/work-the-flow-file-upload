@@ -336,6 +336,7 @@ class Wtf_Fu_Option_Definitions {
                . 'Force listing of files from the uploads/public directory rather than the uploads/user_id directory.'
                 ),  
             wtf_fu_DEFAULTS_TEMPLATE_FIELDS_KEY => array(          
+                '%%USER_ID%%' => 'The current users user ID.',
                 '%%USER_NAME%%' => 'The current users display name.',
                 '%%USER_EMAIL%%' => 'The current users email address.',
                 '%%ADMIN_NAME%%' => 'The site administrators display name.',        
@@ -351,8 +352,10 @@ class Wtf_Fu_Option_Definitions {
                 '%%WORKFLOW_STAGE_FOOTER%%' => 'The current workflow stage footer content (Workflow Templates only)',
                 '%%WTF_FU_POWERED_BY_LINK%%' => 'Includes a WFT-FU Powered by link to wtf-fu.com. (If allowed on the Plugin System Options page.)',
                 '%%ALL_WORKFLOW_USERS_EMAILS%%' => 'A list of users emails addresses that have commenced using the curent workflow.',
-                '%%ALL_SITE_USERS_EMAILS%%' => 'A list of all the sites registered users emails addresses.'
-                )                           
+                '%%ALL_SITE_USERS_EMAILS%%' => 'A list of all the sites registered users emails addresses.',
+                '%%USER_GROUP_XXXX_EMAILS%%' => 'A list of all the users of group XXXX emails addresses. Substitute XXXX with the required user group.',
+                '%%ARCHIVE_USERS_FILES%%' => 'Causes all of a users files to be auto archived into a zip file and returns a download link to the zip file. WARNING this will cause delays while archiving completes, only use this if the delay time is acceptable. Intended to allow templated emails to automatically archive and email an admin users uploaded files. Files can be manually archived from the admin pages which may be a better solution to avoid delays to the user.'
+               )                           
         );
         
         // Keep in sync with the file upload defaults.

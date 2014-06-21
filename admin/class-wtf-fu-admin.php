@@ -87,22 +87,26 @@ class Wtf_Fu_Admin {
 
         switch ($_REQUEST['operation']) {
             case 'add_new_empty_workflow' :
-                $response_message = Wtf_Fu_Options_Admin::add_new_workflow();
+                $wf_index = Wtf_Fu_Options_Admin::add_new_workflow();
+                $response_message = "A new empty workflow with id = $wf_index has been added.";
                 //Wtf_Fu_Pro_Options_Admin::add_new_email_template();
                 break;
             case 'add_new_demo_workflow' :
-                $response_message = Wtf_Fu_Options_Admin::add_new_demo_workflow();
+                $wf_index = Wtf_Fu_Options_Admin::add_new_demo_workflow();
+                $response_message = "A new copy of the demo workflow with id = $wf_index has been added.";
                 break;
             case 'add_new_default_email_template' :
-                if (has_action('wtf_fu_add_new_default_email_template_action')) {
-                    do_action('wtf_fu_add_new_default_email_template_action');
+                if (has_filter('wtf_fu_add_new_default_email_template_filter')) {
+                    $index = apply_filters('wtf_fu_add_new_default_email_template_filter', null);
+                    $response_message = "A new email template with id = $index has been added.";                 
                 } else {
                     log_me(" operation action not found for : {$_REQUEST['operation']}");
                 }
                 break;
             case 'add_new_default_workflow_template' :
-                if (has_action('wtf_fu_add_new_default_workflow_template_action')) {
-                    do_action('wtf_fu_add_new_default_workflow_template_action');
+                if (has_filter('wtf_fu_add_new_default_workflow_template_filter')) {
+                    $index = apply_filters('wtf_fu_add_new_default_workflow_template_filter', null);
+                    $response_message = "A new workflow template with id = $index has been added.";
                 } else {
                     log_me(" operation action not found for : {$_REQUEST['operation']}");
                 }
@@ -464,15 +468,35 @@ class Wtf_Fu_Admin {
                 || ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_USERS_KEY )
                 // documentation page does not require options setup.               
                 || ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_DOCUMENATION_KEY )
-                // Workflows list page has not options to set up unless 
-                // the 'wftab' sub page is defined.
-                || ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_WORKFLOWS_KEY && !$init_args['wftab'] )
-                // Templates list page has not options to set up unless 
-                // the 'template-type' is defined.                        
-                || ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_TEMPLATES_KEY && !$init_args['template-type'] )
         ) {
             return; // no options init required, or not a page for us.
         }
+        
+        // if workflow list then check if we need to do any clones or deletes.
+        if ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_WORKFLOWS_KEY && !$init_args['wftab'] ) {
+            $this->do_bulk_workflow_actions();  // will re-direct and exit if any delete or clone actions are done.
+            // Workflows list page has no options to set up unless the 'wftab' sub page is defined.
+            // there is nothing more to do;
+            return;
+        }
+        
+        if (isset($_REQUEST['delete_stage']) && isset($_GET['wf_id'])) {
+            Wtf_Fu_Options_Admin::delete_stage_and_reorder($_GET['wf_id'], $_REQUEST['delete_stage']);
+            // remove the delete tab and redirect back to page.
+            wp_redirect( remove_query_arg('delete_stage', $_SERVER['REQUEST_URI']));
+            exit;
+        }
+                       
+        // Templates list page has not options to set up unless 
+        // the 'template-type' is defined.                        
+        if ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_TEMPLATES_KEY && $init_args['wtf-fu-action'] !== 'edit') {
+            if ( has_action('wtf_fu_process_templates_bulk_actions_action') ) {
+                do_action('wtf_fu_process_templates_bulk_actions_action');
+            }
+            return;
+        }        
+        
+        
 
         $returning_from_submit = false;
 
@@ -566,6 +590,71 @@ class Wtf_Fu_Admin {
         // pass on the massage request vars on for setting up the callbacks.        
         $this->wtf_fu_initialize_options($init_args);
     }
+    
+    /*
+     * check if any delete or clone actions are required in the request.
+     */
+    public function do_bulk_workflow_actions() {
+        // log_me('in bulk workflow');
+        $redirect = false;
+        // One of possibly many requests for a bulk action.
+        if (isset($_REQUEST['workflow'])) {
+
+            foreach ($_REQUEST['workflow'] as $wf_id) {
+
+                /* process bulk action ... */
+                switch ($this->current_bulk_action()) {
+                    case 'delete' :
+                        Wtf_Fu_Options_Admin::delete_workflow($wf_id);
+                        $redirect = true;
+                        break;
+                    case 'clone' :
+                        Wtf_Fu_Options_Admin::clone_workflow($wf_id);
+                        $redirect = true;
+                        break;
+                    default :
+                }
+            }
+        }
+
+        /* Check if any single action links have been clicked. */
+        if (isset($_REQUEST['wtf-fu-action']) && isset($_REQUEST['wf_id'])) {
+            switch ($_REQUEST['wtf-fu-action']) {
+                case 'delete' :
+                    Wtf_Fu_Options_Admin::delete_workflow($_REQUEST['wf_id']);
+                    $redirect = true;
+                    break;
+                case 'clone' :
+                    Wtf_Fu_Options_Admin::clone_workflow($_REQUEST['wf_id']);
+                    $redirect = true;
+                    break;
+                default :
+            }
+        }
+
+        //log_me($_SERVER['REQUEST_URI']);
+
+        if ($redirect) {
+            $redirect_uri = sprintf("?page=%s&tab=%s", $_REQUEST['page'], $_REQUEST['tab']);
+            //log_me( array('redirect url' => $redirect_uri) );
+            wp_safe_redirect($redirect_uri);
+            exit;
+        }   
+    }
+    
+    /**
+     * returns the bulk action request var.
+     * @return boolean
+     */
+    function current_bulk_action() {
+        if ( isset( $_REQUEST['action'] ) && -1 != $_REQUEST['action'] )
+            return $_REQUEST['action'];
+
+        if ( isset( $_REQUEST['action2'] ) && -1 != $_REQUEST['action2'] )
+            return $_REQUEST['action2'];
+
+        return false;
+    }
 
     /**
      * generic function to do all options intialization for a page.
@@ -586,7 +675,7 @@ class Wtf_Fu_Admin {
                 $init_args['option_defaults_array_key']);
 
         if (get_option($init_args['option_data_key']) == false) {
-            log_me("adding option for **{$init_args['option_data_key']}**");
+            //log_me("adding option for **{$init_args['option_data_key']}**");
             add_option($init_args['option_data_key'], apply_filters($init_args['option_data_key'], $option_defaults));
         }
 
@@ -631,14 +720,14 @@ class Wtf_Fu_Admin {
 
 
         $ret = add_options_page($page_title, $menu_title, $capability, $menu_slug, $callback);
-        log_me(array(
-            'add_options_page ret=' => $ret,
-            'page_title' => $page_title,
-            'menu_title' => $menu_title,
-            'capability' => $capability,
-            'menu_slug' => $menu_slug,
-                // 'callback' => $callback  
-        ));
+//        log_me(array(
+//            'add_options_page ret=' => $ret,
+//            'page_title' => $page_title,
+//            'menu_title' => $menu_title,
+//            'capability' => $capability,
+//            'menu_slug' => $menu_slug,
+//                // 'callback' => $callback  
+//        ));
         return $ret;
     }
 

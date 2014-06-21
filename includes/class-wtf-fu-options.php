@@ -301,7 +301,7 @@ class Wtf_Fu_Options {
      * returns an array of all exisiting workflow stage ids.
      * sorted in numerical order.
      */
-    static function getWorkFlowStageIDs($wf_index) {
+    static function get_stage_ids_in_order($wf_index) {
         $ids = array();
         $stage_keys = self::get_workflow_stages($wf_index);
 
@@ -310,7 +310,7 @@ class Wtf_Fu_Options {
         }
         asort($ids, SORT_NUMERIC);
 
-      //  log_me(array('getWorkFlowStageIDs' => $ids));
+        //log_me(array('getWorkFlowStageIDs' => $ids));
         return $ids;
     }  
     
@@ -424,6 +424,13 @@ class Wtf_Fu_Options {
         }
     }   
     
+    
+    static function get_all_group_user_emails($group = '') {     
+        $args = array('role' => $group);
+        $users = get_users($args);  
+        return Wtf_Fu_Options::get_users_email_list($users);
+    }
+    
     /**
      * return string of all emails for users in a workflow
      * @param type $workflow_id (if 0 then all site users emails returned
@@ -431,17 +438,27 @@ class Wtf_Fu_Options {
      */
     static function get_all_user_emails($workflow_id = 0) {
         
-        $users = Wtf_Fu_Options::get_workflow_users($workflow_id);
+        $wf_users = Wtf_Fu_Options::get_workflow_users($workflow_id);
+        $users = array();
+        
+        foreach ($wf_users as $wf_user) {
+            $users[] = $wf_user['user'];
+        }
+        
+        return Wtf_Fu_Options::get_users_email_list($users);      
+    }
+        
+    static function get_users_email_list($users) {
+       
+       // log_me($users);
         $emails = array();
-
-        //log_me($users);
         
         foreach ($users as $user) {
-            $emails[] = $user['user']->user_email;
+            $emails[] = $user->user_email;
         }
 
         $email_list = implode(',', $emails);
-        
+       // log_me($emails);
         return $email_list;
     }    
     

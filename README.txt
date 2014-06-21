@@ -4,7 +4,7 @@ Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
 Tested up to: 3.9.1
-Stable tag: 2.1.1
+Stable tag: 2.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -135,48 +135,47 @@ e.g.
 
 Use `[wtf_fu_show_files]` to display already upload files
 e.g.
-`[wtf_fu_show_files file_type="image" wtf_upload_dir="main_dir" wtf_upload_subdir="images" reorder="true" gallery="true"]`
+`[wtf_fu_show_files wtf_upload_dir="main_dir" wtf_upload_subdir="images" reorder="true" gallery="true"]`
 
-The attribute file_type may currently be set to 'image' or 'music', if set to image then a thumbnail will be displayed if available and if
-'music' then audio controls to allow playback will be displayed.
+Note : The wtf_fu_show_files short_code can use the attribute `"email_format" = "true"` to cause the styles to be converted to inline css, making the output suitable for including in emails.
 
-The `reorder=true` attribute here allows users to change the order of their uploaded image files by dragging and dropping thumbnail images. 
-When submitted the final order will then be written to in a text file along with the other files in the users upload directory.
+See the plugin's admin page `documentation tab` for the complete list of available shortcode attributes and their meanings.
 
-The `gallery` attribute will display the full sized images in a lightbox slideshow when an image file thumbnail is clicked.
+= What other shortcuts can I use inside the workflows ? =
 
-The wtf_fu_show_files short_code may also be called manually inside hooked functions (see the example file `examples/wtf-fu_hooks_example.php`) 
-so that files can be generated for display inside emails.
+Shortcut placeholder fields can be used in the form %%XXXX%% and can be placed inside the workflow fields to represent various values at runtime.
+e.g. 
+`%%USER_NAME%%	The current users display name.
+%%USER_EMAIL%%	The current users email address.
+%%ADMIN_NAME%%	The site administrators display name.
+%%ADMIN_EMAIL%%	The site administrators email address.
+%%SITE_URL%%	The url link for this web site.
+%%SITE_NAME%%	The name of this web site.
+%%WORKFLOW_NAME%%	The name of the current workflow.
+%%WORKFLOW_STAGE_TITLE%%	The current workflow stage title.
+%%WORKFLOW_STAGE_NUMBER%%	The current stage number.
+%%WORKFLOW_STAGE_HEADER%%	The current workflow stage header content (Workflow Templates only)
+%%WORKFLOW_BUTTON_BAR%%	The button bar with PREV and NEXT buttons (Workflow Templates only)
+%%WORKFLOW_STAGE_CONTENT%%	The current workflow stage main content (Workflow Templates only)
+%%WORKFLOW_STAGE_FOOTER%%	The current workflow stage footer content (Workflow Templates only)
+%%WTF_FU_POWERED_BY_LINK%%	Includes a WFT-FU Powered by link to wtf-fu.com. (If allowed on the Plugin System Options page.)
+%%ALL_WORKFLOW_USERS_EMAILS%%	A list of users emails addresses that have commenced using the curent workflow.
+%%ALL_SITE_USERS_EMAILS%%	A list of all the sites registered users emails addresses.
+%%USER_GROUP_XXXX_EMAILS%%	A list of all the users of group XXXX emails addresses. Substitute XXXX with the required user group.
+%%ARCHIVE_USERS_FILES%%	Causes all of a users files to be auto archived into a zip file and returns a download link to the zip file. 
+`
 
-In this case you can use the attribute `"email_format" = "true"` to cause the styles to be converted to inline css.
-
-e.g.
-`    $shortcode_instance = Wtf_Fu_Show_Files_Shortcode::get_instance(); 
-    $shortcode_instance->set_options(array(
-        'wtf_upload_dir' => "demofiles",
-        'file_type' => "image",
-        'email_format' => true
-    ));    
-    $files_content = $shortcode_instance->generate_content();`
-
-
-= What other short codes can I use inside the workflows ? =
-
-Other workflow details can be retrieved using the `type='get' value='value_name'` attribute these are useful for 
-embedding the workflow name or stage title inside your workflow stages content.
-
-e.g.
-Welcome `[wtf_fu type="get" value="display_name"], // display the current users name`,
-
-`[wtf_fu type="get" value="workflow" id="1" key="name"] // display the title name for workflow 1.`
+See the plugins admin page `documentation tab` for a complete up to date list of available shortcut codes and their meanings.
 
 = Do I need to create a workflow just to enable file upload features ? =
 
 No, the workflow and file upload capabilities are completely separate entities. 
-You can add file uploads to a page by embedding the `[wtf_fu_upload]` shortcode directly to a page. 
+You can add file uploads to a page or ppst just by embedding the `[wtf_fu_upload]` shortcode directly to a page or post. 
+
 There is no need to use a workflow at all if standalone file uploads are all you need.
 
-However it is often useful to embed this short code inside a workflow stage so that uploading is then part of a defined workflow.
+However it is often useful to embed this shortcode inside a workflow stage so that uploading is then part of a defined workflow.
+Both ways will work.
 
 = Will the css styles used by the plugin conflict with my themes css ? =
 
@@ -234,15 +233,17 @@ thumbnail_height="80"]`
 
 You may override as many or as few of these as you require.
 
+See the Documentation tab on the plugins settings page for an up to date listing of all shortcode attributes.
+
 = Can a user change the order of their uploaded files ? =
 
 File uploads are handled asynchronously via ajax, so the initial order in which they arrive cannot be determined.
 
-However you can use the `[wtf_fu_show_files reorder="true"]` short-code to give users a list of their uploaded image thumbnails that 
+However you can use the `[wtf_fu_show_files reorder="1"]` short-code to give users a list of their uploaded image thumbnails that 
 they can drag into their desired order. When the reorder is submitted file modified timestamps are adjusted to reflect the new order and a text file detailing the desired order
 is added to the users upload directory.
 
-e.g. `[wtf_fu_show_files file_type="image" wtf_upload_dir="mypackagename" wtf_upload_subdir="images" reorder="true"]`
+e.g. `[wtf_fu_show_files wtf_upload_dir="demofiles" wtf_upload_subdir="images" reorder="1"]`
 
 = Can I configure the plugin to use different upload directories per shortcode instance ? =
 
@@ -323,6 +324,17 @@ lynton@wtf-fu.com for a quote.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 2.2.0 = 
+* Added extra shortcut field %%USER_ID%%.
+* Added extra shortcut field %%USER_GROUP_XXXX_EMAILS%%.
+A list of all the users of group XXXX emails addresses. Substitute XXXX with the required user group.
+* Added extra shortcut field %%ARCHIVE_USERS_FILES%% 
+Triggers auto archiving of users upload directory and returns a download link for the file. Useful in automated email templates.
+* Added ability to attach multiple email templates to workflow stages (PRO Feature).
+* Fixed PHP Warnings with page redirects after deleting or cloning.
+* Fixed improper reordering of stages when there are 10 or more stages in a workflow and a stage is deleted.
+* Documentation updates.
+
 = 2.1.1 =
 * Fix issue with the 2.1.0 upgrade which could cause the PRO license key field to need re-entering under some circumstances.
 If affected please enter your PRO license key again. Apologies to anyone affected.
@@ -404,6 +416,7 @@ display inside emails generated in hook functions.
 * Updates to the examples\wtf-fu_hooks_example.php file to display image thumbnails in
 generated emails.
 * Additional actions and filters added to process email templates (PRO only feature).
+* Documentation updates.
 
 = 1.2.1 = 
 * Minor update of upgrade information, missing from 1.2.0.
@@ -434,6 +447,12 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 2.2.0 = 
+* Extra shortcut fields %%USER_ID%%, %%USER_GROUP_XXXX_EMAILS%%, %%ARCHIVE_USERS_FILES%%.
+* Multiple automated emails templates can now be attached to workflow stages (PRO Feature).
+* Bug fixes. See changelog for full details.
+* README file updates.
+
 = 2.1.1 =
 * Fix issue with the 2.1.0 upgrade which could cause the PRO license key field to need re-entering under some circumstances.
 If affected please enter your PRO license key again. Apologies to anyone affected.

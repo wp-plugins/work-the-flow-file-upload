@@ -460,11 +460,34 @@ function wtf_fu_list_box($id, $option_name, $val, $label, $values) {
     return $html;
 }
 
+function wtf_fu_multiple_list_box($id, $option_name, $val, $label, $values) {
+    
+    $option_name .= '[]'; // append array so options.php will know to store as multiple values.
+    $size = count($values);
+    $html = "<select id=\"$id\" name=\"$option_name\" multiple size=\"$size\">";
+    
+    // if value is not set or legacy string then force to an array.
+    if (!is_array($val)) {
+        $val = array($val);
+    }
+    foreach ($values as $v) {
+        $html .= "<option ";
+        if (in_array($v['value'], $val)) {
+            $html .= "selected=\"selected\" ";
+        }
+        $html .= "value=\"{$v['value']}\">{$v['name']}</option>";
+    }
+    $html .= '</select>&nbsp;';
+    $html .= '<label for="' . $id . '">' . $label . '</label>';
+
+    return $html;
+}
+
 /**
  * Returns a table of all the available template fields.
  */
 function wtf_fu_get_template_fields_table($ignore = false) {
-    $table = "<table><tr><th>TEMPLATE SHORTCUT</th><th>ACTION</th></tr>";
+    $table = "<table class='table'><tr><th>TEMPLATE SHORTCUT</th><th>ACTION</th></tr>";
 
     $arr = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_labels(wtf_fu_DEFAULTS_TEMPLATE_FIELDS_KEY);
 
@@ -599,6 +622,9 @@ function wtf_fu_replace_shortcut_values($fields, $workflow_id = null, $stage_id 
     $shortcuts_required = array();
 
     foreach ($shortcuts as $shortcut) {
+        if ($shortcut === '%%USER_GROUP_XXXX_EMAILS%%') {
+            continue; //handled separately
+        }
         foreach ($field_values as $value) {
             if (strstr($value, $shortcut)) {
                 $shortcuts_required[] = $shortcut;
@@ -606,6 +632,7 @@ function wtf_fu_replace_shortcut_values($fields, $workflow_id = null, $stage_id 
             }
         }
     }
+    
     
     //log_me(array('shortcuts required' => $shortcuts_required ));
 
@@ -617,6 +644,11 @@ function wtf_fu_replace_shortcut_values($fields, $workflow_id = null, $stage_id 
                 $wp_user = wp_get_current_user();
                 $replace[$shortcut] = $wp_user->display_name;
                 break;
+            
+            case '%%USER_ID%%' :
+                $wp_user = wp_get_current_user();
+                $replace[$shortcut] = $wp_user->ID;
+                break;     
 
             case '%%USER_EMAIL%%' :
                 $wp_user = wp_get_current_user();
@@ -681,11 +713,32 @@ function wtf_fu_replace_shortcut_values($fields, $workflow_id = null, $stage_id 
                 $stage_options = Wtf_Fu_Options::get_workflow_stage_options($workflow_id, $stage_id);
                 $replace[$shortcut] = wtf_fu_get_value($stage_options, 'footer');
                 break;
-
+            
+            case '%%ARCHIVE_USERS_FILES%%' :
+                $wp_user = wp_get_current_user();
+                $zipname = 'auto_' . wtf_fu_create_archive_name($wp_user->ID, '', '.zip', false);
+                $replace[$shortcut] = wtf_fu_do_archive_user_files($wp_user->ID, $zipname); 
+                break;
+            
             default :
                 //log_me("Shortcut replacement key not found for $shortcut");
         }
     }
+    
+    
+    // Handle USER_GROUP_XXXX_EMAILS
+    $pattern = '/%%USER_GROUP_([^%]*)_EMAILS%%/';
+    foreach ($field_values as $value) {
+        $matches = array();
+        $num = preg_match_all($pattern, $value, $matches);
+        if ( $num >= 1 ) {
+            //log_me($matches);
+            for ( $i=0; $i < $num; $i++) {
+                $replace[$matches[0][$i]] 
+                    = Wtf_Fu_Options::get_all_group_user_emails($matches[1][$i]);
+            }
+        }
+    }   
 
     $fields = str_replace(array_keys($replace), array_values($replace), $fields);
 

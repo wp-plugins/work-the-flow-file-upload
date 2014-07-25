@@ -1,4 +1,12 @@
-/*
- * Intentionally empty. /used as a placeholder for dynamic
- * ajax vars to be injected into pages at run time.
- */
+(function($) {
+    'use strict';
+    wtf_accordion_init();
+})(jQuery);
+
+function wtf_accordion_init() {
+    $("#accordion,#subaccordion1,#subaccordion2,#subaccordion3").accordion({
+        collapsible: true,
+        heightStyle: "content",
+        active: false
+    });
+}

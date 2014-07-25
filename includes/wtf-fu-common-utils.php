@@ -460,6 +460,37 @@ function wtf_fu_list_box($id, $option_name, $val, $label, $values) {
     return $html;
 }
 
+/**
+ *
+ * 
+ * @param type $dir
+ * @param type $type
+ * @return type
+ */
+
+/**
+ * Returns an drop dwon html select box of all workflow example json files.
+ * If suffix is supplied match file suffixes will be stripped from the list labels.
+ * 
+ * @param type $option_name
+ * @param type $pattern
+ * @param type $suffix
+ * @param type $label
+ * @return type
+ */
+function wtf_fu_get_files_list_box($option_name, $pattern, $suffix = '', $label) {
+   
+   $files = glob($pattern);
+   $values = array( array('name' => 'New Empty Workflow', 'value' => ''));
+   
+   foreach ($files as $f) {
+       $values[] = array('name' => basename($f, $suffix), 'value' => $f);
+   }
+   
+   $dropbox = wtf_fu_list_box($option_name, $option_name, '' , $label, $values); 
+   return $dropbox; 
+}
+
 function wtf_fu_multiple_list_box($id, $option_name, $val, $label, $values) {
     
     $option_name .= '[]'; // append array so options.php will know to store as multiple values.
@@ -486,10 +517,11 @@ function wtf_fu_multiple_list_box($id, $option_name, $val, $label, $values) {
 /**
  * Returns a table of all the available template fields.
  */
-function wtf_fu_get_template_fields_table($ignore = false) {
-    $table = "<table class='table'><tr><th>TEMPLATE SHORTCUT</th><th>ACTION</th></tr>";
+function wtf_fu_get_shortcuts_table($ignore = false) {
+    $table = "<table class='table'  border=1 style='text-align:left;'><tr><th colspan=2 style='text-align:center;';'>Available Shortcut Placeholder codes</th></tr>"
+            . "<tr><th>Shortcut</th><th>Expands to</th></tr>";
 
-    $arr = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_labels(wtf_fu_DEFAULTS_TEMPLATE_FIELDS_KEY);
+    $arr = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_labels(wtf_fu_DEFAULTS_SHORTCUTS_KEY);
 
     foreach ($arr as $k => $v) {
         $table .= "<tr><td>$k</td><td>$v</td></tr>";
@@ -517,7 +549,7 @@ function wtf_fu_get_shortcode_with_default_attributes($code, $factory = true) {
             $data_key = wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY;
             break;
         case 'wtf_fu' :
-            $attr = array('id' => '<workflow id>');
+            $attr = array('id' => "x");
             break;
         default :
     }
@@ -537,8 +569,379 @@ function wtf_fu_get_shortcode_with_default_attributes($code, $factory = true) {
     return wtf_fu_get_example_short_code_attrs($code, $attr);
 }
 
+
+function wtf_fu_get_general_info($type) {
+    
+    switch ($type) {
+        
+        case 'Quick Start Guide' :
+            return "<p><ol><li>Go to the Work The Flow / File Upload Administration page and select the Workflows tab.</li>
+                <li>Select <strong>Simple File Upload</strong> from the drop down list box and click <strong>Add</strong></li>
+                <li>You should see a new copy of this sample workflow in the list, take note of the ID number.</li>
+                <li>Create a new Wordpress page or post and type in <strong>[wtf_fu id=1]</strong> (replace 1 with the workflow ID)</li>
+                <li>Browse to the page or post and try out the sample workflow. Upload some files to get a feel for how it works.</li>
+                <li>Go back to the <strong>Workflows</strong> tab and click the <strong>Simple File Upload</strong> link in the name column to go to the edit screen</li>
+                <li>If you have the PRO version, follow the instructions for adding an email template in the workflow notes.</li>
+                <li>Play around with editing the content, editing the copy will not affect the template so go wild !</li>
+                <li>Click on the stage tabs to edit a particular stage, make sure you save any changes before leaving the stage.</li>
+                <li>Take note of the embedded <strong>[wtf_fu_upload]</strong> and <strong>[wtf_fu_show_files]</strong> shortcodes, try changing or adding extra attributes ( see the shortcodes section in the <strong>Documentation Tab</strong></li>
+                <li>After uploading some files go to the <strong>Manage Users</strong> tab. Here you can alter a users current stage in a workflow</li>
+                <li>Click on your user name to see the files you uploaded. You will see a list of the files and can archive, download or delete them.</li>
+                <li>Context sensitive help is available on all admin pages by clicking the <strong>Help</strong> box in the top right corner of the screens.</li>
+                <li>Full documentation is available in the <strong>Documentation</strong> tab</li>
+                <li>If you cant find what you are after then please ask a question on the <a href=\"http://wordpress.org/support/plugin/work-the-flow-file-upload\" target=\"_blank\">WordPress support forum</a>
+                and I'll try my hardest to help.</li></ol></p>";
+        
+        case 'File Uploads' :
+            return "<p>File Upload is the main core functionality of this plugin. "
+            . "This plugin wraps the open source javascript library <a href=\"https://github.com/blueimp/jQuery-File-Upload\">jQuery-File-Upload</a> from blueimp."
+                . "and provides an interface to store and pass parameters to the javascript code.</p>"
+                . "<p>To create a file upload you use the shortcode <code>[wtf_fu_upload]</code>"
+                . "This may either be embedded in a page or post directly, or inside of a workflow to combine fileuploads with a workflow process.</p>"
+                . "<p>Uploads are uploaded to the users upload directory to a subdirectory locatiion that can be specified as an attribute to the <code>[wtf_fu_upload]</code> shortcode.</p>";
+            
+        case 'Workflows' :
+            return "<p>A Workflow allows users to pass through a sequence of stages.</p>"
+            . "<p>Workflow stages can be added and edited in the admin Workflows tab. </p>"
+                . "<p>Once defined a workflow can then be added to any page or post by embedding the shortcode <code>[wtf_fu id='x']</code> "
+                . "where x is the numeric workflow ID of the workflow.</p>"
+                . "<p>When a registered user enters a page with an embedded workflow, the plugin tracks the users progress "
+                . "through the workflow and will return them to the same stage where they left off last time.</p>"
+                . "<p>Movement through the workflow can be configured to allow or deny forward or backward "
+                . "movement through the workflow stages.</p>"
+                . "<p>For example, once a user has submitted some files he may be restricted from returning to previous stages.</p>"
+                . "<p>User stages may also be set from the admin inteface for each user so that an administrator can manually reset a users stage.</p>"
+                . "<p>For example, after a user summits some files they are restricted from moving forward until some inhouse processing has been done, "
+                . "after which an administrator manually sets the users stage to the next stage in process so that the user can continue.</p>"
+                . "";            
+        
+        case 'showfiles' :
+            return "<p>Users uploaded files can be displayed with the <code>[wtf_fu_show_files]</code></p>."
+            . "Specifying attributes with the shortcode allows you a variety of presentation effects including an "
+                . "option to allow users to re-order the files via a drag and drop display.</p>";
+            
+            
+        case 'Shortcodes' :
+            //<ol style='list-style-type: lower-roman'>
+            $str = "<p>Below are the plugins shortcodes that can be used by embedded them into pages and posts and workflow content."
+                . "Default attribute values are set in the admin pages and may be overriden by supplying attribute values when you embed the shortcode.</p>"
+                . "<ol style='list-style-type: lower-roman'><div id='subaccordion1'>";
+                            
+            foreach (array('wtf_fu', 'wtf_fu_upload', 'wtf_fu_show_files') as $shortcode) {
+                $str .= "<li><h5><a href='#'>[{$shortcode}]</a></h5><div>" . wtf_fu_get_general_info($shortcode) . "</div></li>"; // warning recursive.
+            }
+            $str .= "</div></ol>";          
+            return $str;
+            break;
+            
+        case 'wtf_fu':
+            return "<p>Use this shortcode to embed a workflow in a page or a post.</p>
+                <p>The following rules apply :<br/>
+                <ol><li>The shortcode cannot be nested inside other workflow stages, you can only use it inside normal pages or posts.</li>
+                <li>The attribute <code>'id'</code> is required which specifies which workflow to embed in your page or post.</li>
+                <li>You can only embedd one workflow per page</li></ol></p>
+                
+                <p>To use a workflow just include <code> "
+                . wtf_fu_get_shortcode_with_default_attributes('wtf_fu')
+                . "</code> in your page or post, where <strong>\"x\"</strong> represents the numeric workflow id.</p>
+                    <p><small>NOTE: Prior to version 1.3.0 other attributes were available to return miscellaneous workflow information, such as the current username or workflow name.
+                    These are now deprecated in favour of the newer shortcut <code>%%XXXX%%</code> fields that can be more directly used inside your workflow stage content. 
+                    If your code uses any other attributes than 'id=x' then please see the shortcuts documentation and use a suitable shortcut placeholder instead.</small></p>";
+  
+       case 'wtf_fu_upload':
+            return "<p>Use this shortcode to embed a file upload interface. It may be embedded either in a page or post, or inside a workflow stage.<br/>
+                        Default attributes can be set on the Admin File Upload tab which will be used unless overridden by including attributes when you use the shortcode.</p>
+                    <p>A shortcode example with the full list of factory set default attributes is below :</p>
+                    <p><code>"
+                   . wtf_fu_get_shortcode_with_default_attributes('wtf_fu_upload')
+                   . "</code></p>
+                    <p>Taking into account the current global settings on your File Upload options page
+                        , the short code representing the current default behaviour would be :</p> 
+                    <code>"
+                    . wtf_fu_get_shortcode_with_default_attributes('wtf_fu_upload', false)
+                    . "</code><br/> So this is currently how a shortcode with no attributes specified will behave by default. i.e. if a bare <code>[wtf_fu_upload]</code> is embedded in a page.</p>  
+                    <p>The attributes are detailed with their factory default values in the table below.</p>"
+                    . get_shortcode_info_table('wtf_fu_upload');
+           
+        case 'wtf_fu_show_files' :
+            return "<p>The <strong>[wtf_fu_show_files]</strong> shortcode is used to present a users uploaded files on a page.<br/>
+                The following rules apply :<br/>
+                <ol><li>The shortcode can be used in pages, posts, workflow content and email templates.</li>
+                <li>There is currently no admin interface to set the default attributes. To override the defaults you need to specify the attribute you want to override when you embedd the code.</li>
+                </ol>
+                <p> The default attributes for the shortcut that will be applied if not overriden (ie if you just use <strong>[wtf_fu_show_files]</strong> with no attributes) is equivilent to </p>
+                    <code>" 
+                . wtf_fu_get_shortcode_with_default_attributes('wtf_fu_show_files') 
+                . "</code>                 
+                    <p>The available attributes and there default values are listed below </p>"
+                . get_shortcode_info_table('wtf_fu_show_files');  
+            
+        case 'Shortcuts' :
+            return "<p>Shortcuts are place holders for information that can be expanded at runtime and make it easy to insert workflow details, workflow stage information, email lists, user names and other information.<p>
+                <p>The following rules apply :<br/>
+                <ol><li>Shortcuts can be used in the workflow stage content fields including title name header content and footer</li>
+                <li>Shortcuts can be used in workflow layout templates to position the buttons header footer and other content.</li>
+                <li>Shortcuts can be used in email template including the TO FROM CC BCC and content fields.</li>
+                <li>You cannot use a shortcut where it represents the field you are trying to place it into.<br/>
+                For example it would make no sense to put <strong>%%WORKFLOW_STAGE_TITLE%%</strong> inside a workflow <strong>stage_title</strong> field. 
+                You can however use <strong>%%WORKFLOW_STAGE_NUMBER%%</strong> in the <strong>stage_title</strong> field to automatically number your stages.</li> 
+                </ol></p>
+                <p>Below is the full table of available shortcuts :</p>" . wtf_fu_get_shortcuts_table();
+            
+        case 'Templates' :
+            $str = "<p>Templates are a PRO feature that allow you to define different layouts for workflows and emails.</p>
+                <p> There are two types of templates :</p>"
+                . "<ol style='list-style-type: lower-roman'><div id='subaccordion1'>";
+                
+                            
+            foreach (array('Workflow Layout Templates', 'Email Layout Templates') as $name) {
+               $str .= "<li><h5><a href='#'>{$name}</a></h5><div>" . wtf_fu_get_general_info($name) . "</div></li>"; // warning recursive.
+            }
+            $str .= "</div></ol>";  
+            
+            $str .= "<p>With the PRO extension installed and enabled the templates for workflow page layouts and for automated emails can be created, 
+                edited and cloned from the <code>Templates</code> tab. </p>
+            <p>An additional workflow option field <code>page_template</code> can be used for setting the workflow layout template.<br/>
+            An additional workflow stage field <code>send_email</code> can be used to attach one or more email templates to any workflow stage.</p>
+            <p>Templates can also include field shortcuts to allow embedding of workflow and user details.</p>";
+            
+            return $str;
+            
+        case 'Workflow Layout Templates' :
+            return "<p>Workflow templates are used to layout the workflow presentation.</p>
+            <p>You can customise layout templates for different workflows with your own images and html from the editing interface.</p>
+            <p>Shortcuts are used to include the workflow header, title, footer, buttons. These should all normally be retained in your template but you can move them around 
+            as desired and insert your own custom html. You may remove any workflow content shortcodes that you wish to exclude from the layout.</p>
+            <p>You can use your own framework css classes to wrap the workflow content if you wish.</p>
+            <p>The default workflow layout template is shown below :</p>"
+            . "<p><blockquote><pre>"
+            . htmlentities(wtf_fu_DEFAULT_WORKFLOW_TEMPLATE)
+            . "</pre></blockquote></p>"
+            ;
+            
+        case 'Email Layout Templates': 
+            
+            return "<p>PRO users can use Email Templates to define layouts for Emails to be sent when a certain workflow stage is passed through by a user.</p>
+                <p>These templates can then be attached to any workflow stage <code>send_email</code> field (PRO only)</p>
+                <p>You can add your own layout and image html to the templates.</p>
+                <p>You can use Shortcuts in the <code>to: from: cc: bcc: and message </code>fields, to automatically fill in user email addresses and other workflow details at run time.</p>
+                <p>You can use the <code><strong>[wtf_fu_show_files email_format='1']</strong></code> shortcode to include a show_files display inside an email template.</p>           
+                <p>The default email template is shown below :</p>"
+             . "<p><blockquote><pre>"
+             . htmlentities(wtf_fu_DEFAULT_EMAIL_TEMPLATE)
+             . "</pre></blockquote></p>"
+            ;
+                 
+            
+        case 'pro_details' :
+            return "<p>With the work-the-flow-file-upload PRO extension installed additional admin page features are made available including :</p>
+                <ul style='list-style-type: square'>
+                <li>Email layout templates.</li>
+                <li>Workflow layout templates.</li>
+                <li>PHP code evaluation inside workflow content by wrapping PHP code inside <code>[wtf_eval] .. [/wtf_eval]</code> blocks.</li>
+                <li>The PRO package can be purchased and downloaded from <a href='http://wtf-fu.com' target = '_blank'>wtf-fu.com</a>.</li>
+                </ul>";
+        default :
+             return "$type not implemented yet.";
+    }    
+    
+}
+
+function wtf_fu_get_admininterface_info($type = 'all') {
+    
+    switch ($type) {
+        
+        case 'all' :
+            $str = "<p>The Admin interface consists of the following TABS.</p><ul><div id='subaccordion1'>";
+            $tabs = Wtf_Fu_Option_Definitions::get_instance()->get_menu_page_values();                
+            
+            foreach ($tabs as $tab) {
+                $str .= "<li><h5><a href='#'>{$tab['title']}</a></h5><div>" . wtf_fu_get_admininterface_info($tab['title']) . "</div></li>"; // warning, this is recursive, dont send in 'intro'.
+            }
+            $str .= "</div></ul>";          
+            return $str;
+            
+
+        case 'System Options' : 
+            return "<p>Plugin Options page. These are system wide plugin settings. They define plugin behaviours for uninstalling, stylesheet useage, and licensing.</p>
+                <ul><li>remove_all_data_on_uninstall<br/>
+                If this is set to <strong>Yes</strong> then when the plugin is uninstalled from Wordpress all workflows, custom configuration settings and user workflow tracking data will be deleted from the database.<br/>
+                If you want to delete all of your data when removing the plugin, then set this to <strong>Yes</strong> before uninstalling. <br>
+                If you just want to uninstall and reinstall the plugin for some reason without losing your existing workflows and settings then make sure that this is set to <strong>No</strong>.</li>
+                <li>include_plugin_style<br/>
+                The plugin includes its own css style sheet for presenting the workflow pages, if this is conflicting with your other website styles you can turn off loading this stylesheet so that the workflow pages will inherit your websites styles.<br/>
+                A simpler solution for minor modifications would be to override the offending css in your template style.css file.</li>
+                <li>show_powered_by_link<br/>
+                Turning this on causes the %%WTF_FU_POWERED_BY_LINK%% shortcut that is included in the default workflow template to be active and helps to support this plugin by displaying a link to wtf-fu.com on your pages.</li>
+                <li>license_key<br/>
+                This field is visible for PRO users so they can add their license key. Adding the license key activates automated updates for the PRO extension. When purchasing the PRO version a license key is emailed to you or can be retrieved by logging in to the wtf-fu.com members page.</li>
+                </ul>";
+            break;
+            
+        case 'File Upload' :
+            return "<p>These settings allow you to set the default values for all the <code>[<strong>wtf_fu_upload</strong>]</code> shortcode attributes.</p>"
+            . "This enables you to change the default values for attributes that are NOT supplied with the embedded shortcode in your pages, posts, or inside of your workflows.</p>"
+                . "<p>The shortcode default values are displayed at the top of the File Upload settings page, this indicates how the <code>[<strong>wtf_fu_upload</strong>]</code> shortcode "
+                . "without any attributes will behave with the current default settings.</p>"
+                . "<p>This can be useful if you use a large number of shortcodes with many attributes that are different from the factory default settings.</p>"
+                . "<p>You don't need to worry too much about this, it is just a convenience method for overriding the default attribute values, in most cases it is probably clearer and easier to just "
+                . "specify the required attributes with the embedded shortcode itself, and leave the defaults as they are. The embedded attribute values will always take precedence over "
+                . "whatever the default are set to. The defaults only apply for attributes not specified when using the shortcode.</p>";          
+            
+        case 'Workflows' :
+            return "<p>This page lists all the Workflows that are currently in your database. >br/>"
+            . "Any of these workflows can be used in a page or post by embedding the <code>[<strong>wtf_fu id='x'</strong>]</code> shortcode, where x = the workflows ID.</p>"
+            . "<p>On this page you can : <ul>
+                <li>Click on a Workflow Name to edit the workflow settings.</li>
+                <li>Add a new workflow by selecting the empty or an example workflow from the drop down list, then clicking <strong>Add</strong>.</li>
+                <li>Import a workflow from a local file on your hard disk by browsing to the file then clicking <strong>Import</strong>. (PRO only)</li>
+                <li>Click the 'clone' link under a workflow name to create a duplicate copy of a workflow.</li>
+                <li>Click the 'delete' link under a workflow name to permanently delete a workflow from the database.</li>
+                <li>Click the 'export' link under a workflow name to save a local copy of a workflow on your pc that can be imported into another site (pro only feature).</li>
+                <li>Delete, clone, or export multiple workflows at once using the checkboxes and the bulk actions menu.</li>
+                </ul></p>
+                <p>The <code>Users [Stage]</code> column details any users that are currently progressing 
+                through the workflow, and the current stge they are up to. You can manually alter a users current stage from the <code>Manage Users</code> tab.</p>
+                
+                <p><small>Notes:<br><ol>
+                <li>To return to this list at any time click the 'workflows' tab.</li>
+                <li>Workflows ID's are created with the first available number starting at 1. If a workflow is deleted its id will be reused by the next added workflow.<br>
+        Any existing embedded workflow shortcodes that were using this workflow id will then reference the new workflow.</li></ol>
+        </small></p>";
+        
+        case 'Workflow Options' :
+            return "<p>This page allows you to customise options for a particular workflow. You can :<p>
+                <ul>
+                <li>Set the name for this workflow. This value will be expanded into %%WORKFLOW_NAME%% shortcuts if used in the workflows content stages.</li>
+                <li>Add a description for a workflow. This is for admin purposes to help identify what a workflow does.</li>
+                <li>Add default labels for the back and next buttons. These can be overridded in each of the workflow stages if desired.</li>
+                <li>Turn testing mode on or off. In testing mode the buttons will always be shown to allow testing for every stage even if a stage has 'next_active' or 'back active' turned off.</li>
+                <li>PRO users may also select a workflow layout template to use. ( These can be created and edited in the templates tab )</li>
+                </ul>";
+    
+        case 'Workflow Stage Options' :
+            return "<p>This page is where you can edit your content for each workflow stage. You can :</p>
+                <ul><li>Add content for the Title, Header, Body and Footer sections of your page. This content may include shortcuts to expand values such as the stage number or title, the workflow name or other values.<br>
+                <small>( please see the table of %%XXX%% shortcuts that are available on the Documentation tab. )</small></li>
+                <li>Set the stages next and back button labels text. If not set these values will be taken from the default options for the workflow.</li>
+                <li>Set the allowed user movements forward or backward to the next and previous stages.</li>
+                <li>Attach simple javascript to the buttons (eg to caution a user before important actions).</li>
+                <li>Add your own custom pre-hook and post-hook functions, these are executed before or after a stage is entered or exited whenever a user is in forward motion.<br/>
+                Hooked user functions must not contain errors or the workflow will silently fail causing users to remain stuck at the same stage.<br/>
+                To do this just create your custom function in your functions.php file (or in any file in the mu-plugins dir) and add the function name (without parenthesis) in the pre- or post- hook field.<br/>              
+                See the file /wp-content/plugins/wtf-fu/examples/wtf-fu_hooks_example.php for an example of how to do this to generate confirmation emails, or do other post processing tasks like archiving.
+                <li>For PRO users email templates can be attached to automatically send emails when a user passes through a stage. ( This is much more versatile and easier than using your own custom hook functions )</li>
+                <li>PRO users can also embed PHP code inside the content by using [wtf_eval] ... [/wtf_eval] blocks <br/> e.g. <code>[wtf_eval]echo 'phpinfo output ->'; phpinfo();[/wtf_eval]</code></li>
+                </ul>
+                ";
+            
+            
+        case 'Manage Users' :
+            return "<p>This page displays a list of all users with currently active Workflows.<br/>Each line in the table lists a user and a workflow and the current stage that the user is at in the workflow.<br/>You can :</p>
+                <ul><li>Click a users name to manage that users uploaded files, including archiving and deleting.</li>
+                <li>Click the <strong>edit</strong> link ( hover on the users name to see ) to go to the Wordpress User settings page for that user.</li>
+                <li>Modify users current stage in a workflow by : 
+                    <ol>
+                    <li>Change the users current stage number in the right column.</li>
+                    <li>Check the checkbox for the users you want to update the current stage numbers for in the left column.</li>
+                    <li>Select 'Update' from the bulk actions menu.</li>
+                    <li>Click <strong>Apply</strong> to apply the changes.</li>
+                    </ol>
+                    This is a useful way to manually change a users stage in a workflow. <br/>
+                    You can use this feature in conjunction with with a workflows stage <strong>next_active</strong> or <strong>back_active</strong> settings to pause a user at a certain stage in your workflow until you are ready to manually progress them or return them to another stage.
+                </li>
+                </ul>";
+            
+        case 'User Options' :
+            return "<p>The User files page lists all the files for a user, you can get to this page by clicking a username from the list under the <strong>Manage Users</strong> tab.</p>
+                <p>On this page you can : <br/>
+                <ul><li>Select a different user who's files you want to manage from the drop down user list.</li>
+                <li>Drill down into directories by clicking the directory name in the File Name column.</li>
+                <li>Download a users file by clicking on the filename.</li>
+                <li>Return to the users root directory location by clicking the <strong>root</strong> link.</li>
+                <li>Perform bulk archive or delete actions on the users files</li>
+                </ul></p>
+                <p>Notes on archiving files :<br/>
+                <ol><li>Archive files are automatically named in the format <pre>username_[YYYY-MM-DD_HH-MM-SS].zip</pre></li>
+                <li>Archives will be created in the users root directory<br/>
+                you can use the <strong>root link</strong> if you are performing the archive from a subdirectory to return to the root directory to see the newly created archive.</li>
+                <li>PRO users can also achieve automated archiving for users by embedding the <code>%%ARCHIVE_USERS_FILES%%</code> shortcut inside of an email template.<br/>
+                This will automatically create an archive and include a link to the archive inside of the generated email.<br/>
+                <span style=\"color: red\">Warning!</span><ol><li> Auto achiving should be used with caution as <span style=\"color: red\">the front end will block</span> whilst the archive is being created.</li>
+                <li>Using the <code>%%ARCHIVE_USERS_FILES%%</code> shortcut inside of workflow content or workflow template layout will cause archives to be created everytime the content is displayed 
+                when a user access the page, this is probably not what you want.</li>
+                <li>Archives should be deleted when no longer required or they will gradually consume the disk space on your server.</li>
+                </ol></li>
+                </ul></p>";
+                       
+        case 'Templates' :
+            return "<p>This page lists the currently available email and workflow templates.<br/>
+                Workflow templates can be attached to a workflow in the <strong>workflow options</strong> tab.<br/>
+                Email templates can be attached to a workflow stage in the <strong>workflow options</strong> stage tabs.<br/></p>
+                <p>Workflow templates are used to define the layout of a workflow page, and allow you to add your own images and html.<br/>
+                You can also re-arrange where the content and buttons are placed and add shortcut fields directly into the workflow page template.</p>
+                <p>Email templates are used to automatically send an email when a stage is completed by attaching them to workflow stages.</p>
+                <p>On this page you can :</p>
+                <ul>
+                <li>Click on a templates name to edit the template.</li>
+                <li>Click the 'clone' link under a template name to create a new duplicate template.</li>
+                <li>Click the 'delete' link under a template name to permanently delete it.</li>
+                <li>Delete or clone multiple templates using the checkboxes and the bulk actions menu.</li>
+                <li>Add a new copy of the default email or default workflow templates using the <strong>Add Default ... Template</strong> buttons.</li>
+                </ul>";
+            
+        case 'Workflow Templates' :
+            return "<p>On this page you can edit a workflow template layout to use with your workflows.<br/>
+                Workflow templates are used to define the layout of a workflow page, and allow you to add your own images and html.</p>
+                <p>Workflow templates can be attached to a workflow by selecting the template from a drop down list for the <strong>page_template</strong>
+                field in the <strong>workflow options</strong> tab on a Workflows edit page.</p>
+                <p>Workflow Template Settings. Here you can :<br/>
+                <ol><li>Edit a workflow template to include your own html and image files.</li>
+                <li>Rearrange the workflow related Shortcut placeholders in the <strong>template</strong> field to place the prev/next buttons, header, 
+                content and footer fields within your layout.</li>
+                <li>Add additional Shotcuts as desired to include other information at runtime.</li>
+                </ol><p>
+                <small>Notes:<ol>
+                    <li>At least one <strong>%%WORKFLOW_BUTTON_BAR%%</strong> shortcut <strong>must</strong> be included.</li>
+                    <li>The plugin stylesheets use a copy of the bootstrap 3.0 css classes like <strong>panel panel-default ...</strong> 
+                    with the additional class <strong>tbs</strong> appended so as to avoid any possible conflict with other bootstrap css that may be 
+                    present in your templates or other installed plugins on your site.<br/>
+                    You may wish to alter the template css class names to use your own custom style sheets. 
+                    In this case you can safely disable plugins <strong>system options</strong> setting <strong>include_plugin_style</strong> 
+                    and any workflows that use the template <strong>workflow option</strong> settings for <strong>include_plugin_style_default_overrides</strong>.</li>  
+                    </ol></small>
+                    </p>";
+                             
+        case 'Email Templates' :
+            return "<p>On this page you can edit an email template layout to use to add automated emails to your workflow stages.<br/>
+                Email templates can be attached to a workflow stage by selecting the template from a drop down list for the <strong>send_email</strong>
+                field one (or more) of the <strong>workflow stage</strong> tabs on a Workflows edit page.<br/>
+                Automatic emails are then sent whenever a user passes through the stage in forward motion.</p>
+                <p>Email Template Settings. Here you can :<br/>
+                <ol><li>Edit an email template to include your own html and image files.</li>
+                <li>Use Shortcut placeholders in the <strong>subject, to, from, cc, bcc and message</strong> fields, making it easy to address 
+                and copy emails to the current user and administrator emails.</li>
+                <li>Embed <strong>[wtf_fu_show_files email_format=1]</strong> shortcodes inside the <strong>message</strong> field
+                    to include thumbnail images of the users files inside the email.<br/>
+                    <small>Notes:<ol>
+                    <li>The attribute <strong>email_format=1</strong> is required to inline the css for use in email content.</li>
+                    <li>You should also add the <strong>wtf_upload_dir</strong> and <strong>wtf_upload_subdir</strong> attributes to match
+                    the required directory locations that were used in the <strong>[wtf_fu_upload]</strong> shortcode when the files were uploaded.</li>
+                    </ol></small></p>";            
+            
+        case 'Documentation' :
+            return "This page collates all available documentation for the other Admin pages.";
+
+        default:
+            return "wtf_fu_get_admininterface_info('$type') not implemented yet.";
+    }
+
+}
+
+
 function get_shortcode_info_table($shortcode) {
-    $table = "<table class='table'><tr><th>SHORTCODE ATTRIBUTE</th><th>DEFAULT VALUE</th><th>DESCRIPTION</th></tr>";
+    
+    $table = "<table class='table'  border=1 style='text-align:left;'><tr><th>Shortcode Attribute</th><th>Default Value</th><th>Behaviour</th></tr>";
 
     switch ($shortcode) {
         case 'wtf_fu_upload' :
@@ -582,7 +985,7 @@ function wtf_fu_get_example_short_code_attrs($code, $attr) {
  * @return type
  */
 function wtf_fu_get_shortcut_keys() {
-    return array_keys(Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_labels(wtf_fu_DEFAULTS_TEMPLATE_FIELDS_KEY));
+    return array_keys(Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_labels(wtf_fu_DEFAULTS_SHORTCUTS_KEY));
 }
 
 /**
@@ -593,12 +996,14 @@ function wtf_fu_get_page_identifier_from_request() {
 
     $tab = wtf_fu_get_value($_REQUEST, 'tab');
     $wftab = wtf_fu_get_value($_REQUEST, 'wftab');
-    $wtf_action = wtf_fu_get_value($_REQUEST, 'wtf_action');
+    $wtf_action = wtf_fu_get_value($_REQUEST, 'wtf-fu-action');
+    $template_type = wtf_fu_get_value($_REQUEST, 'template-type');
        
-    $page_id = sprintf('%s%s%s', 
+    $page_id = sprintf('%s%s%s%s', 
         $tab ? "{$tab}" : '',
         $wftab ? "-{$wftab}" : '',
-        $wtf_action ? "-{$wtf_action}" : '');                    
+        $wtf_action ? "-{$wtf_action}" : '',
+        $template_type ? "-{$template_type}" : '');                    
     
     return $page_id;
 }
@@ -633,9 +1038,6 @@ function wtf_fu_replace_shortcut_values($fields, $workflow_id = null, $stage_id 
         }
     }
     
-    
-    //log_me(array('shortcuts required' => $shortcuts_required ));
-
     foreach ($shortcuts_required as $shortcut) {
 
         switch ($shortcut) {

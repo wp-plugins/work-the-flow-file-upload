@@ -72,7 +72,9 @@ class Wtf_Fu_Admin {
         add_action('admin_init', array($this, 'init_page_options'));
 
         add_action('wp_ajax_wtf_fu_admin_operations', array($this, 'wtf_fu_admin_operations_callback'));
-    }
+        
+    }        
+
 
     /**
      * Ajax callback from js.
@@ -86,19 +88,28 @@ class Wtf_Fu_Admin {
         $response_message = 'done';
 
         switch ($_REQUEST['operation']) {
-            case 'add_new_empty_workflow' :
-                $wf_index = Wtf_Fu_Options_Admin::add_new_workflow();
-                $response_message = "A new empty workflow with id = $wf_index has been added.";
-                //Wtf_Fu_Pro_Options_Admin::add_new_email_template();
+            case 'add_new_workflow' :
+                
+                if (isset($_REQUEST['add_workflow_name'])) {
+                    // Get the json file to clone from the listbox.
+                    $file_to_clone = $_REQUEST['add_workflow_name'];
+                    if (!empty($file_to_clone)) {
+                        $workflow_settings = json_decode(file_get_contents($file_to_clone), true);
+                        
+                        $wf_index = Wtf_Fu_Options_Admin::create_workflow($workflow_settings);
+                        $fname = basename($file_to_clone, '.json');
+                        $response_message = "A a new $fname workflow has been added with with ID = $wf_index.";
+                    } else {
+                        $wf_index = Wtf_Fu_Options_Admin::add_new_workflow();
+                        $response_message = "A new empty workflow has been added with ID = $wf_index.";
+                    }
+                }
                 break;
-            case 'add_new_demo_workflow' :
-                $wf_index = Wtf_Fu_Options_Admin::add_new_demo_workflow();
-                $response_message = "A new copy of the demo workflow with id = $wf_index has been added.";
-                break;
+            
             case 'add_new_default_email_template' :
                 if (has_filter('wtf_fu_add_new_default_email_template_filter')) {
                     $index = apply_filters('wtf_fu_add_new_default_email_template_filter', null);
-                    $response_message = "A new email template with id = $index has been added.";                 
+                    $response_message = "A new email template with id = $index has been added.";
                 } else {
                     log_me(" operation action not found for : {$_REQUEST['operation']}");
                 }
@@ -175,19 +186,19 @@ class Wtf_Fu_Admin {
 
         $screen = get_current_screen();
         if ($this->plugin_screen_hook_suffix == $screen->id) {
-          //  log_me('admin enqueing');
+            //  log_me('admin enqueing');
 
             $url = site_url('/wp-includes/js/wp-ajax-response.js');
             wp_enqueue_script('wp-ajax-response', $url, array('jquery'), Wtf_Fu::VERSION, true);
 
-
             $script_tag = $this->plugin_slug . '-admin-script';
-
             wp_enqueue_script($script_tag, plugins_url('assets/js/admin.js', __FILE__), array('jquery', 'wp-ajax-response'), Wtf_Fu::VERSION, true);
-            //wp_localize_script($script_tag, 'ajax_object', array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'we_value' => 1234 ) ); 
-        } else {
-           // log_me(array('not enqueing ' => array($this->plugin_screen_hook_suffix, $screen->id)));
-        }
+            
+            wp_enqueue_script($this->plugin_slug . 'jquery-1.9.1.js', "//code.jquery.com/jquery-1.9.1.js");
+            wp_enqueue_script($this->plugin_slug . 'jquery-ui.js', "//code.jquery.com/ui/1.10.4/jquery-ui.js", array('jquery'), Wtf_Fu::VERSION, true);
+                      
+            wp_enqueue_script($this->plugin_slug . '-plugin-script', plugins_url('../public/assets/js/public.js', __FILE__), array('jquery'), Wtf_Fu::VERSION, true);           
+        } 
     }
 
     /**
@@ -202,13 +213,6 @@ class Wtf_Fu_Admin {
          */
         $wtf_title = 'wtf-fu';
         $wtf_fulltitle = 'Work The Flow / File Upload';
-//        $this->plugin_screen_hook_suffix = self::wtf_fu_do_add_options_page(
-//            __($wtf_fulltitle, $this->plugin_slug), 
-//            __($wtf_title, $this->plugin_slug), //slug used as the text domain.
-//            'manage_options', 
-//            $this->plugin_slug, 
-//            array($this, 'display_plugin_admin_page') // callback.
-//        );
 
         add_options_page(
                 __($wtf_fulltitle, $this->plugin_slug), __($wtf_fulltitle, $this->plugin_slug), //slug used as the text domain.
@@ -250,65 +254,103 @@ class Wtf_Fu_Admin {
         }
         //add_action('load-'.$this->plugin_screen_hook_suffix, array($this, 'init_page_options'));
 
-        //add_action('load-' . $this->plugin_screen_hook_suffix, array($this, 'wtf_fu_help_tab'));
+        add_action('load-' . $this->plugin_screen_hook_suffix, array($this, 'wtf_fu_help_tab'));
     }
 
     function wtf_fu_help_tab() {
 
         $screen = get_current_screen();
-        //log_me(array('wtf_fu_help_tab' => $screen));
-
 
         /*
-         * Check if current screen is My Admin Page
-         * Don't add help tab if it's not
+         * Check if current screen is Admin Page
+         * Don't add help tabs if it's not
          */
         if ($screen->id != $this->plugin_screen_hook_suffix)
             return;
 
         $page_id = wtf_fu_get_page_identifier_from_request();
-
-        log_me("page id =$page_id");
-
         $tabs = array();
-        
-        $options = array();
 
         switch ($page_id) {
             case 'plugin-options' :
-                $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => '<p>'
-                    . __('Plugin Options page. These settings are for system wide plugin options. They define plugin behaviours for uninstalling, style sheet useage, and licensing.') . '</p>');
-
-                $options = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_labels(wtf_fu_DEFAULTS_PLUGIN_KEY);
+                $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('System Options'));
+                break;
 
             case 'upload-options' :
-                $options = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_labels(wtf_fu_DEFAULTS_UPLOAD_KEY);
-                $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => '<p>'
-                    . __('File Upload Default Options. These settings provide default attribute values for the [wtf_fu_upload] shortcode. Set these to the values you most commonly use. These are the setting that will be used by the shortcode if they are not defined manually in the embedded shortcode.') . '</p>');
+                $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('File Upload'));
+                $tabs[] = array('id' => 'upload attributes', 'title' => __('[wtf_fu_upload] Shortcode Attributes'), 'content' => get_shortcode_info_table('wtf_fu_upload'));                
 
                 break;
-        }
-        
-        foreach ($options as $k => $v) {
-            $tabs[] = array('id' => $k, 'title' => __($k), 'content' => $v);
+
+            case 'workflows' :
+                $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('Workflows'));
+                
+                // also set the column widths for the list page here
+                echo '<style type="text/css">';
+                echo '.wp-list-table .column-name { width: 25%; }';
+                echo '.wp-list-table .column-id { width: 5%; }';
+                echo '.wp-list-table .column-notes { width: 30%; }';
+                echo '.wp-list-table .column-description { width: 20%; }';
+                echo '.wp-list-table .column-user_details { width: 20%; }'; 
+                echo '</style>';               
+                
+                break;
+
+            case 'workflows-workflow-options-edit' :
+            case 'workflows-workflow-options' :
+                $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('Workflow Options'));
+                $tabs[] = array('id' => 'shortcuts', 'title' => __('Shortcuts'), 'content' => wtf_fu_get_shortcuts_table()); 
+                
+
+                
+                break;
+
+            case 'workflows-workflow-stage-options' :
+                $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('Workflow Stage Options'));
+                $tabs[] = array('id' => 'shortcuts', 'title' => __('Shortcuts'), 'content' => wtf_fu_get_shortcuts_table());
+                
+                break;
+
+            case 'user-options' :
+                $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('Manage Users'));
+                $tabs[] = array('id' => 'User Options', 'title' => __('User Files'), 'content' => wtf_fu_get_admininterface_info('User Options'));
+                break;
+            
+            case 'user-options-user' :
+                $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('User Options'));
+                break;
+            
+            case 'templates' :
+                $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('Templates'));
+                $tabs[] = array('id' => 'templates', 'title' => __('Templates'), 'content' => wtf_fu_get_general_info('Templates')); 
+                $tabs[] = array('id' => 'shortcuts', 'title' => __('Shortcuts'), 'content' => wtf_fu_get_shortcuts_table()); 
+                
+                // templates list table
+                echo '<style type="text/css">';
+                echo '.wp-list-table .column-name { width: 25%; }';
+                echo '.wp-list-table .column-id { width: 5%; }';
+                echo '.wp-list-table .column-type { width: 8%; }';
+                echo '.wp-list-table .column-description { width: 62%; }';
+                echo '</style>';                    
+                break;
+
+            case 'templates-edit-email' :
+                $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('Email Templates'));
+                $tabs[] = array('id' => 'shortcuts', 'title' => __('Shortcuts'), 'content' => wtf_fu_get_shortcuts_table());                
+                break;
+
+            case 'templates-edit-workflow' :
+                $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('Workflow Templates'));
+                $tabs[] = array('id' => 'shortcuts', 'title' => __('Shortcuts'), 'content' => wtf_fu_get_shortcuts_table());
+                break;
+            case 'documentation' :
+                $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('Documentation'));
+                break;            
         }
 
         foreach ($tabs as $tab) {
             $screen->add_help_tab($tab);
-        }
-
-        // Add my_help_tab if current screen is My Admin Page
-//    $screen->add_help_tab(  );
-//        $screen->add_help_tab( array(
-//        'id'	=> 'usage',
-//        'title'	=> __('Usage'),
-//        'content'	=> '<p>' . __( 'Coming soon ... General Usage Information about this page.' ) . '</p>',
-//    ) );
-//        $screen->add_help_tab( array(
-//        'id'	=> 'notes',
-//        'title'	=> __('Notes :'),
-//        'content'	=> '<p>' . __( 'This is not fully implemented yet in this release.<br/> The help information below will be moving up to here soon, to reduce clutter on the main screen.' ) . '</p>',
-//    ) );        
+        }   
     }
 
     /**
@@ -325,7 +367,6 @@ class Wtf_Fu_Admin {
         }
 
         //log_me("display_plugin_admin_page page_key = '{$tab}' ");
-
         // the main tabbed top level page.
         include_once( 'views/admin.php' );
 
@@ -374,7 +415,7 @@ class Wtf_Fu_Admin {
             case wtf_fu_PAGE_PLUGIN_KEY :
                 echo '<form method="post" action="options.php">';
                 submit_button();
-                settings_errors();
+                //settings_errors();
                 settings_fields(wtf_fu_OPTIONS_DATA_PLUGIN_KEY);
                 do_settings_sections(wtf_fu_OPTIONS_DATA_PLUGIN_KEY);
                 submit_button();
@@ -384,7 +425,7 @@ class Wtf_Fu_Admin {
             case wtf_fu_PAGE_UPLOAD_KEY :
                 echo '<form method="post" action="options.php">';
                 submit_button();
-                settings_errors();
+                //settings_errors();
                 settings_fields(wtf_fu_OPTIONS_DATA_UPLOAD_KEY);
                 do_settings_sections(wtf_fu_OPTIONS_DATA_UPLOAD_KEY);
                 submit_button();
@@ -471,32 +512,32 @@ class Wtf_Fu_Admin {
         ) {
             return; // no options init required, or not a page for us.
         }
-        
+
         // if workflow list then check if we need to do any clones or deletes.
-        if ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_WORKFLOWS_KEY && !$init_args['wftab'] ) {
+        if ($init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_WORKFLOWS_KEY && !$init_args['wftab']) {
             $this->do_bulk_workflow_actions();  // will re-direct and exit if any delete or clone actions are done.
             // Workflows list page has no options to set up unless the 'wftab' sub page is defined.
             // there is nothing more to do;
             return;
         }
-        
+
         if (isset($_REQUEST['delete_stage']) && isset($_GET['wf_id'])) {
             Wtf_Fu_Options_Admin::delete_stage_and_reorder($_GET['wf_id'], $_REQUEST['delete_stage']);
             // remove the delete tab and redirect back to page.
-            wp_redirect( remove_query_arg('delete_stage', $_SERVER['REQUEST_URI']));
+            wp_redirect(remove_query_arg('delete_stage', $_SERVER['REQUEST_URI']));
             exit;
         }
-                       
+
         // Templates list page has not options to set up unless 
         // the 'template-type' is defined.                        
-        if ( $init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_TEMPLATES_KEY && $init_args['wtf-fu-action'] !== 'edit') {
-            if ( has_action('wtf_fu_process_templates_bulk_actions_action') ) {
+        if ($init_args['tab'] && $init_args['tab'] === wtf_fu_PAGE_TEMPLATES_KEY && $init_args['wtf-fu-action'] !== 'edit') {
+            if (has_action('wtf_fu_process_templates_bulk_actions_action')) {
                 do_action('wtf_fu_process_templates_bulk_actions_action');
             }
             return;
-        }        
-        
-        
+        }
+
+
 
         $returning_from_submit = false;
 
@@ -549,13 +590,13 @@ class Wtf_Fu_Admin {
             case wtf_fu_PAGE_PLUGIN_KEY :
                 $init_args['option_defaults_array_key'] = wtf_fu_DEFAULTS_PLUGIN_KEY;
                 $init_args['option_data_key'] = wtf_fu_OPTIONS_DATA_PLUGIN_KEY;
-                $init_args['section_title'] = 'Plugin Options';
+                $init_args['section_title'] = 'General Plugin Options';
                 break;
 
             case wtf_fu_PAGE_UPLOAD_KEY :
                 $init_args['option_defaults_array_key'] = wtf_fu_DEFAULTS_UPLOAD_KEY;
                 $init_args['option_data_key'] = wtf_fu_OPTIONS_DATA_UPLOAD_KEY;
-                $init_args['section_title'] = 'File Upload Settings';
+                $init_args['section_title'] = 'Default File Upload Settings';
                 break;
 
             case wtf_fu_PAGE_WORKFLOWS_KEY :
@@ -564,13 +605,14 @@ class Wtf_Fu_Admin {
                     case wtf_fu_PAGE_WORKFLOW_OPTION_KEY :
                         $init_args['option_defaults_array_key'] = wtf_fu_DEFAULTS_WORKFLOW_KEY;
                         $init_args['option_data_key'] = Wtf_Fu_Option_Definitions::get_workflow_options_key($init_args['wf_id']);
-                        $init_args['section_title'] = "Workflow [{$init_args['wf_id']}]Settings";
+                        $init_args['section_title'] = "Workflow ( id = {$init_args['wf_id']} ) Edit"; 
+
                         break;
                     case wtf_fu_PAGE_WORKFLOW_STAGE_OPTION_KEY :
                         $init_args['option_defaults_array_key'] = wtf_fu_DEFAULTS_STAGE_KEY;
                         $init_args['option_data_key'] = Wtf_Fu_Option_Definitions
                                 ::get_workflow_stage_key($init_args['wf_id'], $init_args['stage_id']);
-                        $init_args['section_title'] = "Workflow [{$init_args['wf_id']} Stage {$init_args['stage_id']}] Settings";
+                        $init_args['section_title'] = "Workflow ( id = {$init_args['wf_id']}, stage = {$init_args['stage_id']} ) Edit";
                         break;
                     default :
                         die("unrecognized wftab {$init_args['wftab']}");
@@ -590,10 +632,11 @@ class Wtf_Fu_Admin {
         // pass on the massage request vars on for setting up the callbacks.        
         $this->wtf_fu_initialize_options($init_args);
     }
-    
+
     /*
      * check if any delete or clone actions are required in the request.
      */
+
     public function do_bulk_workflow_actions() {
         // log_me('in bulk workflow');
         $redirect = false;
@@ -639,18 +682,18 @@ class Wtf_Fu_Admin {
             //log_me( array('redirect url' => $redirect_uri) );
             wp_safe_redirect($redirect_uri);
             exit;
-        }   
+        }
     }
-    
+
     /**
      * returns the bulk action request var.
      * @return boolean
      */
     function current_bulk_action() {
-        if ( isset( $_REQUEST['action'] ) && -1 != $_REQUEST['action'] )
+        if (isset($_REQUEST['action']) && -1 != $_REQUEST['action'])
             return $_REQUEST['action'];
 
-        if ( isset( $_REQUEST['action2'] ) && -1 != $_REQUEST['action2'] )
+        if (isset($_REQUEST['action2']) && -1 != $_REQUEST['action2'])
             return $_REQUEST['action2'];
 
         return false;
@@ -682,8 +725,10 @@ class Wtf_Fu_Admin {
 
 
         self::wtf_fu_do_add_settings_section(
-                $section, __($init_args['section_title'], $this->plugin_slug), create_function(null, 'Wtf_Fu_Admin::wtf_fu_section_callback( "' . $section_page_key . '");'), $init_args['option_data_key']
-        );
+                $section, __($init_args['section_title'], $this->plugin_slug), 
+                create_function(null, 'Wtf_Fu_Admin::wtf_fu_section_callback( "' . $section_page_key . '");'), 
+                $init_args['option_data_key'] 
+                );
 
         /*
          *  Add all the fields from the default options array for this page.
@@ -780,47 +825,39 @@ class Wtf_Fu_Admin {
     /**
      * Callback method to render a section for a page.
      * Called with the page tab key it was created under.
+     * OBSOLETE not used any more after 2.3.0
      */
     static function wtf_fu_section_callback($section_page) {
 
         switch ($section_page) {
             case wtf_fu_PAGE_PLUGIN_KEY :
-                echo '<p>' . __('You may configure General Plugin Options here.', 'wtf_fu-domain') . '</p>';
                 break;
 
             case wtf_fu_PAGE_UPLOAD_KEY :
                 echo
                 __('<div style="background:#ECECEC;border:1px solid #CCC;padding:0 10px;margin-top:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;">
-        <p>File Upload Settings</p>
-        <p>Here you can set the default values for all the avaiable File Upload Options.</p>
-        <p>These are the values that will be used unless they are overridden in a shortcode instance, so you should set these to the values you expect you will commonly use.</p>
-        <p>The names of the fields on this page may all be used as attributes to the <code>[wtf_fu_upload]</code> short code to override these defaults.</p>
-        <p>For example, a shortcode that would override all possible default values with the factory set default values (silly in practice but explanatory) would look like this</p>'
-                        . '<p><code>' .
-                        wtf_fu_get_example_short_code_attrs('wtf_fu_upload', Wtf_Fu_Option_Definitions::get_instance()->
-                                        get_page_option_fields_default_values(wtf_fu_DEFAULTS_UPLOAD_KEY))
-                        . '</code></p></div>', 'wtf-fu');
+        <p>Default attribute values for File Uploads.<br/>
+        These settings will be used for all file uploads unless specifically overridden in the embedded shortcode itself.</p>
+        <p>With the current settings using a shortcode of <strong>[wtf_fu_upload]</strong> (i.e. with NO attributes set) would be equivilent to using :</p>'
+                        . '<p><code>' 
+                        . wtf_fu_get_shortcode_with_default_attributes('wtf_fu_upload', false)
+                        . '</code></p>'
+                        . '<p style="color:red;">Note: These are <strong>just the default settings</strong>.<br/> '
+                        . 'You can <strong>override any of these attribute values</strong> directly by including them when you use '
+                        . 'the <strong>[wtf_fu_upload]</strong> shortcode in your pages or workflow content.<br/>'
+                        . 'For example using <strong>[wtf_fu_upload wtf_upload_dir="demo" wtf_upload_subdir="music" accept_file_types="mp3|wav|ogg"]</strong>'
+                        . ' will override the default values for the <strong>wtf_upload_dir</strong>, <strong>wtf_upload_subdir</strong> and <strong>accept_file_types</strong>'
+                        . ' and use the default values for all the other attributes.'
+                        . '<p>It is recommended to use attributes directly inside your <strong>[wtf_fu_upload]</strong> shortcodes rather than override them here so that the intent of the shortcode is clear'
+                        . ' at the point where it is being used. You only need to make changes here if you use many shortcodes in your project that use different values '
+                        . 'and wish to default the unspecified shortcode attributes here.</p>'
+                        . ''
+                        . '</div><div style="background:#ECECEC;border:1px solid #CCC;padding:0 10px;margin-top:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;">', 'wtf-fu');
                 break;
 
             case wtf_fu_PAGE_WORKFLOW_OPTION_KEY :
-                echo
-                __('<div style="background:#ECECEC;border:1px solid #CCC;padding:0 10px;margin-top:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;">
-        <p>Workflow Settings</p>
-        <p>Here you can set the settings that are applicable for all stages of a Workflow.</p>
-        <p>You may also define the workflow page template here.</p>
-        <p>You may also define some default stage field values that will apply to all stages unless overriden by a particular stage.</p></div>', 'wtf-fu');
-
                 break;
             case wtf_fu_PAGE_WORKFLOW_STAGE_OPTION_KEY :
-
-                echo __('<div style="background:#ECECEC;border:1px solid #CCC;padding:0 10px;margin-top:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;">
-        <p>Stage Settings</p>
-        <p>Here is where all the workflow content goes for a given stage.</p>
-        <p>You may add content for the Header, Body and Footer sections of your page as well as set the stages title text and button label text.</p>
-        <p>You may also set the ability of users to move to next or previous stages, and also attach simple javascript to the buttons (eg to caution a user before important actions).</p>
-        <p>You can also provide optional function names to be called before the stage is entered and after the stage is left in the pre-hook and post-hook fields. These may for example be used to send confirmation emails, or do other post processing tasks like archiving.</p>
-        <p>See the file <code>/wp-content/plugins/wtf-fu/examples/wtf-fu_hooks_example.php</code> for an example of how to do this.</p></div>', 'wtf-fu');
-
                 break;
             default:
             //echo '<p>' . __("TODO no description available for this page [key={$section_page}].", 'wtf_fu') . '</p>';
@@ -867,8 +904,7 @@ class Wtf_Fu_Admin {
                 'option_data_key' => $option_page,
                 'wf_id' => $matches[1],
                 'stage_id' => $matches[2],
-                'section_title' =>
-                "WorkFlow [id={$matches[1]}, stage {$matches[2]}] Settings",
+                'section_title' => "WorkFlow Edit (ID {$matches[1]} Stage {$matches[2]})",
             );
         }
 
@@ -884,7 +920,7 @@ class Wtf_Fu_Admin {
                 'option_defaults_array_key' => wtf_fu_DEFAULTS_WORKFLOW_KEY,
                 'option_data_key' => $option_page,
                 'wf_id' => $matches[1],
-                'section_title' => "WorkFlow [id={$matches[1]}] Settings",
+                'section_title' => "WorkFlow Edit (ID {$matches[1]})",
             );
         }
 
@@ -962,7 +998,7 @@ class Wtf_Fu_Admin {
             default :
                 do_action('wtf_fu_options_callback_action', $args);
 
-               // log_me("should have just called wtf_fu_options_callback_action for tab type **{$args['tab']}**");
+                // log_me("should have just called wtf_fu_options_callback_action for tab type **{$args['tab']}**");
                 break;
         }
     }
@@ -1074,6 +1110,11 @@ class Wtf_Fu_Admin {
         switch ($option_id) {
             case 'id' :
                 echo wtf_fu_text_only($option_id, $option_name, $val, 6, $label);
+                break;
+            case 'description' :
+            case 'notes' :
+                echo "<p>$label</p>";
+                wp_editor($val, $option_id, array("textarea_name" => $option_name, 'textarea_rows' => 6, 'wpautop' => false));
                 break;
             case 'next_js' :
             case 'back_js' :

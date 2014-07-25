@@ -497,6 +497,37 @@ class Wtf_Fu_Options_Admin {
         }
         return ($wf_index);
     }
+    
+    
+   /**
+     * Creates a new workflow from a restored array from a json file upload
+     * 
+     * @param type $workflow  the php object representing the restored file.
+     */
+    public static function create_workflow($workflow) {
+        
+        $version = $workflow['version'];
+        $workflow_options = $workflow['options'];
+        $workflow_stages = $workflow['stages'];
+        
+        log_me($workflow_options);
+        
+        // Creates a new workflow with a clone of the options.
+        $workflow_id = Wtf_Fu_Options_Admin::add_new_workflow($workflow_options);
+                
+        foreach ($workflow_stages as $stage_key => $values) {
+            $stage_key = Wtf_Fu_Options_Admin::add_new_workflow_stage_options($workflow_id, $values);          
+        }
+        
+        /*
+         *  If versions are different then filter against the default options.
+         */
+        if( !version_compare($version, Wtf_Fu::VERSION, '==')) {   
+            Wtf_Fu_Options_Admin::sync_workflow($workflow_id);
+        }
+        
+        return $workflow_id;
+    }         
 
     /**
      * 

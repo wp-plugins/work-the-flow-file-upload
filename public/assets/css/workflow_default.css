@@ -54,6 +54,7 @@
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;  
     line-height: 1.0;
+    padding: 15px 10px 10px 30px;
 }
 
 /*.tbs .table-striped > tbody > tr:nth-child(2n+1) > td, .tbs .table-striped > tbody > tr:nth-child(2n+1) > th {

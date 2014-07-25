@@ -68,6 +68,9 @@ class Wtf_Fu_Show_Files_Shortcode {
          * Current User upload directory paths.
          */
         $this->paths = wtf_fu_get_user_upload_paths($this->options['wtf_upload_dir'], $this->options['wtf_upload_subdir'], 0, $this->options['use_public_dir']);
+        
+        log_me(array("showfiles paths="=>$this->paths));
+        log_me("use_public_dir = {$this->options['use_public_dir']}");
 
         /*
          * Glob the files.

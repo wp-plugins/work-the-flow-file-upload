@@ -36,8 +36,7 @@ if (isset($_GET['wftab'])) {
     $stages = Wtf_Fu_Options::get_stage_ids_in_order($wfid);
 }
 
-
-
+// settings_errors();
 ?>
 
 <div class = "wrap">
@@ -50,7 +49,7 @@ if (isset($_GET['wftab'])) {
         wtf_fu_PAGE_WORKFLOW_OPTION_KEY,
         $wfid,
         $active_tab === wtf_fu_PAGE_WORKFLOW_OPTION_KEY ? 'nav-tab-active' : '',
-        "Workflow $wfid"
+        "Workflow $wfid Options"
     );           
 
     $stage = -1;  // -1 so that a new stage of 0 will be used if no stages were found.
@@ -88,7 +87,7 @@ if (isset($_GET['wftab'])) {
     if ( isset( $_REQUEST['stage_id']) ) {
         echo sprintf("<a href=\"?page=%s&tab=%s&wftab=%s&wf_id=%s&delete_stage=%s\" class=\"nav-tab\" title='Delete Current Stage [%s]'"
                 . "onClick=\"return confirm('Confirm to DELETE STAGE %s. "
-                . "This cannot be undone! Remaing stages will be re-numbered in consecutive order.');\">%s</a>" ,
+                . "This cannot be undone! Remaining stages will be re-numbered in consecutive order.');\">%s</a>" ,
             $page_slug,
             wtf_fu_PAGE_WORKFLOWS_KEY,
             wtf_fu_PAGE_WORKFLOW_OPTION_KEY,
@@ -101,6 +100,5 @@ if (isset($_GET['wftab'])) {
     }
 ?> 
 </h2>
-<?php settings_errors(); ?>
 </div>
 

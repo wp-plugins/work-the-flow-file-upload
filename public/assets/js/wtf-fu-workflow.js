@@ -76,16 +76,9 @@
         event.preventDefault();
     });
     
+    // Initialize any accordion links.
     wtf_accordion_init();
-     
-function wtf_accordion_init() {
-    $("#accordion").accordion({ 
-    collapsible: true,
-    heightStyle: "content",
-    active: false
-}); 
-}
-
+    
 // later, you can stop observing
 // observer.disconnect();
 })(jQuery);

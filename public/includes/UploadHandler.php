@@ -261,7 +261,8 @@ class UploadHandler
         // for subsequent ajax delete requests to pass back in
         // to the constructor.
         $file->deleteUrl .=
-            sprintf("&wtf_upload_dir=%s&wtf_upload_subdir=%s", 
+            sprintf("&use_public_dir=%s&wtf_upload_dir=%s&wtf_upload_subdir=%s", 
+                $this->options['use_public_dir'],
                 $this->options['wtf_upload_dir'], 
                 $this->options['wtf_upload_subdir']);
         $file->deleteType = $this->options['delete_type'];
@@ -492,11 +493,6 @@ class UploadHandler
 
     protected function trim_file_name($name,
             $type = null, $index = null, $content_range = null) {
-        
-        // ADDED wtf_fu LR 10/05/2014 
-        // see https://github.com/blueimp/jQuery-File-Upload/issues/1746        
-        // $name = utf8_decode($name);
-        // END ADDED wtf_fu LR 10/05/2014 
         
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.

@@ -50,7 +50,7 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
             $user_details = ''; //$first = true;
             foreach ($users as $user) {
                 //if (!$first) {$user_details .= ", ";} else {$first = false;}
-                $user_details .= sprintf("<li>%s [stage %s]</li>", $user['user']->display_name, $user['workflow_settings']['stage']);
+                $user_details .= sprintf("%s [%s]&nbsp; ", $user['user']->display_name, $user['workflow_settings']['stage']);
             }
             $options = $workflow['options'];
             // sanity check
@@ -60,7 +60,9 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
             $data[] = array(
                 'id' => $options['id'],
                 'name' => $options['name'],
-                'number_of_users' => count($users),
+                'description' => wtf_fu_get_value($options, 'description'),
+                'notes' => wtf_fu_get_value($options, 'notes'),
+                //'number_of_users' => count($users),
                 'user_details' => $user_details
             );
         }
@@ -107,7 +109,9 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
         switch ($column_name) {
             case 'id':
             case 'name':
-            case 'number_of_users' :
+            case 'description':
+            case 'notes' :
+           // case 'number_of_users' :
             case 'user_details' :
                 return $item[$column_name];
             default:
@@ -141,7 +145,7 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
             ),
             'delete' => sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&wf_id=%s" onClick="return confirm(\'WARNING! You are about to premanently delete this Workflow ? Are you sure about this ?\');">Delete</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, 'delete', $item['id']
             ),
-           // 'export' => sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&wf_id=%s">Export</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, 'export', $item['id']
+            // 'export' => sprintf('<a href="?page=%s&tab=%s&wtf-fu-action=%s&wf_id=%s">Export</a>', $_REQUEST['page'], wtf_fu_PAGE_WORKFLOWS_KEY, 'export', $item['id']
             'export' => sprintf('<a href="?wtf-fu-export=%s&id=%s">Export</a>', 'workflow', $item['id']
             )
         );
@@ -188,9 +192,10 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
         $columns = array(
             'cb' => '<input type="checkbox" />', //Render a checkbox instead of text
             'name' => 'Name',
-            'id' => 'ID',
-            'number_of_users' => 'Number of Users',
-            'user_details' => 'User Details'
+            'id' => 'ID',           
+            'description' => 'Description',
+            'notes' => 'Notes',
+            'user_details' => 'Users [Stage]'
         );
         return $columns;
     }
@@ -213,7 +218,7 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
         $sortable_columns = array(
             'name' => array('name', false), //true means it's already sorted
             'id' => array('id', false),
-            'number_of_users' => array('number_of_users', false)
+            //'number_of_users' => array('number_of_users', false)
         );
         return $sortable_columns;
     }
@@ -236,11 +241,10 @@ class Wtf_Fu_Workflow_List_Table extends WP_List_Table {
         $actions = array(
             'delete' => 'Delete',
             'clone' => 'Clone',
-         //   'export' => 'Export'
+                //   'export' => 'Export'
         );
         return $actions;
     }
-
 
     /**
      * REQUIRED! This is where you prepare your data for display. This method will

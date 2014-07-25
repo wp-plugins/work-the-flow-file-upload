@@ -6,7 +6,7 @@
 
     $(document).on('click', '#wtf_fu_operation_button', function(event) {
         
-        console.log('this is ', this);
+        //console.log('this is ', this);
 
         var data = {
             action: 'wtf_fu_admin_operations',
@@ -14,7 +14,11 @@
             value: this.value
         };
         
-        console.log(data);
+        if (data.operation == 'add_new_workflow') {
+            data['add_workflow_name'] = document.getElementById('add_workflow_name').value;
+        }
+        
+        //console.log(data);
 
         $.ajax({
             url: ajaxurl,

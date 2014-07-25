@@ -26,19 +26,16 @@ $table->prepare_items();
 ?>
 <div class="wrap">
     <div id="icon-users" class="icon32"><br/></div>
-    <h2>Manage Users</h2>
     <div style="background:#ECECEC;border:1px solid #CCC;padding:0 10px;margin-top:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;">
         <p>List of users with currently active Workflows.</p>
-        <p>Click a users name to manage that users uploaded files.</p>
-        <p>Click edit (under the users name) to go to the Wordpress User settings page for that user.</p> 
-        <p>To modify a user(s) stage in a workflow, change the users stage number, click the checkbox in the left column and select 'Update' from the bulk actions menu. Then Apply</p>
+        
+        <!-- wrap the table in a form to use features like bulk actions -->
+        <form id="workflows-filter" method="get">
+            <!-- For plugins, we also need to ensure that the form posts back to our current page -->
+            <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+            <input type="hidden" name="tab" value="<?php echo $_REQUEST['tab'] ?>" />
+            <!-- Now we can render the completed list table -->
+            <?php $table->display() ?>
+        </form>
     </div>
-    <!-- Forms are NOT created automatically, so you need to wrap the table in one to use features like bulk actions -->
-    <form id="workflows-filter" method="get">
-        <!-- For plugins, we also need to ensure that the form posts back to our current page -->
-        <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
-        <input type="hidden" name="tab" value="<?php echo $_REQUEST['tab'] ?>" />
-        <!-- Now we can render the completed list table -->
-        <?php $table->display() ?>
-    </form>
 </div>

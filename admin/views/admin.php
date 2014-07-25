@@ -44,5 +44,6 @@ $page_slug = $this->plugin_slug;
             echo "</a>";
         }
         ?>
-    </h2>        
+    </h2>   
+    <?php settings_errors(); ?>
 </div>

@@ -64,7 +64,7 @@ define('wtf_fu_DEFAULTS_UPLOAD_KEY', 'wtf-fu-upload-defaults');
 define('wtf_fu_DEFAULTS_STAGE_KEY', 'wtf-fu-stage-defaults');
 define('wtf_fu_DEFAULTS_WORKFLOW_KEY', 'wtf-fu-workflow-defaults');
 define('wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY', 'wtf-fu-showfiles-defaults');
-define('wtf_fu_DEFAULTS_TEMPLATE_FIELDS_KEY', 'wtf-fu-template-fields');
+define('wtf_fu_DEFAULTS_SHORTCUTS_KEY', 'wtf-fu-template-fields');
 
 define('wtf_fu_DEFAULT_WORKFLOW_TEMPLATE', '<div class="panel panel-default tbs">
         <div class="panel-heading">
@@ -158,21 +158,23 @@ class Wtf_Fu_Option_Definitions {
                 'thumbnail_height' => '80',
             ),
             wtf_fu_DEFAULTS_WORKFLOW_KEY => array(
+                'name' => 'Unnamed Workflow',
                 'id' => '',
-                'testing_mode' => '0',               
-                'name' => 'New workflow ....',
+                'notes' => 'Enter any private workflow notes here.',
+                'description' => 'Enter a description for this workflow.',
+                'testing_mode' => '0',                              
                 'include_plugin_style_default_overrides' => '1',                
                 'default_back_label' => "Go Back",
                 'default_next_label' => "Next",
             ),
             wtf_fu_DEFAULTS_STAGE_KEY => array(
-                'stage_title' => '',
-                'header' => 'In this stage we will ....',
+                'stage_title' => 'Stage %%WORKFLOW_STAGE_NUMBER%%.',
+                'header' => 'In this stage we will ...',
                 'content_area' => 'Enter the workflow stage main body of content here.',
                 'footer' => 'Press next to proceed.',
                 'next_active' => '1',
                 'next_label' => '',
-                'next_js' => '" onClick="return confirm(\'Are you sure you want to proceed ?\');"',
+                'next_js' => '',
                 'back_active' => '1',
                 'back_label' => '',
                 'back_js' => '',
@@ -210,12 +212,12 @@ class Wtf_Fu_Option_Definitions {
         $this->all_pages_default_labels = array(
             wtf_fu_DEFAULTS_PLUGIN_KEY => array(
                 'remove_all_data_on_uninstall' =>
-                'Check this to allow the removal of all the plugin and user 
-                 workflow options data during uninstall. <br/>
+                'Allows the removal of all the plugin and user 
+                 workflow options data during an uninstall. <br/>
                  It is recommended to leave this off unless you are really sure you want to remove all your data when you uninstall this plugin.
-                 If off then it is safe to delete and reinstall this plugin without losing your data.',
-                'include_plugin_style' => 'Check to include the bootstrap css used by workflow. <br/>'
-                . 'It is recommended to leave this on unless you have style conflicts with your theme.',                
+                 If off then it is safe to delete and reinstall this plugin without losing any workflow data.',
+                'include_plugin_style' => 'Include the bootstrap css used by workflow. <br/>'
+                . 'It is recommended to leave this ON unless you have style conflicts with your theme.',                
                 'show_powered_by_link' => 'Supports this plugin by allowing the inclusion of a powered by link to wtf-fu.com when the %%WTF_FU_POWERED_BY_LINK%% shortcut is used in your templates.'
                 . 'if false then the link will never be included, even when the shortcut is used in a template.'
             ),
@@ -226,7 +228,7 @@ class Wtf_Fu_Option_Definitions {
                  or you understand the risks and really do want to allow ANY user to be able to 
                  upload files to your site.',
                 'use_public_dir'=> 'Causes uploads to use the <code>/uploads/public</code> as the root directory instead of <code>/uploads/[user_id]</code>.
-                    This has the effect of causing uploads to be shared amoungst all users.',
+                    This has the effect of causing uploads to be shared amoungst all users registered or not.',
                 'wtf_upload_dir' =>
                 'The default upload directory name. 
                     This will be under the users upload directory.
@@ -235,7 +237,7 @@ class Wtf_Fu_Option_Definitions {
                 'wtf_upload_subdir' =>
                 'You may optionally specify a default upload sub directory name.
                     If specified this will be appended to the upload_dir.
-                     e.g. <code>yoursitedirecory/wp-content/uploads/4/wtf_upload_dir/<strong>default</strong>/</code>"',
+                     e.g. <code>yoursitedirecory/wp-content/uploads/[user_id]/wtf_upload_dir/<strong>default</strong>/</code>"',
                 'accept_file_types' =>
                 'Allowed upload file type extensions separated by a | character. 
                     This is later expanded to a regular expression so other regexp 
@@ -254,7 +256,7 @@ class Wtf_Fu_Option_Definitions {
                     Note that your web host may also impose limits on http upload file sizes.
                     This can be adjusted by modifying the <code>upload_max_filesize</code> 
                     and <code>post_max_size</code> variable in either php.ini or .htaccess 
-                    There is a <a href=\"http://www.wpbeginner.com/wp-tutorials/how-to-increase-the-maximum-file-upload-size-in-wordpress/\">tutorial here</a> that may help',
+                    There is a <a href="http://www.wpbeginner.com/wp-tutorials/how-to-increase-the-maximum-file-upload-size-in-wordpress/" target="_blank">tutorial here</a> that may help',
                 'max_number_of_files' =>
                 'The Maximum number of files for each user that may be uploaded to 
                     <code>wtf_upload_dir</code>',
@@ -275,19 +277,15 @@ class Wtf_Fu_Option_Definitions {
                 'Maximum height for thumbnail images.',
             ),
             wtf_fu_DEFAULTS_WORKFLOW_KEY => array(
-                'id' =>
-                'Workflow id is assigned automatically to the first available empty.
-                    workflow id when the workflow is first added or cloned.
-                    This value cannot be modified.',
-                'testing_mode' =>
-                'Check to enable testing mode. 
-                    In testing mode forward and next button will always be shown.',
-                'name' =>
-                'The name for this workflow. '
+                'name' => 'Enter a name for this workflow. '
                 . 'This value can be referenced in stage content and email and workflow templates using the <code>%%WORKFLOW_NAME%% shortcut</code>',
+                'id' => 'Workflow id\'s are assigned automatically. This value cannot be modified.',
+                'notes' => 'Your notes about this workflow (admin use only).',
+                'description' => 'Enter a description for this workflow. (admin use only).',
+                'testing_mode' => 'Enables testing mode, in testing mode forward and next button are always shown to enable easier testing',
                 'include_plugin_style_default_overrides' => 'Check to include the default workflow style overloads.',                
-                'default_back_label' => 'Default Back Button text label. (used if not overridden in stages)',
-                'default_next_label' => 'Default Next Button text label. (used if not overridden in stages)',
+                'default_back_label' => 'Default Back Button text label. ( used if not overridden in stages )',
+                'default_next_label' => 'Default Next Button text label. ( used if not overridden in stages )',
             ),
             wtf_fu_DEFAULTS_STAGE_KEY => array(
                 'stage_title' =>
@@ -296,20 +294,21 @@ class Wtf_Fu_Option_Definitions {
                 'header' => 'Content to be displayed in the header.',
                 'content_area' =>
                 'The main content for the stage. 
-                    You may embed other shortcodes in here. 
-                    e.g. <code><strong>[wtf_fu_upload]</strong></code> to embed a file upload or 
-                    <code><strong>[wtf_fu type=\'get\' value=\'workflow\' id=\'1\' key=\'name\']</strong></code>
-                     to embed the name of the workflow with id=1',
+                    You may embed other wtf-fu shortcodes in here. 
+                    e.g. <code><strong>[wtf_fu_upload ...]</strong></code> to embed a file upload.
+                    or <code><strong>[wtf_fu_show_files ...]</strong></code> to display a users previously uploaded files.',
                 'footer' =>
                 'Text that will appear in the stage footer section.',
-                'next_active' => 'Allow user to go forward a stage from here. Activates the Next Button for this stage.',
+                'next_active' => 'Allow users to go forward a stage from here. Activates the Next button for this stage.',
                 'next_label' => 'The label for the next button for this stage',
-                'next_js' => '',
-                'back_active' =>
-                'Allow user to go back a stage from here. Causes the Back Button to display.',
+                'next_js' => 'Add any javascript to attach to the next button.<br/> 
+                    e.g. <strong>onClick="return confirm(\'Are you sure you want to proceed ?\');"</strong>
+                    <br><small style="color:red">( Warning! : Please test your javascript thoroughly on all browsers. )',
+                'back_active' => 'Allow users to go back a stage from here. Causes the Back button to display.',
                 'back_label' => 'The label for the back button for this stage',
-                'back_js' => 'Adhoc javascript to attach to the back button. 
-                    e.g. onClick="return confirm(\'Are you sure ?\');"',
+                'back_js' => 'Add any javascript to attach to the back button.<br/> 
+                    e.g. <strong>onClick="return confirm(\'Are you sure you want to go back now ?\');"</strong>
+                    <br><small style="color:red">( Warning! : Please test your javascript thoroughly on all browsers. )',
                 'pre_hook' => 'Enter a user defined function to be executed before a user 
                 enters this stage.',
                 'post_hook' => 'Enter a user defined function to be executed after a user 
@@ -335,7 +334,7 @@ class Wtf_Fu_Option_Definitions {
                 'use_public_dir' => '0 (false) or 1 (true). '
                . 'Force listing of files from the uploads/public directory rather than the uploads/user_id directory.'
                 ),  
-            wtf_fu_DEFAULTS_TEMPLATE_FIELDS_KEY => array(          
+            wtf_fu_DEFAULTS_SHORTCUTS_KEY => array(          
                 '%%USER_ID%%' => 'The current users user ID.',
                 '%%USER_NAME%%' => 'The current users display name.',
                 '%%USER_EMAIL%%' => 'The current users email address.',

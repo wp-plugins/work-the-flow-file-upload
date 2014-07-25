@@ -4,7 +4,7 @@ Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
 Tested up to: 3.9.1
-Stable tag: 2.2.0
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -324,6 +324,12 @@ lynton@wtf-fu.com for a quote.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 2.3.0 =
+* Greatly improved documentation.
+* Help tabs added to admin screens for easy access to documentation and to unclutter the admin input screens.
+* Updated with new simpler workflow Demo.
+* Bugfix for issue with delete when 'use_public_dir="1"' attribute was set, a registered user was logged on, and the server was remote.
+
 = 2.2.0 = 
 * Added extra shortcut field %%USER_ID%%.
 * Added extra shortcut field %%USER_GROUP_XXXX_EMAILS%%.
@@ -447,6 +453,12 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 2.3.0 =
+* Greatly improved documentation.
+* Help tabs added to admin screens for easy access to documentation and to unclutter the admin input screens.
+* Updated with new simpler workflow Demo.
+* Bugfix for issue with delete when 'use_public_dir="1"' attribute was set, a registered user was logged on, and the server was remote.
+
 = 2.2.0 = 
 * Extra shortcut fields %%USER_ID%%, %%USER_GROUP_XXXX_EMAILS%%, %%ARCHIVE_USERS_FILES%%.
 * Multiple automated emails templates can now be attached to workflow stages (PRO Feature).

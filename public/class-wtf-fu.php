@@ -43,7 +43,7 @@ class Wtf_Fu {
      * references.
      * @var     string
      */
-    const VERSION = '2.2.0';
+    const VERSION = '2.3.0';
 
     /**
      * Unique plugin identifier.
@@ -367,17 +367,13 @@ class Wtf_Fu {
     public function enqueue_scripts() {
 
         if (self::wtf_fu_has_shortcode('wtf_fu')) {
-
-            
-           // wp_enqueue_script($this->plugin_slug . '-plugin-script', plugins_url('assets/js/public.js', __FILE__), array(), self::VERSION);
            
-            // TODO:   better if we can use local wp resources instead of cde.jquery.com
+            // TODO:   better if we can use local wp resources instead of code.jquery.com
             //wp_enqueue_script('jquery');
             //wp_enqueue_script('jquery-ui-core');
             //wp_enqueue_script('jquery-ui-widget');
             //
-            //jquery-ui-core jquery  jquery-ui-widget 
-            
+            //jquery-ui-core jquery  jquery-ui-widget            
             // log_me(array('avail scripts :' => $GLOBALS['wp_scripts']));
 
             if (!wp_script_is('jquery')) {
@@ -445,6 +441,8 @@ class Wtf_Fu {
                 //log_me("$fileupload_handle is already enqueued");
             }
             
+           // utility scripts like accordion action.
+           wp_enqueue_script($this->plugin_slug . '-plugin-script', plugins_url('assets/js/public.js', __FILE__), array('jquery'), self::VERSION, true); 
             
            $workflow_handle = $this->plugin_slug . '-workflow-js';
             wp_enqueue_script($workflow_handle, plugin_dir_url(__FILE__) . 'assets/js/wtf-fu-workflow.js', 

@@ -484,7 +484,7 @@ function wtf_fu_get_files_list_box($option_name, $pattern, $suffix = '', $label)
    $values = array( array('name' => 'New Empty Workflow', 'value' => ''));
    
    foreach ($files as $f) {
-       $values[] = array('name' => basename($f, $suffix), 'value' => $f);
+       $values[] = array('name' => basename($f, $suffix), 'value' => basename($f));
    }
    
    $dropbox = wtf_fu_list_box($option_name, $option_name, '' , $label, $values); 

@@ -94,8 +94,8 @@ class Wtf_Fu_Admin {
                     // Get the json file to clone from the listbox.
                     $file_to_clone = $_REQUEST['add_workflow_name'];
                     if (!empty($file_to_clone)) {
-                        $workflow_settings = json_decode(file_get_contents($file_to_clone), true);
-                        
+                        $file_to_clone_path = dirname(plugin_dir_path(__FILE__)) . '/examples/workflows/' . $file_to_clone;
+                        $workflow_settings = json_decode(file_get_contents($file_to_clone_path), true);                        
                         $wf_index = Wtf_Fu_Options_Admin::create_workflow($workflow_settings);
                         $fname = basename($file_to_clone, '.json');
                         $response_message = "A a new $fname workflow has been added with with ID = $wf_index.";

@@ -4,7 +4,7 @@ Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
 Tested up to: 3.9.1
-Stable tag: 2.3.0
+Stable tag: 2.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -324,6 +324,9 @@ lynton@wtf-fu.com for a quote.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 2.3.1 =
+* Fix loading of new demo workflow bug.
+
 = 2.3.0 =
 * Greatly improved documentation.
 * Help tabs added to admin screens for easy access to documentation and to unclutter the admin input screens.
@@ -453,6 +456,9 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 2.3.1 =
+* Fix loading of new demo workflow bug.
+
 = 2.3.0 =
 * Greatly improved documentation.
 * Help tabs added to admin screens for easy access to documentation and to unclutter the admin input screens.

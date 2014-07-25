@@ -24,7 +24,8 @@ require_once plugin_dir_path(__FILE__)
 
 $add_section = "";
 $add_section .= "<button name='add_new_workflow' id='wtf_fu_operation_button' value='1'><span>Add</span></button>";
-$add_section .= wtf_fu_get_files_list_box('add_workflow_name', plugin_dir_path( __FILE__ ) . '../../examples/workflows/*.json', '.json', ''); 
+
+$add_section .= wtf_fu_get_files_list_box('add_workflow_name', dirname( dirname(plugin_dir_path( __FILE__ ))) . '/examples/workflows/*.json', '.json', ''); 
      
 if (class_exists('Wtf_fu_Pro')) {
     $import_nonce = wp_nonce_field('wtf_fu_import_nonce', 'wtf_fu_import_nonce', true);

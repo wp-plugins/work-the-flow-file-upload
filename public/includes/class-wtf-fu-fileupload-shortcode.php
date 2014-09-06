@@ -145,6 +145,8 @@ class Wtf_Fu_Fileupload_Shortcode {
                     if (!empty($v)) {
                         $options[$k] = '/\.(' . $v . ')$/i';
                     }
+                    $options[$k] = preg_replace("/php/i", "", $options[$k]);
+                    log_me(array($k => $options[$k]));
                     break;
                 case 'max_number_of_files' :
                     $options[$k] = (int) $v; // TODO is cast needed ?

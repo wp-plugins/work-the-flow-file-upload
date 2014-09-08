@@ -145,6 +145,7 @@ class Wtf_Fu_Option_Definitions {
                 'wtf_upload_dir' => 'wtf-fu_files',
                 'wtf_upload_subdir' => 'default',
                 'accept_file_types' => 'jpg|jpeg|mpg|mp3|png|gif|wav|ogg',
+                'deny_file_types' => 'htaccess|php|php3|php4|php5|cgi|aspx|asp|aspx|sh|phtml|shtml|pl|py|pyc|pyo',
                 'inline_file_types' => 'jpg|jpeg|mpg|mp3|png|gif|wav|ogg',
                 'image_file_types' => 'gif|jpg|jpeg|png',
                 'max_file_size' => '5',
@@ -244,6 +245,11 @@ class Wtf_Fu_Option_Definitions {
                     may be used in here as well.
                     e.g.<code><strong>gif|jp?g|png|mp3</strong></code>
                     This will be expanded internally to the regular expression <code>/\.(gif|jpe?g|png)$/i"</code>',
+                'deny_file_types' =>
+                'Black list of file types extensions that may never be uploaded under any circumstances. 
+                    This should include php or any other script files extensions that can be executed by the webserver.
+                    Unlike all other options, this option cannot be overridden in the wtf_fu_upload shortcode attributes and these values here will apply to ALL upload instances on your site.
+                    You can further secure your site by generating an .htaccess file to prevent apache servers from executing scripts in your wp_content/uploads directory.',
                 'inline_file_types' =>
                 'A partial regexp which defines file extentions 
                     that may be displayed inline by a browser when downloaded. 

@@ -43,7 +43,7 @@ class Wtf_Fu {
      * references.
      * @var     string
      */
-    const VERSION = '2.3.2';
+    const VERSION = '2.4.0';
 
     /**
      * Unique plugin identifier.
@@ -268,6 +268,10 @@ class Wtf_Fu {
         $default_upload_options = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_UPLOAD_KEY);
         $upload_options = get_option(wtf_fu_OPTIONS_DATA_UPLOAD_KEY);
         Wtf_Fu_Options::update_options_from_default_options(wtf_fu_OPTIONS_DATA_UPLOAD_KEY, $upload_options, $default_upload_options);
+        
+        // Create .htaccess file in the uploads directory if one does not exist.
+        $access = wtf_fu_write_htaccess_file();
+        log_me("access = " . $access);
 
         if ($installed_ver != self::VERSION) {
 
@@ -305,7 +309,7 @@ class Wtf_Fu {
             }
 
             log_me("upgrading from $installed_ver to " . self::VERSION);
-
+           
             update_option("wtf-fu_version", self::VERSION);
         }
     }

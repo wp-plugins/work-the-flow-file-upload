@@ -43,12 +43,16 @@ class Wtf_Fu_Fileupload_Shortcode {
     public static function wtf_fu_load_ajax_function() {
         
         ob_start();
-
-        //log_me(array("wtf_fu_load_ajax_function REQUEST=" => $_REQUEST));
         
         // Get the option defaults.
-        $options = Wtf_Fu_Options::get_upload_options();
-
+        $db_options = Wtf_Fu_Options::get_upload_options();
+        if ((wtf_fu_get_value($db_options, 'deny_public_uploads') == true) && !is_user_logged_in()) {
+            ob_end_clean();
+            die("<div class=\"alert\">Public upload access is not allowed. Please log in and try again.</div>");
+        }   
+           
+        $options = $db_options;
+        
         // Overwrite defaults with options set by the request.
         foreach (array_keys($options) as $k) {
             if (isset($_REQUEST[$k])) {
@@ -58,19 +62,19 @@ class Wtf_Fu_Fileupload_Shortcode {
 
         // put in a fornat suitable for the UploadHandler.
         $options = self::massageUploadHandlerOptions($options);
+        
+        // Add in deny options from database AFTER we have processed form field options.
+        $options['deny_file_types'] = '/\.('. $db_options['deny_file_types'] . ')$/i';   
 
         // Include the upload handler.
-        //require_once(wtf_fu_JQUERY_FILE_UPLOAD_HANDLER_FILE);
         require_once('UploadHandler.php');
 
         error_reporting(E_ALL | E_STRICT);
         
-        ob_end_clean(); // clear and discard any output to now
-                        // *must* be before calling UploadHandler()
-        
+        ob_end_clean(); // Discard any warnings output.
+                  
         $upload_handler = new UploadHandler($options);
-        
-        
+
         die(); // always exit after an ajax call.
     }
 
@@ -100,14 +104,12 @@ class Wtf_Fu_Fileupload_Shortcode {
             // $raw_options['wtf_upload_dir'] = 'public';
         }
 
-         /*
+        /*
          * user_id 0 will get paths for current user.
          */
         $paths = wtf_fu_get_user_upload_paths(
                 $raw_options['wtf_upload_dir'], $raw_options['wtf_upload_subdir'], 0, $raw_options['use_public_dir']);
         
-
-
         $options = array();
         $options['script_url'] = admin_url('admin-ajax.php');
         $options['upload_dir'] = $paths['upload_dir'] . '/';
@@ -145,8 +147,6 @@ class Wtf_Fu_Fileupload_Shortcode {
                     if (!empty($v)) {
                         $options[$k] = '/\.(' . $v . ')$/i';
                     }
-                    $options[$k] = preg_replace("/php/i", "", $options[$k]);
-                    log_me(array($k => $options[$k]));
                     break;
                 case 'max_number_of_files' :
                     $options[$k] = (int) $v; // TODO is cast needed ?
@@ -192,6 +192,7 @@ class Wtf_Fu_Fileupload_Shortcode {
                     $options[$k] = $v;  // add any others as is unmodified.
             }
         }
+        
         return $options;
     }
 

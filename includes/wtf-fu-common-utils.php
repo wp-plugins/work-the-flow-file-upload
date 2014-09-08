@@ -92,6 +92,40 @@ function wtf_fu_write_file($filename, $text) {
     //log_me("wrote file $filename");
 }
 
+   /**
+     * Write an htaccess file out to the wp upload directory,
+     * only if file does not already exist.
+     */
+function wtf_fu_write_htaccess_file() {
+
+    $dir = wp_upload_dir();
+
+    if (false !== $dir['error']) { 
+        return $dir['error'];
+    }
+
+    $filename = $dir['basedir'] . "/.htaccess";
+
+    $text = 
+"# BEGIN wtf-fu modifications
+<Files *>
+    SetHandler none
+    SetHandler default-handler
+    Options -ExecCGI -Indexes
+    php_flag engine off
+    RemoveHandler .cgi .php .php3 .php4 .php5 .phtml .pl .py .pyc .pyo .asp .aspx 
+</Files>
+# END wtf-fu modifications";
+                     
+    if ( !file_exists($filename)) {
+        wtf_fu_write_file($filename, $text); 
+        return "To better secure file uploads the file : $filename has been created.";
+    } else {
+        return "$filename not required to be created as it already exists.";
+    }
+}
+
+
 function wtf_fu_get_javascript_form_vars($name, $php_array) {
 
     $js_array = json_encode($php_array);
@@ -786,7 +820,11 @@ function wtf_fu_get_admininterface_info($type = 'all') {
                 . "<p>This can be useful if you use a large number of shortcodes with many attributes that are different from the factory default settings.</p>"
                 . "<p>You don't need to worry too much about this, it is just a convenience method for overriding the default attribute values, in most cases it is probably clearer and easier to just "
                 . "specify the required attributes with the embedded shortcode itself, and leave the defaults as they are. The embedded attribute values will always take precedence over "
-                . "whatever the default are set to. The defaults only apply for attributes not specified when using the shortcode.</p>";          
+                . "whatever the default are set to. The defaults only apply for attributes not specified when using the shortcode.</p>"
+                . "<p>In 2.4.0 the attribute <code>[<strong>deny_file_types</strong>]</code> was added to provide file type extensions that should never be uploaded for security purposes. This attribute is system wide for all "
+                . "upload instances and (unlike all the other attributes) this cannot be overriden in embedded shortcodes.<p>"
+                . "<p>For additional security a .htaccess file is auto generated (if one does not already exist) in the wordpress uploads directory. Provided your webhost runs an apache webserver configured to allow .htaccess rules, "
+                . "this file will prevent apache webservers from executing ptoentially malicious scripts uploaded under this directory.</p>";          
             
         case 'Workflows' :
             return "<p>This page lists all the Workflows that are currently in your database. >br/>"

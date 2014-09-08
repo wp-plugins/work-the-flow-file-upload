@@ -3,8 +3,8 @@ Contributors: lynton_reed
 Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
-Tested up to: 3.9.1
-Stable tag: 2.3.2
+Tested up to: 4.0
+Stable tag: 2.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -324,6 +324,10 @@ lynton@wtf-fu.com for a quote.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 2.4.0 =
+* Security enhancement, deny_file_type added to upload options.
+* Security enhancement, default .htaccess file generated in upload directory to prevent script execution of uploads.
+
 = 2.3.2 =
 * Fix for accept_file_types vulnerability where malicious authenticated users could manipulate the allowed upload file types to upload files with .php extensions
 
@@ -459,6 +463,10 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 2.4.0 =
+* Security enhancement, deny_file_type added to upload options.
+* Security enhancement, .htaccess file generated in upload directory to prevent script execution of uploads.
+
 = 2.3.2 =
 * Fix for accept_file_types vulnerability where malicious authenticated users could manipulate the allowed upload file types to upload files with .php extensions
 

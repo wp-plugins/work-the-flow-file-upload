@@ -27,6 +27,7 @@ if (!is_admin()) {
  * utility methods.
  */
 class Wtf_Fu_Admin_Utils {
+    
 
     /**
      * Safely delete a file or directory.
@@ -138,5 +139,7 @@ class Wtf_Fu_Admin_Utils {
         
         return $ret;
     }
+    
+    
 
 } // End class

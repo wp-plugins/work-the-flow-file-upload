@@ -26,6 +26,7 @@ $menu_items = Wtf_Fu_Option_Definitions::get_instance()->get_menu_page_values();
 $page_slug = $this->plugin_slug;
 ?>
 
+
 <div class="wrap">
     <h3><?php echo esc_html(get_admin_page_title());?>&nbsp;&nbsp;<small>[&nbsp;<?php echo wtf_fu_get_version_info(); ?>&nbsp]</small></h3>
 <div style="background:#ECECEC;border:1px solid #CCC;padding:0 10px;margin-top:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;">    
@@ -43,6 +44,7 @@ $page_slug = $this->plugin_slug;
             _e($v['title'], $page_slug);
             echo "</a>";
         }
+        
         ?>
     </h2>   
     <?php settings_errors(); ?>

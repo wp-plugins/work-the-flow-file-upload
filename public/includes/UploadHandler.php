@@ -28,7 +28,8 @@ class UploadHandler
         'post_max_size' => 'The uploaded file exceeds the post_max_size directive in php.ini',
         'max_file_size' => 'File is too big',
         'min_file_size' => 'File is too small',
-        'accept_file_types' => 'Filetype not allowed',
+        'accept_file_types' => 'Filetype not accepted',
+        'deny_file_types' => 'Filetype denied.',      
         'max_number_of_files' => 'Maximum number of files exceeded',
         'max_width' => 'Image exceeds maximum width',
         'min_width' => 'Image requires a minimum width',
@@ -84,7 +85,7 @@ class UploadHandler
             // Defines which files (based on their names) are accepted for upload:
             'accept_file_types' => '/.+$/i',
             // The php.ini settings upload_max_filesize and post_max_size
-            // take precedence over the following max_file_size setting:
+            // take precedence over the following max_file_size setting:            
             'max_file_size' => null,
             'min_file_size' => 1,
             // The maximum number of files for the upload directory:
@@ -389,7 +390,7 @@ class UploadHandler
     }
 
     protected function validate($uploaded_file, $file, $error, $index) {
-        error_log('validate($uploaded_file, $file, $error)=' . print_r(array($uploaded_file, $file, $error, $index) , true));
+        // error_log('validate($uploaded_file, $file, $error)=' . print_r(array($uploaded_file, $file, $error, $index) , true));
 
         if ($error) {
             $file->error = $this->get_error_message($error);
@@ -405,9 +406,20 @@ class UploadHandler
             return false;
         }
         if (!preg_match($this->options['accept_file_types'], $file->name)) {
+           // log_me(array('filename' => $file->name, 'accept_file_types' => $this->options['accept_file_types']));
             $file->error = $this->get_error_message('accept_file_types');
             return false;
         }
+        
+        // Added LR 7/9/2014
+        // Validate against denied file types 
+        // log_me(array("deny file tpye validation for " => $file->name));
+        if (preg_match($this->options['deny_file_types'], $file->name)) {
+            $file->error = $this->get_error_message('deny_file_types');
+            return false;
+        }              
+        // END Deny file type validation.
+        
         if ($uploaded_file && is_uploaded_file($uploaded_file)) {
             $file_size = $this->get_file_size($uploaded_file);
         } else {

@@ -1043,9 +1043,10 @@ class Wtf_Fu_Admin {
             case 'wtf_upload_dir' :
             case 'wtf_upload_subdir' :
             case 'accept_file_types' :
+            case 'deny_file_types' :
             case 'inline_file_types' :
             case 'image_file_types' :
-                echo wtf_fu_text_input($option_id, $option_name, $val, 60, $label);
+                echo wtf_fu_text_input($option_id, $option_name, $val, 80, $label);
                 break;
             default :
                 do_action('wtf_fu_render_upload_default_options_field_action', $args, $option_id, $option_name, $val);

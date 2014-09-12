@@ -112,7 +112,6 @@ function wtf_fu_write_htaccess_file() {
     SetHandler none
     SetHandler default-handler
     Options -ExecCGI -Indexes
-    php_flag engine off
     RemoveHandler .cgi .php .php3 .php4 .php5 .phtml .pl .py .pyc .pyo .asp .aspx 
 </Files>
 # END wtf-fu modifications";
@@ -121,7 +120,20 @@ function wtf_fu_write_htaccess_file() {
         wtf_fu_write_file($filename, $text); 
         return "To better secure file uploads the file : $filename has been created.";
     } else {
-        return "$filename not required to be created as it already exists.";
+        
+        $pattern = "/# BEGIN wtf-fu modifications.*# END wtf-fu modifications/s";
+        // inspect the .htaccess file and replace the wtf-fu section if it is already there.
+        
+        $file_contents = file_get_contents($filename);
+        
+        log_me(array(".htacess" => $file_contents, "pattern" => $pattern));
+        
+        if ( preg_match($pattern, $file_contents) ) {
+            $file_contents = preg_replace($pattern, $text , $file_contents);
+            file_put_contents($filename, $file_contents);
+            return "$filename wtf-fu section has been updated.";        
+        }
+        return "$filename exists and has not been altered for wtf-fu modifications.";
     }
 }
 

@@ -19,8 +19,7 @@
                 }
                 if (item.querySelector('#accordion') !== null) {
                     wtf_accordion_init();
-                }
-                
+                }                
                 //console.log(item);
             }
         });
@@ -32,11 +31,16 @@
 // pass in the target node, as well as the observer options
     observer.observe(target, config);
 
+    var clicked_name;
+    var clicked_value;
+
+    $(document).on('click' , '#workflow_submit_button',  function(event) {
+            clicked_name = $(this).attr('name');
+            clicked_value = $(this).val();
+            console.log("clicked called");
+    });
 
     $(document).on('submit', '#wtf_workflow_form', function(event) {
-
-        // The selected button that submitted the form.
-        var btn = $(":input[type=submit]:focus");
 
         $(":input[type='submit']").attr("disabled", true);
 
@@ -45,8 +49,8 @@
             fn: this.fn.value,
             workflow_id: this.workflow_id.value,
             stage: this.stage.value,
-            button_name: btn.attr('name'),
-            button_value: btn.val()
+            button_name: clicked_name,
+            button_value: clicked_value
         };
 
         // Add processing spinner

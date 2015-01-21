@@ -3,8 +3,8 @@ Contributors: lynton_reed
 Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
-Tested up to: 4.0
-Stable tag: 2.4.1
+Tested up to: 4.1
+Stable tag: 2.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -324,6 +324,11 @@ lynton@wtf-fu.com for a quote.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 2.5.0 =
+* Fix for IOS and Mac Safari browsers getting stuck on the same stage. (Special thanks to Marie for her detailed help in testing on many platforms).
+* Note that Mac / Safari 5.x will not work, the minimum required version is 6.04.
+* Additional security features added.
+
 = 2.4.1 =
 * Fix for generated .htaccess file preventing image display on some servers.
 
@@ -466,6 +471,11 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 2.5.0 =
+* Fix for IOS and Mac Safari browsers getting stuck on the same stage. (Special thanks to Marie for her detailed help in testing on many platforms).
+* Note that Mac / Safari 5.x will not work, the minimum required version is 6.04.
+* Additional security features added.
+
 = 2.4.1 =
 * Fix for generated .htaccess file preventing image display on some servers.
 

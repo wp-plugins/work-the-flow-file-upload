@@ -9,7 +9,11 @@ function wtf_file_upload_init() {
        
     // Capture form data fields to pass on to ajax request as POST vars.
     var WtfFuUploadFormData = $("#fileupload").serializeArray();
-
+    
+    // add in the nonce to the request data.
+    WtfFuUploadFormData.push({name : "security", value : WtfFuAjaxVars.security}); 
+    
+    // console.log(WtfFuUploadFormData);
     // Initialize the jQuery File Upload widget:
     $('#fileupload').fileupload({
         // Uncomment the following to send cross-domain cookies:
@@ -28,8 +32,8 @@ function wtf_file_upload_init() {
     $('#fileupload').addClass('fileupload-processing');
  
     $.ajax({
-       url: WtfFuAjaxVars.url, // $('#fileupload').fileupload('option', 'url'),
-       data: WtfFuUploadFormData, // serialized form fields,
+       url: WtfFuAjaxVars.url, 
+       data: WtfFuUploadFormData, 
        dataType: 'json',
        context: $('#fileupload')[0]
     }).always(function () {

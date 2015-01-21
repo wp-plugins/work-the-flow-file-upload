@@ -51,6 +51,8 @@ class Wtf_Fu_Admin {
      * @since     1.0.0
      */
     private function __construct() {
+        
+        //log_me("admin constructor");
 
         $plugin = Wtf_Fu::get_instance();
         $this->plugin_slug = $plugin->get_plugin_slug();

@@ -42,6 +42,9 @@ class Wtf_Fu_Fileupload_Shortcode {
 
     public static function wtf_fu_load_ajax_function() {
         
+//        log_me(array("ajax handler REQUEST:" => $_REQUEST));        
+        check_ajax_referer( 'wtf_fu_upload_nonce', 'security' );
+        
         ob_start();
         
         // Get the option defaults.
@@ -208,6 +211,7 @@ class Wtf_Fu_Fileupload_Shortcode {
         // Add the ajax handler action for jQuery to our options.
         $options['action'] = 'load_ajax_function';
 
+        
         // 
         // Put unmassaged options into POST vars for subsequent posts of 
         // the form. These are then read by the ajax handler load_ajax_function.
@@ -216,6 +220,10 @@ class Wtf_Fu_Fileupload_Shortcode {
         foreach ($options as $k => $v) {
             $form_vars = $form_vars . '<input type="hidden" name="' . $k . '" value="' . $v . '" />';
         };
+        
+        
+        
+        // log_me(array("form created"=>$form_vars));
 
         // The form action MUST be the wp admin hander which will then delegate
         // to our ajax hook load_ajax_function. 

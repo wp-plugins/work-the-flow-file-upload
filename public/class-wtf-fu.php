@@ -43,7 +43,7 @@ class Wtf_Fu {
      * references.
      * @var     string
      */
-    const VERSION = '2.4.1';
+    const VERSION = '2.5.0';
 
     /**
      * Unique plugin identifier.
@@ -66,7 +66,7 @@ class Wtf_Fu {
      */
     private function __construct() {
 
-        //log_me('__construct  Wtf_Fu ');
+        // log_me('__construct  Wtf_Fu ');
         //log_me('memory=' . memory_get_usage(true) . "\n");
         //log_me('peak memory=' . memory_get_peak_usage(true) . "\n");
 
@@ -94,7 +94,7 @@ class Wtf_Fu {
 
         // Short code hooks to methods which instantiate the required shortcode
         // handler classes and return the handler output.
-        add_shortcode('wtf_fu', array($this, 'wtf_fu_shortcode'));
+        add_shortcode('wtf_fu', array($this, 'wtf_fu_shortcode'));                              
         add_shortcode('wtf_fu_upload', array($this, 'file_upload_shortcode'));
         add_shortcode('wtf_fu_show_files', array($this, 'show_files_shortcode'));
     }
@@ -436,8 +436,11 @@ class Wtf_Fu {
                 wp_register_script($fileupload_handle, plugin_dir_url(__FILE__) . 'assets/js/wtf-fu-file-upload.js', array('jquery', 'wp-ajax-response'), Wtf_Fu::VERSION, true);
                 wp_enqueue_script($fileupload_handle);
 
-                $ret = wp_localize_script($fileupload_handle, 'WtfFuAjaxVars', array('url' => admin_url('admin-ajax.php'),
-                    'absoluteurl' => wtf_fu_JQUERY_FILE_UPLOAD_URL . 'cors/result.html?%s'
+                $ret = wp_localize_script($fileupload_handle, 'WtfFuAjaxVars', 
+                        array(
+                            'url' => admin_url('admin-ajax.php'),
+                            'absoluteurl' => wtf_fu_JQUERY_FILE_UPLOAD_URL . 'cors/result.html?%s',
+                            'security' => wp_create_nonce('wtf_fu_upload_nonce')
                 ));
 
                 //log_me("uploadFilesHtml  wp_localize_script for $fileupload_handle = $ret");
@@ -463,6 +466,7 @@ class Wtf_Fu {
     }
 
     function file_upload_shortcode($attr) {
+        // log_me("upload_shortcode hook fired");
         $shortcode_instance = new Wtf_Fu_Fileupload_Shortcode($attr);
         $content = $shortcode_instance->generate_content();
         return $content;

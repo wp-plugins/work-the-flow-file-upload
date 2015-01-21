@@ -64,13 +64,26 @@ class Wtf_Fu_Show_Files_Shortcode {
                         get_page_option_fields_default_values(wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY)
                 , $attr);
 
+        
+        /*
+         * Get files for ALL users if so requested.
+         */
+//        if ($this->options['show_files_for_all_users'] === true) {
+//            $globstr = '/[0-9]+/' . wp_upload_dir() . $this->options['wtf_upload_dir'];
+//            
+//            if (!empty($this->options['wtf_upload_subdir'])) {
+//                $globstr .= "/{$this->options['wtf_upload_subdir']}";
+//            }       
+//            $filearray = glob( $globstr . '/*');
+//        }
+        
         /*
          * Current User upload directory paths.
          */
         $this->paths = wtf_fu_get_user_upload_paths($this->options['wtf_upload_dir'], $this->options['wtf_upload_subdir'], 0, $this->options['use_public_dir']);
         
-        log_me(array("showfiles paths="=>$this->paths));
-        log_me("use_public_dir = {$this->options['use_public_dir']}");
+        //log_me(array("showfiles paths="=>$this->paths));
+        //log_me("use_public_dir = {$this->options['use_public_dir']}");
 
         /*
          * Glob the files.

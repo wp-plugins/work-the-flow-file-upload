@@ -895,7 +895,7 @@ class Wtf_Fu_Admin {
         /*
          * Stage page key  -- test first 
          */
-        $pattern = Wtf_Fu_Option_Definitions::get_workflow_stage_key('([1-9]+)', '([0-9]+)');
+        $pattern = Wtf_Fu_Option_Definitions::get_workflow_stage_key('([1-9][0-9]*)', '([0-9]+)');
         $matches = array();
 
         if (preg_match("/^{$pattern}$/", $option_page, $matches)) {
@@ -913,7 +913,7 @@ class Wtf_Fu_Admin {
         /*
          * Workflow page key 
          */
-        $pattern = Wtf_Fu_Option_Definitions::get_workflow_options_key('([1-9]+)');
+        $pattern = Wtf_Fu_Option_Definitions::get_workflow_options_key('([1-9][0-9]*)');
 
         if (preg_match("/^{$pattern}$/", $option_page, $matches)) {
             return array(

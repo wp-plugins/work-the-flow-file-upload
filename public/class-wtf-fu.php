@@ -34,7 +34,7 @@ require_once( plugin_dir_path(__FILE__) . 'includes/class-wtf-fu-show-files-shor
  * For Administrator functionality, refer to `class-wtf-fu-admin.php`
  *
  * @package Wtf_Fu
- * @author  Your Name <email@example.com>
+ * @author  Your Name <lynton@wtf-fu.com>
  */
 class Wtf_Fu {
 
@@ -43,7 +43,7 @@ class Wtf_Fu {
      * references.
      * @var     string
      */
-    const VERSION = '2.5.0';
+    const VERSION = '2.5.1';
 
     /**
      * Unique plugin identifier.

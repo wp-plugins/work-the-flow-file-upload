@@ -43,7 +43,7 @@ class Wtf_Fu {
      * references.
      * @var     string
      */
-    const VERSION = '2.5.1';
+    const VERSION = '2.5.2';
 
     /**
      * Unique plugin identifier.
@@ -438,9 +438,8 @@ class Wtf_Fu {
 
                 $ret = wp_localize_script($fileupload_handle, 'WtfFuAjaxVars', 
                         array(
-                            'url' => admin_url('admin-ajax.php'),
-                            'absoluteurl' => wtf_fu_JQUERY_FILE_UPLOAD_URL . 'cors/result.html?%s',
-                            'security' => wp_create_nonce('wtf_fu_upload_nonce')
+                            'url' => admin_url('admin-ajax.php'), 
+                            'absoluteurl' => wtf_fu_JQUERY_FILE_UPLOAD_URL . 'cors/result.html?%s'// , 'security' => wp_create_nonce('wtf_fu_upload_nonce')                            
                 ));
 
                 //log_me("uploadFilesHtml  wp_localize_script for $fileupload_handle = $ret");
@@ -452,7 +451,7 @@ class Wtf_Fu {
            wp_enqueue_script($this->plugin_slug . '-plugin-script', plugins_url('assets/js/public.js', __FILE__), array('jquery'), self::VERSION, true); 
             
            $workflow_handle = $this->plugin_slug . '-workflow-js';
-            wp_enqueue_script($workflow_handle, plugin_dir_url(__FILE__) . 'assets/js/wtf-fu-workflow.js', 
+           wp_enqueue_script($workflow_handle, plugin_dir_url(__FILE__) . 'assets/js/wtf-fu-workflow.js', 
                     array('jquery', 'wp-ajax-response', $fileupload_handle, $show_files_handle), 
                     Wtf_Fu::VERSION, true);
 

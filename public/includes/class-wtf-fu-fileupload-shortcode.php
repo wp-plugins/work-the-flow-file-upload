@@ -43,7 +43,7 @@ class Wtf_Fu_Fileupload_Shortcode {
     public static function wtf_fu_load_ajax_function() {
         
 //        log_me(array("ajax handler REQUEST:" => $_REQUEST));        
-        check_ajax_referer( 'wtf_fu_upload_nonce', 'security' );
+//        check_ajax_referer( 'wtf_fu_upload_nonce', 'security' );
         
         ob_start();
         

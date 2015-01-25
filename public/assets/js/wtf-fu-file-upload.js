@@ -11,7 +11,7 @@ function wtf_file_upload_init() {
     var WtfFuUploadFormData = $("#fileupload").serializeArray();
     
     // add in the nonce to the request data.
-    WtfFuUploadFormData.push({name : "security", value : WtfFuAjaxVars.security}); 
+    // WtfFuUploadFormData.push({name : "security", value : WtfFuAjaxVars.security}); 
     
     // console.log(WtfFuUploadFormData);
     // Initialize the jQuery File Upload widget:

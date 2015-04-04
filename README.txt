@@ -4,7 +4,7 @@ Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
 Tested up to: 4.1
-Stable tag: 2.5.2
+Stable tag: 2.5.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -324,6 +324,11 @@ lynton@wtf-fu.com for a quote.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+
+= 2.5.4 =
+* Updated readme and version numbers correctly (missed in 2.5.3)
+= 2.5.3 =
+* Removed unneeded JQuery-File-Upload files.
 = 2.5.2 =
 * Reverted additional security measures introduced in 2.5.0, this was causing "Empty File Upload errors" during uploads.
 
@@ -478,6 +483,10 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 2.5.4 =
+* Updated readme and version numbers correctly (missed in 2.5.3)
+= 2.5.3 =
+* Removed unneeded JQuery-File-Upload files.
 = 2.5.2 =
 * Reverted additional security measures introduced in 2.5.0, this was causing "Empty File Upload errors" during uploads.
 * Users of 2.5.0 and 2.5.1 should update asap.

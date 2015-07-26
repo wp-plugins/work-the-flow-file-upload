@@ -22,7 +22,7 @@ require_once plugin_dir_path(__FILE__) . '../includes/wtf-fu-admin-utils.php';
 <div class="wrap">
     <div id="icon-users" class="icon32"><br/></div>
     <div style="background:#ECECEC;border:1px solid #CCC;padding:0 10px;margin-top:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;">
-        <ol><div id="accordion">
+        <ol><div id="wtf_fu_accord">
             <li><h4><a href='#'>Quick Start Guide</a></h4><div><?php echo wtf_fu_get_general_info('Quick Start Guide');?></div></li>
             <li><h4><a href='#'>Workflows</a></h4><div><?php echo wtf_fu_get_general_info('Workflows');?></div></li>
             <li><h4><a href='#'>File Uploads</a></h4><div><?php echo wtf_fu_get_general_info('File Uploads')?></div></li>

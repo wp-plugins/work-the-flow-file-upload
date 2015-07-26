@@ -4,7 +4,7 @@
  * Plugin Name:       Work the Flow File Upload
  * Plugin URI:        http://wtf-fu.com
  * Description:       Front end Html5 File Upload and configurable Workflow steps. Multiple file drag and drop, gallery image display, file reordering and archiving.
- * Version:           2.5.4
+ * Version:           3.0.0
  * Author:            Lynton Reed
  * Author URI:        http://wtf-fu.com
  * Text Domain:       wtf-fu

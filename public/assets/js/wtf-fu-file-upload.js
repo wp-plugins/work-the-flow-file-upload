@@ -1,4 +1,4 @@
-function wtf_file_upload_init() {
+function wtf_file_upload_init($) {
     
     
     if ($("#fileupload").length === 0) {
@@ -50,7 +50,7 @@ function wtf_file_upload_init() {
     'use strict';
 
 // call at load time.
-wtf_file_upload_init();
+wtf_file_upload_init($);
 
 })(jQuery);
 

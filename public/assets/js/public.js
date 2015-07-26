@@ -1,12 +1,13 @@
-(function($) {
-    'use strict';
-    wtf_accordion_init();
-})(jQuery);
 
-function wtf_accordion_init() {
-    $("#accordion,#subaccordion1,#subaccordion2,#subaccordion3").accordion({
+function wtf_accordion_init($) {
+    $("#wtf_fu_accord,#wtf_fu_subaccord1,#wtf_fu_subaccord2,#wtf_fu_subaccord3").accordion({
         collapsible: true,
         heightStyle: "content",
         active: false
     });
 }
+
+(function($) {
+    'use strict';
+    wtf_accordion_init($);
+})(jQuery);

@@ -190,14 +190,16 @@ class Wtf_Fu_Admin {
         if ($this->plugin_screen_hook_suffix == $screen->id) {
             //  log_me('admin enqueing');
 
+            $jsarr = array('jquery-ui-accordion');           // WP included script tags.
+            foreach ( $jsarr as $js ) {
+                wp_enqueue_script($js);
+            }    
+            
             $url = site_url('/wp-includes/js/wp-ajax-response.js');
             wp_enqueue_script('wp-ajax-response', $url, array('jquery'), Wtf_Fu::VERSION, true);
 
             $script_tag = $this->plugin_slug . '-admin-script';
             wp_enqueue_script($script_tag, plugins_url('assets/js/admin.js', __FILE__), array('jquery', 'wp-ajax-response'), Wtf_Fu::VERSION, true);
-            
-            wp_enqueue_script($this->plugin_slug . 'jquery-1.9.1.js', "//code.jquery.com/jquery-1.9.1.js");
-            wp_enqueue_script($this->plugin_slug . 'jquery-ui.js', "//code.jquery.com/ui/1.10.4/jquery-ui.js", array('jquery'), Wtf_Fu::VERSION, true);
                       
             wp_enqueue_script($this->plugin_slug . '-plugin-script', plugins_url('../public/assets/js/public.js', __FILE__), array('jquery'), Wtf_Fu::VERSION, true);           
         } 

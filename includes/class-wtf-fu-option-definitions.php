@@ -64,6 +64,8 @@ define('wtf_fu_DEFAULTS_UPLOAD_KEY', 'wtf-fu-upload-defaults');
 define('wtf_fu_DEFAULTS_STAGE_KEY', 'wtf-fu-stage-defaults');
 define('wtf_fu_DEFAULTS_WORKFLOW_KEY', 'wtf-fu-workflow-defaults');
 define('wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY', 'wtf-fu-showfiles-defaults');
+define('wtf_fu_DEFAULTS_SHORTCODE_LISTFILES_KEY', 'wtf-fu-listfiles-defaults');
+
 define('wtf_fu_DEFAULTS_SHORTCUTS_KEY', 'wtf-fu-template-fields');
 
 define('wtf_fu_DEFAULT_WORKFLOW_TEMPLATE', '<div class="panel panel-default tbs">
@@ -190,10 +192,23 @@ class Wtf_Fu_Option_Definitions {
                 'file_type' => 'auto',
                 'email_format' => '0',
                 'show_numbers' => '1',
+                'show_images' => '1',
                 'audio_controls' => '1',
                 'vertical' => '0',
                 'download_links' => '0',
                 'use_public_dir' => '0'
+           ),
+           wtf_fu_DEFAULTS_SHORTCODE_LISTFILES_KEY => array(
+                'wtf_upload_dir' => '', // set after initialised.
+                'wtf_upload_subdir' => '', // set after initialised.
+                'workflow_users' => 0, 
+                'user_info' => "<tr><th colspan=4>%%LOGIN_NAME%% (%%NUMBER_OF_FILES%% files, %%TOTAL_FILE_SIZE%%)</th></tr>",
+                'table_class' => 'wtf_list_files',
+                'line_format' => "<tr><td class=number>%%NUMBER%%</td><td class=thummbnail>%%MEDIUM%%</td><td class=vertical>%%FILENAME%%%%AUDIO%%</td><td class=icon>%%ICON%%&nbsp;%%FILESIZE%%</td></tr>",               
+                'download_links' => '1',
+                'gallery' => '1',
+                'use_public_dir' => '0',
+                'email_format' => '0'
                 )
         );
         
@@ -202,6 +217,11 @@ class Wtf_Fu_Option_Definitions {
         $this->all_pages_default_options[wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY]['wtf_upload_dir'] = 
                 $this->all_pages_default_options[wtf_fu_DEFAULTS_UPLOAD_KEY]['wtf_upload_dir'];
         $this->all_pages_default_options[wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY]['wtf_upload_subdir'] = 
+                $this->all_pages_default_options[wtf_fu_DEFAULTS_UPLOAD_KEY]['wtf_upload_subdir'];  
+        
+        $this->all_pages_default_options[wtf_fu_DEFAULTS_SHORTCODE_LISTFILES_KEY]['wtf_upload_dir'] = 
+                $this->all_pages_default_options[wtf_fu_DEFAULTS_UPLOAD_KEY]['wtf_upload_dir'];
+        $this->all_pages_default_options[wtf_fu_DEFAULTS_SHORTCODE_LISTFILES_KEY]['wtf_upload_subdir'] = 
                 $this->all_pages_default_options[wtf_fu_DEFAULTS_UPLOAD_KEY]['wtf_upload_subdir'];  
         
         $this->all_pages_default_options = apply_filters('wtf_fu_all_pages_default_options_filter', $this->all_pages_default_options);
@@ -328,10 +348,11 @@ class Wtf_Fu_Option_Definitions {
                . 'Additionally a file is created in the root upload directory containing a list of the files in the resorted order.',
                 'gallery' => 'set to 1 (true) to show images in a gallery display when clicked.',
                 'file_type' => 'Deprecated : File types are autodetected and displayed since 1.2.6.',
-                'email_format' => '0 (false) or 1 (true) If set then an attempt to inline the css formatting will be made so that it can be used in email output.'
+                'email_format' => '0 (false) or 1 (true). If set then an attempt to inline the css formatting will be made so that it can be used in email output.'
                . 'Do not use this for displaying on web pages. This is mainly used by the email templates and hooked user functions which call the shortcode function directly.',
                 'show_numbers' => '0 (false) or 1 (true). '
                . 'Causes the order number to be displayed in the top left corner.',
+                'show_images' => '0 (false) or 1 (true). Causes thumbnail images to be used when displaying image file types.',
                 'audio_controls' => 'Causes audio contols to be displayed for audio files.',
                 'vertical' => '0 (false) or 1 (true). '
                . 'Force the display into vertical mode with one file per row.',
@@ -339,7 +360,25 @@ class Wtf_Fu_Option_Definitions {
                . 'Display a download link for downloading files.',
                 'use_public_dir' => '0 (false) or 1 (true). '
                . 'Force listing of files from the uploads/public directory rather than the uploads/user_id directory.'
-                ),  
+                ), 
+           wtf_fu_DEFAULTS_SHORTCODE_LISTFILES_KEY => array(
+                'wtf_upload_dir' => 'The main directory for the user files. This should match the value used to upload the files in the wtf_upload shortcode attribute of the same name.', 
+                'wtf_upload_subdir' => 'The subdirectory directory for the user files. This should match the value used to upload the files in the wtf_upload shortcode attribute of the same name.',
+                'table_class' => 'the css class to use for the table of files, use this to provide your own css formatting e.g. mytableclass. To create your own css class formatting have a look at the default css in the work-the-flow-file-upload-pro/public/ssets/css/wtf-list-files.css file',
+                'line_format' => "The format for a single file item as an html table row. The field placeholders %%NUMBER%%, %%THUMBNAIL%%, %%FILENAME%%, %%ICON%%, and %%FILESIZE%% may be use to construct the row. e.g. "
+               . "<tr><td>%%NUMBER%%</td><td>%%THUMBNAIL%%</td><td>%%FILENAME%%</td><td>%%ICON%%&nbsp;<small>%%FILESIZE%%</small></td></tr>. Note that the string MUST be enclosed with <tr> and </tr> tags,"
+               . " note that anthing outside these tags is stripped out to remove the (annoying) WP auto line formatting <br /> and <p> tags. You may include more than one row if desired. eg <tr>...</tr><tr>...</tr>"
+               . " as long as the string begins and ends with the <tr> tags.",
+               'workflow_users' => 'Use this to list files for ALL users of a workflow ID, if non zero file uploads from all users of the workflow with this ID will be listed. If 0 (default) then only the current users files are displayed.', 
+               'user_info' => "The format for display of each users information. Setting this to an empty string \"\" will cause no user information to be displayed. "
+               . "The placeholders %%USER_ID%%, %%LOGIN_NAME%%, %%FIRST_NAME%%, %%LAST_NAME%%, %%NUMBER_OF_FILES%%, %%TOTAL_FILE_SIZE%% may be used.",
+               'download_links' => '0 (false) or 1 (true). Provides a link to the file for download on the %%FILENAME%% field .',
+                'gallery' => 'set to 1 (true) to showcase list thumnail and medium images fullsize in a gallery display when clicked.',               
+                'use_public_dir' => '0 (false) or 1 (true). Use the public sub directory not the users upload directory for sourcing files. (see also the wtf_fu_upload shortcode)'
+               . 'This forces listing of files from the uploads/public directory rather than the uploads/user_id directory.',
+                'email_format' => '0 (false) or 1 (true). If set then an attempt to inline the css formatting will be made so that it can be used in email output. The css class is assumed to be defined in the file wtf-fu-pro-list-files.css. Note that unfortunately filetype icons are lost when the css is inlined.'
+                ),
+            
             wtf_fu_DEFAULTS_SHORTCUTS_KEY => array(          
                 '%%USER_ID%%' => 'The current users user ID.',
                 '%%USER_NAME%%' => 'The current users display name.',
@@ -438,17 +477,6 @@ class Wtf_Fu_Option_Definitions {
     public function get_page_option_fields_default_labels($page_key) {
         return ($this->all_pages_default_labels[$page_key]);
     }    
-
-    /**
-     * Use to retrieve a single field default value.
-     * 
-     * @param type string $page_key  page identifier key
-     * @param type string $field_name name of the field
-     * @return type
-     */
-//    public static function get_page_option_field_default_value($page_key, $field_name) {
-//        return (self::$all_pages_default_options[$page_key][$field_name]);
-//    }
 
     /**
      * Use to retrieve a single field label value.

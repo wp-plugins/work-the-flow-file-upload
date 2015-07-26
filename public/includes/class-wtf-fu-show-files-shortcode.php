@@ -20,7 +20,7 @@ require_once( plugin_dir_path(__FILE__) . '../../includes/class-wtf-fu-options.p
 require_once( plugin_dir_path(__FILE__) . '../../includes/wtf-fu-common-utils.php' );
 require_once( plugin_dir_path(__FILE__) . 'wtf-fu-templates.php' );
 
-define('WTF_FU_BAD_IMAGE_URL', plugins_url('public/assets/img/error.svg'));
+//define('WTF_FU_BAD_IMAGE_URL', plugins_url('public/assets/img/error.svg'));
 
 /**
  * class-wtf-fu-filereorder-shortcode.php
@@ -64,24 +64,11 @@ class Wtf_Fu_Show_Files_Shortcode {
                         get_page_option_fields_default_values(wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY)
                 , $attr);
 
-        
-        /*
-         * Get files for ALL users if so requested.
-         */
-//        if ($this->options['show_files_for_all_users'] === true) {
-//            $globstr = '/[0-9]+/' . wp_upload_dir() . $this->options['wtf_upload_dir'];
-//            
-//            if (!empty($this->options['wtf_upload_subdir'])) {
-//                $globstr .= "/{$this->options['wtf_upload_subdir']}";
-//            }       
-//            $filearray = glob( $globstr . '/*');
-//        }
-        
         /*
          * Current User upload directory paths.
          */
         $this->paths = wtf_fu_get_user_upload_paths($this->options['wtf_upload_dir'], $this->options['wtf_upload_subdir'], 0, $this->options['use_public_dir']);
-        
+
         //log_me(array("showfiles paths="=>$this->paths));
         //log_me("use_public_dir = {$this->options['use_public_dir']}");
 
@@ -94,30 +81,14 @@ class Wtf_Fu_Show_Files_Shortcode {
          * Sort the files by timestamp with the oldest files first.
          */
         $filearray = glob($this->paths['upload_dir'] . '/*');
+        
+        
 
         array_multisort(array_map('filemtime', $filearray), SORT_NUMERIC, SORT_ASC, $filearray);
 
         foreach ($filearray as $filename) {
-
             if (!is_dir($filename)) {
-                $info = new stdClass();
-
-                $info->filename = $filename;
-                $info->basename = basename($filename);
-                $info->fileurl = $this->paths['upload_url'] . '/' . rawurlencode($info->basename);
-
-                $info->thumb = $this->paths['upload_dir']
-                        . '/thumbnail/' . $info->basename;
-
-                $info->thumburl = $this->paths['upload_url']
-                        . '/thumbnail/' . rawurlencode($info->basename);
-
-                if (!file_exists($info->thumb)) {
-                    $info->thumb = 'thumnail image not found';
-                    $info->thumburl = WTF_FU_BAD_IMAGE_URL;
-                }
-
-                $this->files[] = $info;
+                $this->files[] = wtf_getFileInfo($filename, $this->paths);
             }
         }
     }
@@ -257,16 +228,15 @@ class Wtf_Fu_Show_Files_Shortcode {
             }
             return $html;
         }
-        
+
         $html = '';
 
         $html .= '<div id="wtf_fu_show_files_output">' . $this->generate_inner_content() . '</div>';
-        
-                // Add in the gallery controls if required.
+
+        // Add in the gallery controls if required.
         if ($this->options['gallery'] == true) {
 
-            $blueimp_gallery_conrols = 
-            '<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter="">
+            $blueimp_gallery_conrols = '<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter="">
                 <div class="slides"></div>
                 <h3 class="title"></h3>
                 <a class="prev">‹</a>
@@ -355,22 +325,17 @@ class Wtf_Fu_Show_Files_Shortcode {
     }
 
     function render_file_li($number, $file) {
-
-        $file_type_arr = wp_check_filetype_and_ext($file->fileurl, $file->fileurl);
-        $mime_type = 'text/html';
-
-        if ($file_type_arr != false) {
-            $mime_type = $file_type_arr['type'];
-        }
-        $mime_parts = explode('/', $mime_type);
-        $file_type = $mime_parts[0];
-
+               
         $number_div = '';
         $gallery_att = '';
         $audio_controls = '';
         $file_title_class = '';
         $vertical_span = '';
+        $image_src = '';
 
+        if ($this->options['show_images'] == true && $file->filetype == 'image') {
+            $image_src = sprintf('<img src="%s" alt="%s">', $file->thumburl, $file->basename);
+        }
 
         if ($this->options['gallery'] == true) {
             $gallery_att = 'data-gallery';
@@ -391,32 +356,30 @@ class Wtf_Fu_Show_Files_Shortcode {
             $download = true;
         }
 
-        switch ($file_type) {
+        switch ($file->filetype) {
             case 'image' :
                 $file_link = sprintf(
-                        '<a %s href="%s" title="%s">%s<img src="%s" alt="%s" type="%s"></a>', $gallery_att, $file->fileurl, $file->basename, $vertical_span, $file->thumburl, $file->basename, $mime_type);
+                        '<a %s href="%s" title="%s">%s%s</a>', $gallery_att, $file->fileurl, $file->basename, $vertical_span, $image_src);
                 break;
             case 'audio' :
                 if ($download) {
                     $file_link = sprintf(
-                            '<a class="%s" href="%s">%s</a><audio src="%s"%s></audio>', $file_title_class, $file->fileurl, $file->basename, $file->fileurl, $audio_controls);
+                            '<a class="%s" href="%s">%s%s</a><audio src="%s"%s></audio>', $file_title_class, $file->fileurl, $file->basename, $image_src, $file->fileurl, $audio_controls);
                 } else {
                     $file_link = sprintf(
-                            '<span class="%s" title="%s">%s</span><audio src="%s"%s></audio>', $file_title_class, $file->basename, $file->basename, $file->fileurl, $audio_controls);
+                            '%s<span class="%s" title="%s">%s</span><audio src="%s"%s></audio>', $image_src, $file_title_class, $file->basename, $file->basename, $file->fileurl, $audio_controls);
                 }
                 break;
-
             case 'text' :
             default: // default to text if type not found.
 
                 if ($download) {
-                    $file_link = sprintf('<a class="%s" href="%s">%s</a>', $file_title_class, $file->fileurl, $file->basename);
+                    $file_link = sprintf('<a class="%s" href="%s">%s%s</a>', $file_title_class, $file->fileurl, $file->basename, $image_src);
                 } else {
-                    $file_link = sprintf('<span class="%s" title="%s">%s</span>', $file_title_class, $file->basename, $file->basename);
+                    $file_link = sprintf('<span class="%s" title="%s">%s%s</span>', $file_title_class, $file->basename, $file->basename, $image_src);
                 }
                 break;
         }
-
         $line = sprintf('<li class="list" title="%s">%s%s</li>', $file->basename, $number_div, $file_link);
         return $line;
     }

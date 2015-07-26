@@ -348,6 +348,7 @@ class Wtf_Fu_Options {
         return $users;
     }
     
+    
     /**
      * Retrieves all workflow ids and options as an array keyed on the 
      * workflows option keys.

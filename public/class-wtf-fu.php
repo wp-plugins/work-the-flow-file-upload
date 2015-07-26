@@ -43,7 +43,7 @@ class Wtf_Fu {
      * references.
      * @var     string
      */
-    const VERSION = '2.5.4';
+    const VERSION = '3.0.0';
 
     /**
      * Unique plugin identifier.
@@ -372,23 +372,17 @@ class Wtf_Fu {
 
         if (self::wtf_fu_has_shortcode('wtf_fu')) {
            
-            // TODO:   better if we can use local wp resources instead of code.jquery.com
-            //wp_enqueue_script('jquery');
-            //wp_enqueue_script('jquery-ui-core');
-            //wp_enqueue_script('jquery-ui-widget');
-            //
-            //jquery-ui-core jquery  jquery-ui-widget            
-            // log_me(array('avail scripts :' => $GLOBALS['wp_scripts']));
-
-            if (!wp_script_is('jquery')) {
-                wp_enqueue_script('jquery', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/jquery.min.js');
-            }
+//            'jquery-ui-autocomplete','jquery-ui-button', 
+//                'jquery-ui-datepicker', 'jquery-ui-dialog', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-menu', 'jquery-ui-mouse', 
+//                'jquery-ui-position', 'jquery-ui-progressbar', 'jquery-ui-selectable','jquery-ui-resizable','jquery-ui-selectmenu',
+//                'jquery-ui-slider', 'jquery-ui-tooltip', 'jquery-ui-tabs');
             
-            wp_enqueue_script($this->plugin_slug . 'jquery-1.9.1.js', "//code.jquery.com/jquery-1.9.1.js");
-            wp_enqueue_script($this->plugin_slug . 'jquery-ui.js', "//code.jquery.com/ui/1.10.4/jquery-ui.js", array('jquery'), self::VERSION, true);            
-
-            wp_enqueue_script($this->plugin_slug . '-jquery-ui-widgit-js', wtf_fu_JQUERY_FILE_UPLOAD_URL . 'js/vendor/jquery.ui.widget.js', array('jquery'), self::VERSION, true);
-                                  
+            // use WP supplied JQuery libs where possible.
+            $jsarr = array('jquery', 'jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-accordion', 'jquery-ui-sortable');           
+            foreach ( $jsarr as $js ) {
+                wp_enqueue_script($js);
+            }                                 
+            
             wp_enqueue_script($this->plugin_slug . '-blueimp-tmpl-js', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/tmpl.min.js', array('jquery'), self::VERSION, true);
             wp_enqueue_script($this->plugin_slug . '-blueimp-load-image-js', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/load-image.min.js', array('jquery'), self::VERSION, true);
             wp_enqueue_script($this->plugin_slug . '-blueimp-canvas-to-blob-js', wtf_fu_JQUERY_FILE_UPLOAD_DEPENDS_URL . 'js/canvas-to-blob.min.js', array('jquery'), self::VERSION, true);

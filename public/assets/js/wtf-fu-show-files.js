@@ -1,12 +1,12 @@
 // Global function.
-function wtf_show_files_init() {
+function wtf_show_files_init($) {
 
     if ($("#reorder_sortable").length === 0) {
         return; // nothing to do.
     }
 
     // console.log('wtf_show_files_init activation.');
-    init_sortable();
+    init_sortable($);
 
     $('#wtf_show_files_form').on('submit', function(event) {
        
@@ -44,14 +44,14 @@ function wtf_show_files_init() {
                     break;
                 }
             });
-            init_sortable();// reinitialize the new reorder_sortable div.
+            init_sortable($);// reinitialize the new reorder_sortable div.
         });
         event.preventDefault();
     });
 
 }
 
-function init_sortable() {
+function init_sortable($) {
     // Add the sortable function to div.
     $(function() {
         $('#reorder_sortable').sortable({
@@ -73,6 +73,6 @@ function init_sortable() {
     'use strict';
 
 // call at load time.
-    wtf_show_files_init();
+    wtf_show_files_init($);
 
 })(jQuery);

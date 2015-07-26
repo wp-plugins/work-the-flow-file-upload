@@ -3,8 +3,8 @@ Contributors: lynton_reed
 Donate link: http://wtf-fu.com/
 Tags: file upload, upload, workflow, html5, image, gallery
 Requires at least: 3.5.1
-Tested up to: 4.1
-Stable tag: 2.5.4
+Tested up to: 4.2
+Stable tag: 3.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -324,6 +324,9 @@ lynton@wtf-fu.com for a quote.
 14. Admin File Upload Default Options Screen Shot B.
 
 == Changelog ==
+= 3.0.0 =
+* Improved performance : revised javascript routines to use jquery in no-conflicts mode, allowing use of wordpress supplied jquery scripts instead of importing from code.jquery.
+* Additional support for the new PRO version shortcode [wtf_fu_list_files], a file listing shortcode that includes filetype icons and templated table display.
 
 = 2.5.4 =
 * Updated readme and version numbers correctly (missed in 2.5.3)
@@ -483,6 +486,12 @@ with core WordPress code.
 * Minor updates to the workflow demo.
 
 == Upgrade Notice ==
+= 3.0.0 =
+* Improved performance : revised javascript routines to use JQuery in no-conflicts mode, allowing use of wordpress supplied jquery scripts instead of importing from code.jquery.
+* Additional support for the new PRO version shortcode [wtf_fu_list_files], a file listing shortcode that includes filetype icons and templated table display.
+* All users should upgrade for the JQuery performance benefits.  
+* PRO users please upgrade this core package first *before* also upgrading the PRO package to 3.0.0.
+
 = 2.5.4 =
 * Updated readme and version numbers correctly (missed in 2.5.3)
 = 2.5.3 =

@@ -12,13 +12,13 @@
             for (var i = 0; i < myNodeList.length; ++i) {
                 var item = myNodeList[i];
                 if (item.querySelector('#reorder_sortable') !== null) {
-                    wtf_show_files_init();
+                    wtf_show_files_init($);
                 }
                 if (item.querySelector('#fileupload') !== null) {
-                    wtf_file_upload_init();
+                    wtf_file_upload_init($);
                 }
                 if (item.querySelector('#accordion') !== null) {
-                    wtf_accordion_init();
+                    wtf_accordion_init($);
                 }                
                 //console.log(item);
             }
@@ -81,7 +81,7 @@
     });
     
     // Initialize any accordion links.
-    wtf_accordion_init();
+    wtf_accordion_init($);
     
 // later, you can stop observing
 // observer.disconnect();

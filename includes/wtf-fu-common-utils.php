@@ -63,7 +63,7 @@ function wtf_fu_update_timestamp($filename, $time) {
 
     if (file_exists($filename)) {
         if (touch($filename, $time) === true) {
-           // log_me("SUCCESS : timestamp update for $filename");
+            // log_me("SUCCESS : timestamp update for $filename");
         } else {
             log_me("FAILURE : timestamp update for $filename");
         }
@@ -92,22 +92,21 @@ function wtf_fu_write_file($filename, $text) {
     //log_me("wrote file $filename");
 }
 
-   /**
-     * Write an htaccess file out to the wp upload directory,
-     * only if file does not already exist.
-     */
+/**
+ * Write an htaccess file out to the wp upload directory,
+ * only if file does not already exist.
+ */
 function wtf_fu_write_htaccess_file() {
 
     $dir = wp_upload_dir();
 
-    if (false !== $dir['error']) { 
+    if (false !== $dir['error']) {
         return $dir['error'];
     }
 
     $filename = $dir['basedir'] . "/.htaccess";
 
-    $text = 
-"# BEGIN wtf-fu modifications
+    $text = "# BEGIN wtf-fu modifications
 <Files *>
     SetHandler none
     SetHandler default-handler
@@ -115,28 +114,27 @@ function wtf_fu_write_htaccess_file() {
     RemoveHandler .cgi .php .php3 .php4 .php5 .phtml .pl .py .pyc .pyo .asp .aspx 
 </Files>
 # END wtf-fu modifications";
-                     
-    if ( !file_exists($filename)) {
-        wtf_fu_write_file($filename, $text); 
+
+    if (!file_exists($filename)) {
+        wtf_fu_write_file($filename, $text);
         return "To better secure file uploads the file : $filename has been created.";
     } else {
-        
+
         $pattern = "/# BEGIN wtf-fu modifications.*# END wtf-fu modifications/s";
         // inspect the .htaccess file and replace the wtf-fu section if it is already there.
-        
+
         $file_contents = file_get_contents($filename);
-        
+
         log_me(array(".htacess" => $file_contents, "pattern" => $pattern));
-        
-        if ( preg_match($pattern, $file_contents) ) {
-            $file_contents = preg_replace($pattern, $text , $file_contents);
+
+        if (preg_match($pattern, $file_contents)) {
+            $file_contents = preg_replace($pattern, $text, $file_contents);
             file_put_contents($filename, $file_contents);
-            return "$filename wtf-fu section has been updated.";        
+            return "$filename wtf-fu section has been updated.";
         }
         return "$filename exists and has not been altered for wtf-fu modifications.";
     }
 }
-
 
 function wtf_fu_get_javascript_form_vars($name, $php_array) {
 
@@ -263,9 +261,9 @@ function wtf_fu_get_user_upload_paths($upload_dir = '', $upload_subdir = '', $us
         'upload_dir' => $upload_array['basedir'] . $path,
         'upload_url' => $upload_array['baseurl'] . $path
     );
-    
+
     //log_me($ret);
-    
+
     return $ret;
 }
 
@@ -525,24 +523,24 @@ function wtf_fu_list_box($id, $option_name, $val, $label, $values) {
  * @return type
  */
 function wtf_fu_get_files_list_box($option_name, $pattern, $suffix = '', $label) {
-   
-   $files = glob($pattern);
-   $values = array( array('name' => 'New Empty Workflow', 'value' => ''));
-   
-   foreach ($files as $f) {
-       $values[] = array('name' => basename($f, $suffix), 'value' => basename($f));
-   }
-   
-   $dropbox = wtf_fu_list_box($option_name, $option_name, '' , $label, $values); 
-   return $dropbox; 
+
+    $files = glob($pattern);
+    $values = array(array('name' => 'New Empty Workflow', 'value' => ''));
+
+    foreach ($files as $f) {
+        $values[] = array('name' => basename($f, $suffix), 'value' => basename($f));
+    }
+
+    $dropbox = wtf_fu_list_box($option_name, $option_name, '', $label, $values);
+    return $dropbox;
 }
 
 function wtf_fu_multiple_list_box($id, $option_name, $val, $label, $values) {
-    
+
     $option_name .= '[]'; // append array so options.php will know to store as multiple values.
     $size = count($values);
     $html = "<select id=\"$id\" name=\"$option_name\" multiple size=\"$size\">";
-    
+
     // if value is not set or legacy string then force to an array.
     if (!is_array($val)) {
         $val = array($val);
@@ -594,6 +592,9 @@ function wtf_fu_get_shortcode_with_default_attributes($code, $factory = true) {
         case 'wtf_fu_show_files' :
             $data_key = wtf_fu_DEFAULTS_SHORTCODE_SHOWFILES_KEY;
             break;
+        case 'wtf_fu_list_files' :
+            $data_key = wtf_fu_DEFAULTS_SHORTCODE_LISTFILES_KEY;
+            break;
         case 'wtf_fu' :
             $attr = array('id' => "x");
             break;
@@ -615,11 +616,10 @@ function wtf_fu_get_shortcode_with_default_attributes($code, $factory = true) {
     return wtf_fu_get_example_short_code_attrs($code, $attr);
 }
 
-
 function wtf_fu_get_general_info($type) {
-    
+
     switch ($type) {
-        
+
         case 'Quick Start Guide' :
             return "<p><ol><li>Go to the Work The Flow / File Upload Administration page and select the Workflows tab.</li>
                 <li>Select <strong>Simple File Upload</strong> from the drop down list box and click <strong>Add</strong></li>
@@ -637,49 +637,49 @@ function wtf_fu_get_general_info($type) {
                 <li>Full documentation is available in the <strong>Documentation</strong> tab</li>
                 <li>If you cant find what you are after then please ask a question on the <a href=\"http://wordpress.org/support/plugin/work-the-flow-file-upload\" target=\"_blank\">WordPress support forum</a>
                 and I'll try my hardest to help.</li></ol></p>";
-        
+
         case 'File Uploads' :
             return "<p>File Upload is the main core functionality of this plugin. "
-            . "This plugin wraps the open source javascript library <a href=\"https://github.com/blueimp/jQuery-File-Upload\">jQuery-File-Upload</a> from blueimp."
-                . "and provides an interface to store and pass parameters to the javascript code.</p>"
-                . "<p>To create a file upload you use the shortcode <code>[wtf_fu_upload]</code>"
-                . "This may either be embedded in a page or post directly, or inside of a workflow to combine fileuploads with a workflow process.</p>"
-                . "<p>Uploads are uploaded to the users upload directory to a subdirectory locatiion that can be specified as an attribute to the <code>[wtf_fu_upload]</code> shortcode.</p>";
-            
+                    . "This plugin wraps the open source javascript library <a href=\"https://github.com/blueimp/jQuery-File-Upload\">jQuery-File-Upload</a> from blueimp."
+                    . "and provides an interface to store and pass parameters to the javascript code.</p>"
+                    . "<p>To create a file upload you use the shortcode <code>[wtf_fu_upload]</code>"
+                    . "This may either be embedded in a page or post directly, or inside of a workflow to combine fileuploads with a workflow process.</p>"
+                    . "<p>Uploads are uploaded to the users upload directory to a subdirectory locatiion that can be specified as an attribute to the <code>[wtf_fu_upload]</code> shortcode.</p>";
+
         case 'Workflows' :
             return "<p>A Workflow allows users to pass through a sequence of stages.</p>"
-            . "<p>Workflow stages can be added and edited in the admin Workflows tab. </p>"
-                . "<p>Once defined a workflow can then be added to any page or post by embedding the shortcode <code>[wtf_fu id='x']</code> "
-                . "where x is the numeric workflow ID of the workflow.</p>"
-                . "<p>When a registered user enters a page with an embedded workflow, the plugin tracks the users progress "
-                . "through the workflow and will return them to the same stage where they left off last time.</p>"
-                . "<p>Movement through the workflow can be configured to allow or deny forward or backward "
-                . "movement through the workflow stages.</p>"
-                . "<p>For example, once a user has submitted some files he may be restricted from returning to previous stages.</p>"
-                . "<p>User stages may also be set from the admin inteface for each user so that an administrator can manually reset a users stage.</p>"
-                . "<p>For example, after a user summits some files they are restricted from moving forward until some inhouse processing has been done, "
-                . "after which an administrator manually sets the users stage to the next stage in process so that the user can continue.</p>"
-                . "";            
-        
+                    . "<p>Workflow stages can be added and edited in the admin Workflows tab. </p>"
+                    . "<p>Once defined a workflow can then be added to any page or post by embedding the shortcode <code>[wtf_fu id='x']</code> "
+                    . "where x is the numeric workflow ID of the workflow.</p>"
+                    . "<p>When a registered user enters a page with an embedded workflow, the plugin tracks the users progress "
+                    . "through the workflow and will return them to the same stage where they left off last time.</p>"
+                    . "<p>Movement through the workflow can be configured to allow or deny forward or backward "
+                    . "movement through the workflow stages.</p>"
+                    . "<p>For example, once a user has submitted some files he may be restricted from returning to previous stages.</p>"
+                    . "<p>User stages may also be set from the admin inteface for each user so that an administrator can manually reset a users stage.</p>"
+                    . "<p>For example, after a user summits some files they are restricted from moving forward until some inhouse processing has been done, "
+                    . "after which an administrator manually sets the users stage to the next stage in process so that the user can continue.</p>"
+                    . "";
+
         case 'showfiles' :
             return "<p>Users uploaded files can be displayed with the <code>[wtf_fu_show_files]</code></p>."
-            . "Specifying attributes with the shortcode allows you a variety of presentation effects including an "
-                . "option to allow users to re-order the files via a drag and drop display.</p>";
-            
-            
+                    . "Specifying attributes with the shortcode allows you a variety of presentation effects including an "
+                    . "option to allow users to re-order the files via a drag and drop display.</p>";
+
+
         case 'Shortcodes' :
             //<ol style='list-style-type: lower-roman'>
             $str = "<p>Below are the plugins shortcodes that can be used by embedded them into pages and posts and workflow content."
-                . "Default attribute values are set in the admin pages and may be overriden by supplying attribute values when you embed the shortcode.</p>"
-                . "<ol style='list-style-type: lower-roman'><div id='subaccordion1'>";
-                            
-            foreach (array('wtf_fu', 'wtf_fu_upload', 'wtf_fu_show_files') as $shortcode) {
+                    . "Default attribute values are set in the admin pages and may be overriden by supplying attribute values when you embed the shortcode.</p>"
+                    . "<ol style='list-style-type: lower-roman'><div id='wtf_fu_subaccord1'>";
+
+            foreach (array('wtf_fu', 'wtf_fu_upload', 'wtf_fu_show_files', 'wtf_fu_list_files') as $shortcode) {
                 $str .= "<li><h5><a href='#'>[{$shortcode}]</a></h5><div>" . wtf_fu_get_general_info($shortcode) . "</div></li>"; // warning recursive.
             }
-            $str .= "</div></ol>";          
+            $str .= "</div></ol>";
             return $str;
             break;
-            
+
         case 'wtf_fu':
             return "<p>Use this shortcode to embed a workflow in a page or a post.</p>
                 <p>The following rules apply :<br/>
@@ -688,19 +688,19 @@ function wtf_fu_get_general_info($type) {
                 <li>You can only embedd one workflow per page</li></ol></p>
                 
                 <p>To use a workflow just include <code> "
-                . wtf_fu_get_shortcode_with_default_attributes('wtf_fu')
-                . "</code> in your page or post, where <strong>\"x\"</strong> represents the numeric workflow id.</p>
+                    . wtf_fu_get_shortcode_with_default_attributes('wtf_fu')
+                    . "</code> in your page or post, where <strong>\"x\"</strong> represents the numeric workflow id.</p>
                     <p><small>NOTE: Prior to version 1.3.0 other attributes were available to return miscellaneous workflow information, such as the current username or workflow name.
                     These are now deprecated in favour of the newer shortcut <code>%%XXXX%%</code> fields that can be more directly used inside your workflow stage content. 
                     If your code uses any other attributes than 'id=x' then please see the shortcuts documentation and use a suitable shortcut placeholder instead.</small></p>";
-  
-       case 'wtf_fu_upload':
+
+        case 'wtf_fu_upload':
             return "<p>Use this shortcode to embed a file upload interface. It may be embedded either in a page or post, or inside a workflow stage.<br/>
                         Default attributes can be set on the Admin File Upload tab which will be used unless overridden by including attributes when you use the shortcode.</p>
                     <p>A shortcode example with the full list of factory set default attributes is below :</p>
                     <p><code>"
-                   . wtf_fu_get_shortcode_with_default_attributes('wtf_fu_upload')
-                   . "</code></p>
+                    . wtf_fu_get_shortcode_with_default_attributes('wtf_fu_upload')
+                    . "</code></p>
                     <p>Taking into account the current global settings on your File Upload options page
                         , the short code representing the current default behaviour would be :</p> 
                     <code>"
@@ -708,7 +708,7 @@ function wtf_fu_get_general_info($type) {
                     . "</code><br/> So this is currently how a shortcode with no attributes specified will behave by default. i.e. if a bare <code>[wtf_fu_upload]</code> is embedded in a page.</p>  
                     <p>The attributes are detailed with their factory default values in the table below.</p>"
                     . get_shortcode_info_table('wtf_fu_upload');
-           
+
         case 'wtf_fu_show_files' :
             return "<p>The <strong>[wtf_fu_show_files]</strong> shortcode is used to present a users uploaded files on a page.<br/>
                 The following rules apply :<br/>
@@ -716,12 +716,44 @@ function wtf_fu_get_general_info($type) {
                 <li>There is currently no admin interface to set the default attributes. To override the defaults you need to specify the attribute you want to override when you embedd the code.</li>
                 </ol>
                 <p> The default attributes for the shortcut that will be applied if not overriden (ie if you just use <strong>[wtf_fu_show_files]</strong> with no attributes) is equivilent to </p>
-                    <code>" 
-                . wtf_fu_get_shortcode_with_default_attributes('wtf_fu_show_files') 
-                . "</code>                 
+                    <code>"
+                    . wtf_fu_get_shortcode_with_default_attributes('wtf_fu_show_files')
+                    . "</code>                 
                     <p>The available attributes and there default values are listed below </p>"
-                . get_shortcode_info_table('wtf_fu_show_files');  
-            
+                    . get_shortcode_info_table('wtf_fu_show_files');
+
+        case 'wtf_fu_list_files' :
+            return "<p>The <strong>[wtf_fu_list_files]</strong> shortcode is used to present a list of users uploaded files. The list format is configuarable to allow dispaly of filetype icons, thumnails, audio controls and download links<p/>
+                <p>
+                It provides a listing of user files in a table one file per row, with configurable display of file type icons, thumbnails and filesize.<br/>
+                Alternate icons can be supplied from any location under the website root.<br/>
+                Notes :<br/>
+                <ol>
+                <li>This shortcode is available for use with the PRO version only.</li>
+                <li>The shortcode can be used in pages, posts, workflow content and email templates.</li>
+                <li>To override the default attributes you need to specify the attribute you want to override when you embedd the shortcode.</li>
+                <li>The format of each file row is determined by the <code>line_format</code> attribute. You may override this to change the display format. Any or all of the placeholders <code>%%NUMBER%%, %%THUMBNAIL%%, %%FILENAME%%, %%ICON%% and %%FILESIZE%%</code> can be embedded in a table row html string. Any number of table cells &lt;td&gt;&lt;/td&gt;may be used but make sure you include the enclosing &lt;tr&gt; and &lt;/tr&gt; tags.</li>
+                <li>Set <code>table_class=''</code> to remove the default formatting or to the name of your own css class to provide your own style, alternately provide your own inline styling inside the <code>line_format</code> attribute.
+                The default css can be found in the file .../work-the-flow-file-upload-pro/public/assets/css/wtf-fu-pro-list-files.css</li>
+                <li>The icons used when the %%ICON%% shortcut is deployed are provided free of charge as fonts from flaticon by the author 'Freepik', from <a href='http://www.flaticon.com/packs/file-formats-icons'>here</a>. 
+                The author requires that the icons are attributed on the web page where they are dispalyed. PRO users can find the license file in work-the-flow-file-upload-pro/public/assets/css/flaticon/license.pdf.</li>
+                <li>The flaticon css is included in .../work-the-flow-file-upload-pro/public/assets/css/flaticon/flaticon.css. 
+                The best way to modify this css is to override it in your (child) theme. For example to change the icon font size from the default (28) to 64 you could use :
+                <code>
+                [class^=\"flaticon-\"]:before, [class*=\" flaticon-\"]:before,
+                [class^=\"flaticon-\"]:after, [class*=\" flaticon-\"]:after {   
+                    font-size: 64px !important;
+                }
+                </code>
+                in you child theme style.css file. ( If you chosse to modify the flaticon.css directly, it will be overwritten when the plugin is upgraded. )
+                </ol>
+                <p> The default attributes for the shortcut that will be applied if not overriden (ie if you just use <strong>[wtf_fu_show_files]</strong> with no attributes) is equivilent to </p>
+                    <code>"
+                    . wtf_fu_get_shortcode_with_default_attributes('wtf_fu_list_files')
+                    . "</code>                 
+                    <p>The available attributes and there default values are listed below </p>"
+                    . get_shortcode_info_table('wtf_fu_list_files');
+
         case 'Shortcuts' :
             return "<p>Shortcuts are place holders for information that can be expanded at runtime and make it easy to insert workflow details, workflow stage information, email lists, user names and other information.<p>
                 <p>The following rules apply :<br/>
@@ -733,26 +765,26 @@ function wtf_fu_get_general_info($type) {
                 You can however use <strong>%%WORKFLOW_STAGE_NUMBER%%</strong> in the <strong>stage_title</strong> field to automatically number your stages.</li> 
                 </ol></p>
                 <p>Below is the full table of available shortcuts :</p>" . wtf_fu_get_shortcuts_table();
-            
+
         case 'Templates' :
             $str = "<p>Templates are a PRO feature that allow you to define different layouts for workflows and emails.</p>
                 <p> There are two types of templates :</p>"
-                . "<ol style='list-style-type: lower-roman'><div id='subaccordion1'>";
-                
-                            
+                    . "<ol style='list-style-type: lower-roman'><div id='wtf_fu_subaccord1'>";
+
+
             foreach (array('Workflow Layout Templates', 'Email Layout Templates') as $name) {
-               $str .= "<li><h5><a href='#'>{$name}</a></h5><div>" . wtf_fu_get_general_info($name) . "</div></li>"; // warning recursive.
+                $str .= "<li><h5><a href='#'>{$name}</a></h5><div>" . wtf_fu_get_general_info($name) . "</div></li>"; // warning recursive.
             }
-            $str .= "</div></ol>";  
-            
+            $str .= "</div></ol>";
+
             $str .= "<p>With the PRO extension installed and enabled the templates for workflow page layouts and for automated emails can be created, 
                 edited and cloned from the <code>Templates</code> tab. </p>
             <p>An additional workflow option field <code>page_template</code> can be used for setting the workflow layout template.<br/>
             An additional workflow stage field <code>send_email</code> can be used to attach one or more email templates to any workflow stage.</p>
             <p>Templates can also include field shortcuts to allow embedding of workflow and user details.</p>";
-            
+
             return $str;
-            
+
         case 'Workflow Layout Templates' :
             return "<p>Workflow templates are used to layout the workflow presentation.</p>
             <p>You can customise layout templates for different workflows with your own images and html from the editing interface.</p>
@@ -760,55 +792,57 @@ function wtf_fu_get_general_info($type) {
             as desired and insert your own custom html. You may remove any workflow content shortcodes that you wish to exclude from the layout.</p>
             <p>You can use your own framework css classes to wrap the workflow content if you wish.</p>
             <p>The default workflow layout template is shown below :</p>"
-            . "<p><blockquote><pre>"
-            . htmlentities(wtf_fu_DEFAULT_WORKFLOW_TEMPLATE)
-            . "</pre></blockquote></p>"
+                    . "<p><blockquote><pre>"
+                    . htmlentities(wtf_fu_DEFAULT_WORKFLOW_TEMPLATE)
+                    . "</pre></blockquote></p>"
             ;
-            
-        case 'Email Layout Templates': 
-            
+
+        case 'Email Layout Templates':
+
             return "<p>PRO users can use Email Templates to define layouts for Emails to be sent when a certain workflow stage is passed through by a user.</p>
                 <p>These templates can then be attached to any workflow stage <code>send_email</code> field (PRO only)</p>
                 <p>You can add your own layout and image html to the templates.</p>
                 <p>You can use Shortcuts in the <code>to: from: cc: bcc: and message </code>fields, to automatically fill in user email addresses and other workflow details at run time.</p>
                 <p>You can use the <code><strong>[wtf_fu_show_files email_format='1']</strong></code> shortcode to include a show_files display inside an email template.</p>           
                 <p>The default email template is shown below :</p>"
-             . "<p><blockquote><pre>"
-             . htmlentities(wtf_fu_DEFAULT_EMAIL_TEMPLATE)
-             . "</pre></blockquote></p>"
+                    . "<p><blockquote><pre>"
+                    . htmlentities(wtf_fu_DEFAULT_EMAIL_TEMPLATE)
+                    . "</pre></blockquote></p>"
             ;
-                 
-            
+
+
         case 'pro_details' :
-            return "<p>With the work-the-flow-file-upload PRO extension installed additional admin page features are made available including :</p>
+            return "<p>The work-the-flow-file-upload-pro package extends this plugin with additional features including :</p>
                 <ul style='list-style-type: square'>
+                <li>VIP Support.</li>
+                <li>Automated email functions.</li>
                 <li>Email layout templates.</li>
                 <li>Workflow layout templates.</li>
+                <li>Advanced file listing capabilities with the [wtf_fu_list_files] shortcode.</li>
                 <li>PHP code evaluation inside workflow content by wrapping PHP code inside <code>[wtf_eval] .. [/wtf_eval]</code> blocks.</li>
-                <li>The PRO package can be purchased and downloaded from <a href='http://wtf-fu.com' target = '_blank'>wtf-fu.com</a>.</li>
-                </ul>";
+                </ul>
+                <p>The PRO package can be purchased and downloaded from <a href='http://wtf-fu.com' target = '_blank'>wtf-fu.com</a>.</p>";
         default :
-             return "$type not implemented yet.";
-    }    
-    
+            return "$type not implemented yet.";
+    }
 }
 
 function wtf_fu_get_admininterface_info($type = 'all') {
-    
+
     switch ($type) {
-        
+
         case 'all' :
-            $str = "<p>The Admin interface consists of the following TABS.</p><ul><div id='subaccordion1'>";
-            $tabs = Wtf_Fu_Option_Definitions::get_instance()->get_menu_page_values();                
-            
+            $str = "<p>The Admin interface consists of the following TABS.</p><ul><div id='wtf_fu_subaccord1'>";
+            $tabs = Wtf_Fu_Option_Definitions::get_instance()->get_menu_page_values();
+
             foreach ($tabs as $tab) {
                 $str .= "<li><h5><a href='#'>{$tab['title']}</a></h5><div>" . wtf_fu_get_admininterface_info($tab['title']) . "</div></li>"; // warning, this is recursive, dont send in 'intro'.
             }
-            $str .= "</div></ul>";          
+            $str .= "</div></ul>";
             return $str;
-            
 
-        case 'System Options' : 
+
+        case 'System Options' :
             return "<p>Plugin Options page. These are system wide plugin settings. They define plugin behaviours for uninstalling, stylesheet useage, and licensing.</p>
                 <ul><li>remove_all_data_on_uninstall<br/>
                 If this is set to <strong>Yes</strong> then when the plugin is uninstalled from Wordpress all workflows, custom configuration settings and user workflow tracking data will be deleted from the database.<br/>
@@ -823,25 +857,25 @@ function wtf_fu_get_admininterface_info($type = 'all') {
                 This field is visible for PRO users so they can add their license key. Adding the license key activates automated updates for the PRO extension. When purchasing the PRO version a license key is emailed to you or can be retrieved by logging in to the wtf-fu.com members page.</li>
                 </ul>";
             break;
-            
+
         case 'File Upload' :
             return "<p>These settings allow you to set the default values for all the <code>[<strong>wtf_fu_upload</strong>]</code> shortcode attributes.</p>"
-            . "This enables you to change the default values for attributes that are NOT supplied with the embedded shortcode in your pages, posts, or inside of your workflows.</p>"
-                . "<p>The shortcode default values are displayed at the top of the File Upload settings page, this indicates how the <code>[<strong>wtf_fu_upload</strong>]</code> shortcode "
-                . "without any attributes will behave with the current default settings.</p>"
-                . "<p>This can be useful if you use a large number of shortcodes with many attributes that are different from the factory default settings.</p>"
-                . "<p>You don't need to worry too much about this, it is just a convenience method for overriding the default attribute values, in most cases it is probably clearer and easier to just "
-                . "specify the required attributes with the embedded shortcode itself, and leave the defaults as they are. The embedded attribute values will always take precedence over "
-                . "whatever the default are set to. The defaults only apply for attributes not specified when using the shortcode.</p>"
-                . "<p>In 2.4.0 the attribute <code>[<strong>deny_file_types</strong>]</code> was added to provide file type extensions that should never be uploaded for security purposes. This attribute is system wide for all "
-                . "upload instances and (unlike all the other attributes) this cannot be overriden in embedded shortcodes.<p>"
-                . "<p>For additional security a .htaccess file is auto generated (if one does not already exist) in the wordpress uploads directory. Provided your webhost runs an apache webserver configured to allow .htaccess rules, "
-                . "this file will prevent apache webservers from executing ptoentially malicious scripts uploaded under this directory.</p>";          
-            
+                    . "This enables you to change the default values for attributes that are NOT supplied with the embedded shortcode in your pages, posts, or inside of your workflows.</p>"
+                    . "<p>The shortcode default values are displayed at the top of the File Upload settings page, this indicates how the <code>[<strong>wtf_fu_upload</strong>]</code> shortcode "
+                    . "without any attributes will behave with the current default settings.</p>"
+                    . "<p>This can be useful if you use a large number of shortcodes with many attributes that are different from the factory default settings.</p>"
+                    . "<p>You don't need to worry too much about this, it is just a convenience method for overriding the default attribute values, in most cases it is probably clearer and easier to just "
+                    . "specify the required attributes with the embedded shortcode itself, and leave the defaults as they are. The embedded attribute values will always take precedence over "
+                    . "whatever the default are set to. The defaults only apply for attributes not specified when using the shortcode.</p>"
+                    . "<p>In 2.4.0 the attribute <code>[<strong>deny_file_types</strong>]</code> was added to provide file type extensions that should never be uploaded for security purposes. This attribute is system wide for all "
+                    . "upload instances and (unlike all the other attributes) this cannot be overriden in embedded shortcodes.<p>"
+                    . "<p>For additional security a .htaccess file is auto generated (if one does not already exist) in the wordpress uploads directory. Provided your webhost runs an apache webserver configured to allow .htaccess rules, "
+                    . "this file will prevent apache webservers from executing ptoentially malicious scripts uploaded under this directory.</p>";
+
         case 'Workflows' :
             return "<p>This page lists all the Workflows that are currently in your database. >br/>"
-            . "Any of these workflows can be used in a page or post by embedding the <code>[<strong>wtf_fu id='x'</strong>]</code> shortcode, where x = the workflows ID.</p>"
-            . "<p>On this page you can : <ul>
+                    . "Any of these workflows can be used in a page or post by embedding the <code>[<strong>wtf_fu id='x'</strong>]</code> shortcode, where x = the workflows ID.</p>"
+                    . "<p>On this page you can : <ul>
                 <li>Click on a Workflow Name to edit the workflow settings.</li>
                 <li>Add a new workflow by selecting the empty or an example workflow from the drop down list, then clicking <strong>Add</strong>.</li>
                 <li>Import a workflow from a local file on your hard disk by browsing to the file then clicking <strong>Import</strong>. (PRO only)</li>
@@ -858,7 +892,7 @@ function wtf_fu_get_admininterface_info($type = 'all') {
                 <li>Workflows ID's are created with the first available number starting at 1. If a workflow is deleted its id will be reused by the next added workflow.<br>
         Any existing embedded workflow shortcodes that were using this workflow id will then reference the new workflow.</li></ol>
         </small></p>";
-        
+
         case 'Workflow Options' :
             return "<p>This page allows you to customise options for a particular workflow. You can :<p>
                 <ul>
@@ -868,7 +902,7 @@ function wtf_fu_get_admininterface_info($type = 'all') {
                 <li>Turn testing mode on or off. In testing mode the buttons will always be shown to allow testing for every stage even if a stage has 'next_active' or 'back active' turned off.</li>
                 <li>PRO users may also select a workflow layout template to use. ( These can be created and edited in the templates tab )</li>
                 </ul>";
-    
+
         case 'Workflow Stage Options' :
             return "<p>This page is where you can edit your content for each workflow stage. You can :</p>
                 <ul><li>Add content for the Title, Header, Body and Footer sections of your page. This content may include shortcuts to expand values such as the stage number or title, the workflow name or other values.<br>
@@ -884,8 +918,8 @@ function wtf_fu_get_admininterface_info($type = 'all') {
                 <li>PRO users can also embed PHP code inside the content by using [wtf_eval] ... [/wtf_eval] blocks <br/> e.g. <code>[wtf_eval]echo 'phpinfo output ->'; phpinfo();[/wtf_eval]</code></li>
                 </ul>
                 ";
-            
-            
+
+
         case 'Manage Users' :
             return "<p>This page displays a list of all users with currently active Workflows.<br/>Each line in the table lists a user and a workflow and the current stage that the user is at in the workflow.<br/>You can :</p>
                 <ul><li>Click a users name to manage that users uploaded files, including archiving and deleting.</li>
@@ -901,7 +935,7 @@ function wtf_fu_get_admininterface_info($type = 'all') {
                     You can use this feature in conjunction with with a workflows stage <strong>next_active</strong> or <strong>back_active</strong> settings to pause a user at a certain stage in your workflow until you are ready to manually progress them or return them to another stage.
                 </li>
                 </ul>";
-            
+
         case 'User Options' :
             return "<p>The User files page lists all the files for a user, you can get to this page by clicking a username from the list under the <strong>Manage Users</strong> tab.</p>
                 <p>On this page you can : <br/>
@@ -923,7 +957,7 @@ function wtf_fu_get_admininterface_info($type = 'all') {
                 <li>Archives should be deleted when no longer required or they will gradually consume the disk space on your server.</li>
                 </ol></li>
                 </ul></p>";
-                       
+
         case 'Templates' :
             return "<p>This page lists the currently available email and workflow templates.<br/>
                 Workflow templates can be attached to a workflow in the <strong>workflow options</strong> tab.<br/>
@@ -939,7 +973,7 @@ function wtf_fu_get_admininterface_info($type = 'all') {
                 <li>Delete or clone multiple templates using the checkboxes and the bulk actions menu.</li>
                 <li>Add a new copy of the default email or default workflow templates using the <strong>Add Default ... Template</strong> buttons.</li>
                 </ul>";
-            
+
         case 'Workflow Templates' :
             return "<p>On this page you can edit a workflow template layout to use with your workflows.<br/>
                 Workflow templates are used to define the layout of a workflow page, and allow you to add your own images and html.</p>
@@ -961,7 +995,7 @@ function wtf_fu_get_admininterface_info($type = 'all') {
                     and any workflows that use the template <strong>workflow option</strong> settings for <strong>include_plugin_style_default_overrides</strong>.</li>  
                     </ol></small>
                     </p>";
-                             
+
         case 'Email Templates' :
             return "<p>On this page you can edit an email template layout to use to add automated emails to your workflow stages.<br/>
                 Email templates can be attached to a workflow stage by selecting the template from a drop down list for the <strong>send_email</strong>
@@ -977,20 +1011,75 @@ function wtf_fu_get_admininterface_info($type = 'all') {
                     <li>The attribute <strong>email_format=1</strong> is required to inline the css for use in email content.</li>
                     <li>You should also add the <strong>wtf_upload_dir</strong> and <strong>wtf_upload_subdir</strong> attributes to match
                     the required directory locations that were used in the <strong>[wtf_fu_upload]</strong> shortcode when the files were uploaded.</li>
-                    </ol></small></p>";            
-            
+                    </ol></small></p>";
+
         case 'Documentation' :
             return "This page collates all available documentation for the other Admin pages.";
 
         default:
             return "wtf_fu_get_admininterface_info('$type') not implemented yet.";
     }
-
 }
 
+/*
+ *  Common routine for preprocessing file info for the showfiles and listfiles shortcodes.
+ */
+
+function wtf_getFileInfo($filename, $paths) {
+
+    $info = new stdClass();
+    $info->filename = $filename;
+    $info->basename = basename($filename);
+    $info->fileurl = $paths['upload_url'] . '/' . rawurlencode($info->basename);
+
+    $file_type_arr = wp_check_filetype_and_ext($info->fileurl, $info->fileurl);
+    $info->mimetype = 'text/html';  // default to text/html
+
+    if ($file_type_arr != false) {
+        $info->mimetype = $file_type_arr['type'];
+    }
+
+    $mime_parts = explode('/', $info->mimetype);
+    $info->filetype = $mime_parts[0];  // the first part of the the mimetype e.g. audio / application / video
+    $info->fileext = $file_type_arr['ext'];
+
+
+    $info->thumb = $paths['upload_dir']
+            . '/thumbnail/' . $info->basename;
+
+    $info->thumburl = $paths['upload_url']
+            . '/thumbnail/' . rawurlencode($info->basename);
+
+    if (!file_exists($info->thumb)) {
+        $info->thumb = '';
+        // If no thumbnail available then use the default WP image for the filetype.
+        $info->thumburl = '';
+    }
+    
+    $info->medium = $paths['upload_dir']
+            . '/medium/' . $info->basename;
+
+    $info->mediumurl = $paths['upload_url']
+            . '/medium/' . rawurlencode($info->basename);
+
+    if (!file_exists($info->medium)) {
+        $info->medium = '';
+        // If no thumbnail available then use the default WP image for the filetype.
+        $info->mediumurl = '';
+    }    
+    $info->filesize = filesize($filename);
+
+    return $info;
+}
+
+function wtf_human_filesize($bytes, $decimals = 2) {
+    $sz = 'BKMGTP';
+    $factor = floor((strlen($bytes) - 1) / 3);
+    return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor];
+}
 
 function get_shortcode_info_table($shortcode) {
-    
+
     $table = "<table class='table'  border=1 style='text-align:left;'><tr><th>Shortcode Attribute</th><th>Default Value</th><th>Behaviour</th></tr>";
 
     switch ($shortcode) {
@@ -1012,6 +1101,14 @@ function get_shortcode_info_table($shortcode) {
                 $table .= "<tr><td>{$k}</td><td>$v</td><td>$label</td>";
             }
             break;
+        case 'wtf_fu_list_files' :
+            $attr_defs = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_fields_default_values(wtf_fu_DEFAULTS_SHORTCODE_LISTFILES_KEY);
+
+            foreach ($attr_defs as $k => $v) {
+                $label = Wtf_Fu_Option_Definitions::get_instance()->get_page_option_field_label_value(wtf_fu_DEFAULTS_SHORTCODE_LISTFILES_KEY, $k);
+                $table .= "<tr><td>{$k}</td><td>" . htmlspecialchars($v) . "</td><td>" . htmlspecialchars($label) . "</td>";
+            }
+            break;
         case 'wtf_fu' :
             break;
         default :
@@ -1024,7 +1121,7 @@ function get_shortcode_info_table($shortcode) {
 function wtf_fu_get_example_short_code_attrs($code, $attr) {
     $ret = "[<strong>$code</strong>";
     foreach ($attr as $k => $v) {
-        $ret .= " $k=\"$v\"";
+        $ret .= " $k=\"" . htmlspecialchars($v) . "\"";
     }
     $ret .= ']';
     return $ret;
@@ -1048,13 +1145,9 @@ function wtf_fu_get_page_identifier_from_request() {
     $wftab = wtf_fu_get_value($_REQUEST, 'wftab');
     $wtf_action = wtf_fu_get_value($_REQUEST, 'wtf-fu-action');
     $template_type = wtf_fu_get_value($_REQUEST, 'template-type');
-       
-    $page_id = sprintf('%s%s%s%s', 
-        $tab ? "{$tab}" : '',
-        $wftab ? "-{$wftab}" : '',
-        $wtf_action ? "-{$wtf_action}" : '',
-        $template_type ? "-{$template_type}" : '');                    
-    
+
+    $page_id = sprintf('%s%s%s%s', $tab ? "{$tab}" : '', $wftab ? "-{$wftab}" : '', $wtf_action ? "-{$wtf_action}" : '', $template_type ? "-{$template_type}" : '');
+
     return $page_id;
 }
 
@@ -1087,7 +1180,7 @@ function wtf_fu_replace_shortcut_values($fields, $workflow_id = null, $stage_id 
             }
         }
     }
-    
+
     foreach ($shortcuts_required as $shortcut) {
 
         switch ($shortcut) {
@@ -1096,11 +1189,11 @@ function wtf_fu_replace_shortcut_values($fields, $workflow_id = null, $stage_id 
                 $wp_user = wp_get_current_user();
                 $replace[$shortcut] = $wp_user->display_name;
                 break;
-            
+
             case '%%USER_ID%%' :
                 $wp_user = wp_get_current_user();
                 $replace[$shortcut] = $wp_user->ID;
-                break;     
+                break;
 
             case '%%USER_EMAIL%%' :
                 $wp_user = wp_get_current_user();
@@ -1111,10 +1204,10 @@ function wtf_fu_replace_shortcut_values($fields, $workflow_id = null, $stage_id 
                 $wp_admin = new Wp_User(1);
                 $replace[$shortcut] = $wp_admin->display_name;
                 break;
-            
-            case '%%ADMIN_EMAIL%%' :               
+
+            case '%%ADMIN_EMAIL%%' :
                 $replace[$shortcut] = get_option('admin_email');
-                break;        
+                break;
 
             case '%%SITE_URL%%' :
                 $replace[$shortcut] = site_url();
@@ -1165,32 +1258,31 @@ function wtf_fu_replace_shortcut_values($fields, $workflow_id = null, $stage_id 
                 $stage_options = Wtf_Fu_Options::get_workflow_stage_options($workflow_id, $stage_id);
                 $replace[$shortcut] = wtf_fu_get_value($stage_options, 'footer');
                 break;
-            
+
             case '%%ARCHIVE_USERS_FILES%%' :
                 $wp_user = wp_get_current_user();
                 $zipname = 'auto_' . wtf_fu_create_archive_name($wp_user->ID, '', '.zip', false);
-                $replace[$shortcut] = wtf_fu_do_archive_user_files($wp_user->ID, $zipname); 
+                $replace[$shortcut] = wtf_fu_do_archive_user_files($wp_user->ID, $zipname);
                 break;
-            
+
             default :
-                //log_me("Shortcut replacement key not found for $shortcut");
+            //log_me("Shortcut replacement key not found for $shortcut");
         }
     }
-    
-    
+
+
     // Handle USER_GROUP_XXXX_EMAILS
     $pattern = '/%%USER_GROUP_([^%]*)_EMAILS%%/';
     foreach ($field_values as $value) {
         $matches = array();
         $num = preg_match_all($pattern, $value, $matches);
-        if ( $num >= 1 ) {
+        if ($num >= 1) {
             //log_me($matches);
-            for ( $i=0; $i < $num; $i++) {
-                $replace[$matches[0][$i]] 
-                    = Wtf_Fu_Options::get_all_group_user_emails($matches[1][$i]);
+            for ($i = 0; $i < $num; $i++) {
+                $replace[$matches[0][$i]] = Wtf_Fu_Options::get_all_group_user_emails($matches[1][$i]);
             }
         }
-    }   
+    }
 
     $fields = str_replace(array_keys($replace), array_values($replace), $fields);
 

@@ -44,6 +44,15 @@ $workflowListTable = new Wtf_Fu_Workflow_List_Table();
 //Fetch, prepare, sort, and filter our data...
 $workflowListTable->prepare_items();
 ?>
+
+<style type="text/css">
+.wp-list-table .column-name { width: 25%; }
+.wp-list-table .column-id { width: 5%; }
+.wp-list-table .column-notes { width: 30%; }
+.wp-list-table .column-description { width: 20%; }
+.wp-list-table .column-user_details { width: 20%; } 
+</style>  
+
 <div class="wrap">
     <div id="icon-users" class="icon32"><br/></div>
     <div style="background:#ECECEC;border:1px solid #CCC;padding:0 10px;margin-top:5px;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;">

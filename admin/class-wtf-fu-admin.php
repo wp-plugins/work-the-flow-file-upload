@@ -287,32 +287,18 @@ class Wtf_Fu_Admin {
                 break;
 
             case 'workflows' :
-                $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('Workflows'));
-                
-                // also set the column widths for the list page here
-                echo '<style type="text/css">';
-                echo '.wp-list-table .column-name { width: 25%; }';
-                echo '.wp-list-table .column-id { width: 5%; }';
-                echo '.wp-list-table .column-notes { width: 30%; }';
-                echo '.wp-list-table .column-description { width: 20%; }';
-                echo '.wp-list-table .column-user_details { width: 20%; }'; 
-                echo '</style>';               
-                
+                $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('Workflows'));               
                 break;
 
             case 'workflows-workflow-options-edit' :
             case 'workflows-workflow-options' :
                 $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('Workflow Options'));
-                $tabs[] = array('id' => 'shortcuts', 'title' => __('Shortcuts'), 'content' => wtf_fu_get_shortcuts_table()); 
-                
-
-                
+                $tabs[] = array('id' => 'shortcuts', 'title' => __('Shortcuts'), 'content' => wtf_fu_get_shortcuts_table());               
                 break;
 
             case 'workflows-workflow-stage-options' :
                 $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('Workflow Stage Options'));
-                $tabs[] = array('id' => 'shortcuts', 'title' => __('Shortcuts'), 'content' => wtf_fu_get_shortcuts_table());
-                
+                $tabs[] = array('id' => 'shortcuts', 'title' => __('Shortcuts'), 'content' => wtf_fu_get_shortcuts_table());                
                 break;
 
             case 'user-options' :
@@ -328,14 +314,7 @@ class Wtf_Fu_Admin {
                 $tabs[] = array('id' => 'overview', 'title' => __('Overview'), 'content' => wtf_fu_get_admininterface_info('Templates'));
                 $tabs[] = array('id' => 'templates', 'title' => __('Templates'), 'content' => wtf_fu_get_general_info('Templates')); 
                 $tabs[] = array('id' => 'shortcuts', 'title' => __('Shortcuts'), 'content' => wtf_fu_get_shortcuts_table()); 
-                
-                // templates list table
-                echo '<style type="text/css">';
-                echo '.wp-list-table .column-name { width: 25%; }';
-                echo '.wp-list-table .column-id { width: 5%; }';
-                echo '.wp-list-table .column-type { width: 8%; }';
-                echo '.wp-list-table .column-description { width: 62%; }';
-                echo '</style>';                    
+                                   
                 break;
 
             case 'templates-edit-email' :
